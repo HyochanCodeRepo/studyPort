@@ -16,12 +16,22 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper = new ModelMapper();
+    //todo:엔코더 서비스 로직
+//    private final BCryptPasswordEncoder passwordEncoder;
+
+
 
     // 회원가입
     public void registerUser(UserDTO userDTO) {
         if (userRepository.findByUserEmail(userDTO.getUserEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
+
+        //todo:추후에 암호화 작업시 추가 적으로 진항할 엔코더 로직
+        // 암호화
+//        userDTO.setUserPassword(passwordEncoder.encode(userDTO.getUserPassword()));
+
+
         // 비밀번호는 평문 그대로 저장
         // 생년월일 변환 및 매핑
         User user = modelMapper.map(userDTO, User.class);
