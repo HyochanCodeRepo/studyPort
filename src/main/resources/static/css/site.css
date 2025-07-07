@@ -1,0 +1,54 @@
+/* ---------------------------------------------
+   StudyUs 공통 테마 – “밝은 그린”
+------------------------------------------------*/
+
+:root {
+    /* +10 % 밝기 */
+    --bs-primary:         #2fbc55;
+    --bs-primary-rgb:     47, 188, 85;
+
+    --bs-link-color:      var(--bs-primary);
+    --bs-link-hover-color:#269a46;
+}
+
+/* 전체 배경 */
+body { background:#fff; }
+
+/* 네비게이션 바 */
+.navbar {
+    background:#fff;
+    border-bottom:1px solid #e9ecef;
+
+    --bs-navbar-color:            var(--bs-primary);
+    --bs-navbar-hover-color:      #269a46;
+    --bs-navbar-active-color:     var(--bs-primary);
+    --bs-navbar-brand-color:      var(--bs-primary);
+    --bs-navbar-brand-hover-color:#269a46;
+}
+
+/* 로고 이미지 크기 */
+.navbar-brand img {
+    height: 64px;
+    width: auto;
+}
+@media (max-width: 576px) {
+    .navbar-brand img { height: 48px; }
+}
+
+/* 버튼 */
+.btn-primary {
+    --bs-btn-bg:               var(--bs-primary);
+    --bs-btn-border-color:     var(--bs-primary);
+    --bs-btn-hover-bg:         #269a46;
+    --bs-btn-hover-border-color:#21823f;
+}
+.btn-outline-secondary {
+    --bs-btn-color:            var(--bs-primary);
+    --bs-btn-border-color:     var(--bs-primary);
+    --bs-btn-hover-bg:         var(--bs-primary);
+    --bs-btn-hover-color:      #fff;
+}
+
+/* 기타 포인트 */
+a { transition: color .15s, opacity .15s; }
+a:hover { opacity:.8; }
