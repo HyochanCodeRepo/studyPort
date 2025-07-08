@@ -15,6 +15,6 @@ public class GroupPageController {
 
     @GetMapping("/my")
     public String myGroups() {
-        return "group/my"; // (다음 단계) 내가 만든/참여 그룹 리스트
+        return "group/mystudy"; // (다음 단계) 내가 만든/참여 그룹 리스트
     }
 }

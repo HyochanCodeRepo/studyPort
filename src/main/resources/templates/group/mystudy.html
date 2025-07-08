@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 스터디 그룹 | StudyPort</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: #f7f8fa;
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            padding: 1.6rem 0 1.15rem 0;
+            box-shadow: 0 2px 16px rgba(60,90,110,.06);
+        }
+        .header-title {
+            font-size: 2.1rem;
+            font-weight: 600;
+            letter-spacing: -1.5px;
+            color: #1e2b37;
+            margin-bottom: 0.3rem;
+        }
+        .header-sub {
+            color: #5d6471;
+            font-size: 1.13rem;
+            letter-spacing: 0.01em;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2.8rem auto 1.7rem auto;
+            padding: 0 1.2rem;
+        }
+        /* 주요 네비/확장 영역 */
+        .dashboard-toolbar {
+            display: flex; gap: 1rem; align-items: center;
+            margin-bottom: 2.1rem;
+            flex-wrap: wrap;
+        }
+        .dashboard-toolbar .btn {
+            font-weight: 500;
+            border-radius: 11px;
+            box-shadow: 0 2px 16px 0 rgba(70,115,112,.06);
+            padding: .5rem 1.35rem;
+        }
+        /* 그룹 리스트 그리드 */
+        .group-list-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem 2.5rem;
+        }
+        /* 그룹 카드 */
+        .card-group-study {
+            border-radius: 17px;
+            background: #fff;
+            box-shadow: 0 4px 24px rgba(35,55,80,.07);
+            border: 2.3px solid #e7ecec;
+            transition: border-color .2s, box-shadow .17s;
+            padding: 1.3rem 1.3rem 1.05rem 1.3rem;
+            height: 100%;
+        }
+        .card-group-study:focus-within, .card-group-study:hover {
+            border-color: #8cc7a4 !important;
+            box-shadow: 0 8px 36px rgba(80,140,100,.08);
+            outline: none;
+        }
+        .card-group-icon {
+            font-size: 2.2rem;
+            color: #709d85;
+            background: #f2f8f4;
+            border-radius: 13px;
+            padding: 0.5rem 1rem;
+            margin-right: 1.1rem;
+        }
+        .card-title {
+            font-size: 1.18rem;
+            font-weight: 600;
+            margin-bottom: 0.29rem;
+            color: #253a3c;
+        }
+        .card-text {
+            font-size: 1.01rem;
+            color: #5e6376;
+            margin-bottom: 0.23rem;
+        }
+        .btn-sm {
+            font-size: 0.95rem;
+        }
+        .card-study-quick {
+            margin-top: 0.4rem;
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .card-study-quick .btn {
+            border-radius: 18px;
+            padding: .38rem 1.15rem;
+        }
+        .badge-level {
+            font-size: .99em;
+            background: #f0f8f6;
+            color: #3d7c67;
+            border-radius: 7px;
+            margin-left: 0.28rem;
+        }
+        /* 주요 기능 가상버튼 스타일 */
+        .btn-fake {
+            background: #eef4ef;
+            color: #426e5d;
+            border: none;
+            font-weight: 500;
+            cursor: not-allowed;
+        }
+        /* FAB 등록버튼 */
+        .btn-create {
+            position: fixed;
+            right: 2rem; bottom: 2.7rem;
+            z-index: 99;
+            background: #426e5d;
+            color: #fff;
+            border-radius: 50px;
+            padding: 1.05rem 2.1rem;
+            font-size: 1.14rem;
+            font-weight: 600;
+            box-shadow: 0 6px 32px 0 rgba(84,107,93,0.13);
+            border: none;
+            transition: background 0.14s, box-shadow 0.15s;
+        }
+        .btn-create:hover {
+            background: #244534;
+            box-shadow: 0 10px 40px 0 rgba(84,107,93,0.15);
+        }
+        @media (max-width: 700px){
+            .dashboard-container {margin: 1.5rem 0;}
+            .header-title { font-size: 1.33rem; }
+            .btn-create { right: 1rem; bottom: 1.5rem; padding: 0.82rem 1.4rem;}
+            .group-list-row { gap: 1.3rem;}
+        }
+    </style>
+</head>
+<body>
+<!-- 헤더/소개 -->
+<div class="header text-center shadow-sm">
+    <div class="header-title">내 스터디 그룹</div>
+    <div class="header-sub">여기서부터 당신의 공부가 시작됩니다.<br class="d-md-none"> 한 번에 모든 스터디 기능으로 확장!</div>
+</div>
+
+<div class="dashboard-container">
+
+    <!-- 퀵 네비/기능영역(가상) -->
+    <div class="dashboard-toolbar mb-4">
+        <a href="/groups/create" class="btn btn-success"><i class="fa-solid fa-plus me-1"></i>스터디 등록</a>
+        <button class="btn btn-outline-primary" disabled>📋 그룹 매칭(가상)</button>
+        <button class="btn btn-outline-info" disabled>🔗 화상 스터디(가상)</button>
+        <button class="btn btn-outline-secondary" disabled>📁 자료실(가상)</button>
+        <button class="btn btn-outline-warning" disabled>🧩 AI 추천(가상)</button>
+    </div>
+
+    <!-- 그룹 리스트 그리드 -->
+    <div id="groupList" class="group-list-row">
+        <!-- JS로 그룹 카드가 들어옴 -->
+    </div>
+    <!-- 그룹이 없을 때 안내 -->
+    <div id="emptyMsg" class="text-center text-muted py-5 d-none">
+        <i class="fa-regular fa-circle-plus fa-2x mb-3"></i><br>
+        <span style="font-size:1.08rem;">아직 등록한 그룹이 없습니다.<br>+ 버튼으로 새 그룹을 만들어보세요!</span>
+    </div>
+</div>
+
+<!-- 플로팅 등록버튼 -->
+<a href="/groups/create" class="btn btn-create shadow-lg">
+    <i class="fa-solid fa-plus me-2"></i>스터디 등록
+</a>
+
+<script>
+    // 예시 데이터 → 실제로는 fetch('/api/groups/my?ownerId=1') 사용!
+    fetch('/api/groups/my?ownerId=1')
+        .then(res => res.json())
+        .then(list => {
+            const $list = document.getElementById('groupList');
+            const $empty = document.getElementById('emptyMsg');
+            $list.innerHTML = '';
+            if(!list.length){
+                $empty.classList.remove('d-none');
+            } else {
+                $empty.classList.add('d-none');
+                list.forEach(g => {
+                    $list.innerHTML += `
+                    <div tabindex="0" class="card-group-study">
+                        <div class="d-flex align-items-start mb-1">
+                            <div class="card-group-icon"><i class="fa-solid ${g.iconName}"></i></div>
+                            <div>
+                                <div class="card-title">${g.title}</div>
+                                <div class="card-text mb-1">
+                                    <span class="me-2"><i class="fa-solid fa-tag me-1"></i>${g.topic}</span>
+                                    <span class="me-2"><i class="fa-solid fa-users me-1"></i>${g.capacity}명</span>
+                                    <span class="badge badge-level">${g.levelTag||'N/A'}</span>
+                                </div>
+                                <div class="card-study-quick">
+                                    <a href="/groups/${g.groupId}" class="btn btn-outline-success btn-sm">상세</a>
+                                    <a href="/groups/${g.groupId}/edit" class="btn btn-outline-secondary btn-sm">수정</a>
+                                    <button class="btn btn-fake btn-sm" disabled>매칭(가상)</button>
+                                    <button class="btn btn-fake btn-sm" disabled>문제풀이(가상)</button>
+                                    <button class="btn btn-fake btn-sm" disabled>화상(가상)</button>
+                                    <button class="btn btn-fake btn-sm" disabled>자료실(가상)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                });
+            }
+        });
+</script>
+</body>
+</html>
