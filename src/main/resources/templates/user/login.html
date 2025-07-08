@@ -111,10 +111,12 @@
 </head>
 <body>
 <div class="study-card shadow">
-    <div class="text-center mb-4">
-        <div class="study-logo">StudyPort</div>
+    <div class="text-center mb-4"><!--상단 타이틀 시작점-->
+        <a href="http://localhost:8080">
+            <div class="study-logo">Study_Us</div>
+        </a>
         <div class="study-sub">집중 공부의 시작, 로그인 하세요</div>
-    </div>
+    </div><!--상단 타이틀 끝점-->
     <form id="loginForm">
         <div class="mb-3">
             <label for="userEmail" class="form-label">이메일</label>
@@ -131,15 +133,15 @@
     </form>
 
     <div class="social-divider">또는 소셜 계정으로 로그인</div>
-    <button class="btn btn-social btn-google" onclick="alert('준비중!');">
+    <button class="btn btn-social btn-google" onclick="alert('에령예령 준비준비!');">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
         Google로 로그인
     </button>
-    <button class="btn btn-social btn-naver" onclick="alert('준비중!');">
+    <button class="btn btn-social btn-naver" onclick="alert('에령예령 준비준비!');">
         <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Naver_Logotype.svg" alt="Naver" style="background:#fff; border-radius:50%;">
         네이버로 로그인
     </button>
-    <button class="btn btn-social btn-kakao" onclick="alert('준비중!');">
+    <button class="btn btn-social btn-kakao" onclick="alert('에령예령 준비준비!');">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kakao/kakao-original.svg" alt="Kakao" onerror="this.src='https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png';">
         카카오로 로그인
     </button>
@@ -158,7 +160,7 @@
         });
         const text = await res.text();
         alert(text);
-        if (res.ok) location.href = "/";
+        if (res.ok) location.href = "/";/*로그인 완료시 링쿠 주소*/
     };
 </script>
 </body>

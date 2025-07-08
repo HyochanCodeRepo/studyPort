@@ -6,6 +6,7 @@ import com.example.studyport.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,9 +17,9 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper = new ModelMapper();
-    //todo:엔코더 서비스 로직
-//    private final BCryptPasswordEncoder passwordEncoder;
 
+    //패스 원드 엔코더 메서드 호출
+    private final PasswordEncoder passwordEncoder;
 
 
     // 회원가입
@@ -27,9 +28,8 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        //todo:추후에 암호화 작업시 추가 적으로 진항할 엔코더 로직
-        // 암호화
-//        userDTO.setUserPassword(passwordEncoder.encode(userDTO.getUserPassword()));
+        // 암호화 : 패스워드 저장시 패스워드는 엔코더 한다.
+        userDTO.setUserPassword(passwordEncoder.encode(userDTO.getUserPassword()));
 
 
         // 비밀번호는 평문 그대로 저장
@@ -40,10 +40,21 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // 로그인
+    // 로그인 - 엔코더로 저장된 패스 워드 불러 오는 메서드
     public boolean login(String email, String password) {
         return userRepository.findByUserEmail(email)
-                .map(user -> user.getUserPassword().equals(password)) // 평문 비교
+                .map(user -> passwordEncoder.matches(password, user.getUserPassword()))
                 .orElse(false);
     }
+
+    // 로그인
+//    public boolean login(String email, String password) {
+//        return userRepository.findByUserEmail(email)
+//                .map(user -> user.getUserPassword().equals(password)) // 평문 비교
+//                .orElse(false);
+//    }
+
+
+
+
 }
