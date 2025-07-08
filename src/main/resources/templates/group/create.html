@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 스터디 그룹 | StudyPort</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root{
+            --sp-green:#215544; --sp-green-light:#41ab77; --sp-bg:#f2f5f6;
+            --sp-card:#fff; --sp-shadow:0 8px 28px rgba(0,0,0,.1);
+        }
+        body{background:var(--sp-bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+        .card-create{width:100%;max-width:560px;padding:2.5rem 2.8rem;border-radius:22px;
+            background:var(--sp-card);box-shadow:var(--sp-shadow);}
+        @media (max-width:575.98px){.card-create{padding:2rem 1.6rem}}
+        .form-label{font-weight:600;color:#154a3e;}
+        .btn-primary{background:var(--sp-green);border:none;border-radius:10px;font-weight:700;}
+        .btn-primary:hover{background:var(--sp-green-light);}
+        .file-label{border:2px dashed #b3c0c4;border-radius:10px;padding:1.2rem;text-align:center;
+            cursor:pointer;color:#666;transition:border-color .15s;}
+        .file-label:hover{border-color:var(--sp-green);}
+        .file-label i{font-size:1.7rem;color:#215544;margin-bottom:.4rem;}
+        .icon-option.active{border-color:#41ab77!important;box-shadow:0 0 0 2px #41ab7755;}
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="card-create">
+    <h2 class="text-center mb-4" style="font-family:'Playfair Display',serif;">새 스터디 그룹</h2>
+
+    <!-- enctype 제거: 기본(application/x-www-form-urlencoded) -->
+    <form id="groupForm" class="row g-3">
+
+        <!-- 아이콘 선택 -->
+        <div class="col-12">
+            <label class="form-label d-block mb-1">머릿말 아이콘*</label>
+            <div class="d-flex flex-wrap gap-2">
+                <label class="icon-option border rounded p-2">
+                    <input type="radio" name="iconName" value="fa-book-open" hidden checked>
+                    <i class="fa-solid fa-book-open fa-xl"></i>
+                </label>
+                <label class="icon-option border rounded p-2">
+                    <input type="radio" name="iconName" value="fa-code" hidden>
+                    <i class="fa-solid fa-code fa-xl"></i>
+                </label>
+                <label class="icon-option border rounded p-2">
+                    <input type="radio" name="iconName" value="fa-chalkboard" hidden>
+                    <i class="fa-solid fa-chalkboard fa-xl"></i>
+                </label>
+                <label class="icon-option border rounded p-2">
+                    <input type="radio" name="iconName" value="fa-chart-line" hidden>
+                    <i class="fa-solid fa-chart-line fa-xl"></i>
+                </label>
+                <label class="icon-option border rounded p-2">
+                    <input type="radio" name="iconName" value="fa-flask" hidden>
+                    <i class="fa-solid fa-flask fa-xl"></i>
+                </label>
+                <label class="icon-option border rounded p-2">
+                    <input type="radio" name="iconName" value="fa-language" hidden>
+                    <i class="fa-solid fa-language fa-xl"></i>
+                </label>
+            </div>
+        </div><!--아이콘 선택 폼 끝 지짐-->
+
+        <!-- 주제 · 그룹명 -->
+
+        <!-- hidden -->
+        <input type="hidden" id="ownerId" name="ownerId" value="1"/>
+
+        <div class="col-12">
+            <label class="form-label">주제*</label>
+            <input type="text" class="form-control" id="topic" name="topic" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label">그룹명*</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+
+        <!-- 인원 · 난이도 · 비공개 -->
+        <div class="col-6 col-lg-4">
+            <label class="form-label">최대 인원*</label>
+            <input type="number" class="form-control" id="capacity" name="capacity" title="capacity" min="2" max="50" value="6" required>
+        </div>
+        <div class="col-6 col-lg-4">
+            <label class="form-label">난이도</label>
+            <select class="form-select" id="levelTag" name="levelTag">
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="ADVANCED">Advanced</option>
+            </select>
+        </div>
+        <div class="col-12 col-lg-4 align-self-end">
+            <div class="form-check form-switch mt-lg-2">
+                <input class="form-check-input" type="checkbox" id="privateChk" name="isPrivate">
+                <label class="form-check-label" for="privateChk">비공개</label>
+            </div>
+        </div>
+
+        <!-- 설명 -->
+        <div class="col-12">
+            <label class="form-label">설명</label>
+            <textarea class="form-control" id="description" name="description" rows="3"
+                      placeholder="스터디 방식, 일정 등을 적어주세요"></textarea>
+        </div>
+
+        <!-- 파일 업로드 (선택) -->
+        <div class="col-12">
+            <label for="researchFile" class="form-label">주제 파일 (선택)</label>
+            <label class="file-label w-100">
+                <i class="fa-solid fa-cloud-arrow-up"></i><br>
+                파일 첨부 (모든 확장자 허용) — 첨부 시 자동 FormData 전송
+                <input type="file" id="researchFile" name="researchFile" hidden>
+            </label>
+            <div id="fileName" class="small mt-1 text-secondary"></div>
+        </div>
+
+        <!-- 제출 -->
+        <div class="col-12">
+            <button class="btn btn-primary w-100 mt-2">그룹 생성</button>
+        </div>
+    </form>
+
+    <p class="text-center mt-3">
+        완료 후 <a href="/groups/my">내 그룹 목록</a>에서 관리
+    </p>
+</div>
+
+<script>
+    /* 아이콘 선택 효과 */
+    document.querySelectorAll('.icon-option').forEach(opt=>{
+        opt.onclick = ()=> {
+            document.querySelectorAll('.icon-option').forEach(o=>o.classList.remove('active','border-success'));
+            opt.classList.add('active','border-success');
+            opt.querySelector('input').checked = true;
+        };
+    });
+
+    /* 파일 이름 표시 */
+    document.getElementById('researchFile').addEventListener('change', e=>{
+        const f = e.target.files[0];
+        document.getElementById('fileName').textContent = f ? f.name : '';
+    });
+
+    /* 폼 제출 */
+    document.getElementById('groupForm').onsubmit = async e => {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('researchFile');
+        const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+
+        if (file) {
+            // 파일 있을 때: FormData (ownerId 포함, 모든 필드 name 필수)
+            const fd = new FormData(e.target);
+            // (디버깅) 실제 전송값 확인
+            for (const [k,v] of fd.entries()) console.log(k, v);
+
+            await send('/api/groups', fd); // 서버 컨트롤러: @RequestParam
+        } else {
+            // 파일 없을 때: JSON (ownerId 등 모든 값 수동 지정)
+            const data = {
+                ownerId:     document.getElementById('ownerId').value,
+                topic:       document.getElementById('topic').value,
+                title:       document.getElementById('title').value,
+                capacity:    document.getElementById('capacity').value,
+                levelTag:    document.getElementById('levelTag').value,
+                isPrivate:   document.getElementById('privateChk').checked,
+                description: document.getElementById('description').value,
+                iconName:    document.querySelector('input[name="iconName"]:checked').value
+            };
+            // (디버깅) 실제 전송값 확인
+            console.log("---JSON body---", data);
+
+            await send('/api/groups/json', JSON.stringify(data), 'application/json'); // 서버 컨트롤러: @RequestBody DTO
+        }
+    };
+
+    /* fetch helper */
+    async function send(url, body, contentType){
+        const res = await fetch(url, {
+            method:'POST',
+            headers: contentType ? {'Content-Type': contentType} : undefined,
+            body
+        });
+        const text = await res.text();
+        alert(text);
+        if(res.ok) location.href='/groups/my';
+    }
+</script>
+</body>
+</html>
