@@ -1,35 +1,52 @@
 <header class="site-header" th:fragment="header">
     <nav class="navbar navbar-expand-lg bg-white border-bottom w-100">
-        <div class="container">
+        <div class="container-fluid">
+            <div class="row w-100 align-items-center">
 
-            <!-- 로고 (좌측) -->
-            <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
-                <img src="/logo/StudyUs mainlogo2.png" alt="StudyUs 로고" height="40" class="me-1">
-            </a>
+                <!-- 로고 (좌측) -->
+                <div class="col-auto">
+                    <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+                        <img src="/logo/StudyUs mainlogo2.png" alt="StudyUs 로고" height="40" class="me-1">
+                    </a>
+                </div>
 
-            <!-- 모바일 토글 버튼 -->
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#navMenu"
-                    aria-controls="navMenu" aria-expanded="false" aria-label="메뉴 열기">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <!-- 중앙 영역 -->
+                <div class="col text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center" style="max-width: 1000px; width: 100%;">
+                        <select class="form-select region-select me-3" style="width: 200px;">
+                            <option selected disabled hidden>지역 선택</option>
+                            <option value="seoul">서울</option>
+                            <option value="busan">부산</option>
+                            <option value="daegu">대구</option>
+                            <option value="incheon">인천</option>
+                        </select>
+                        <form class="d-flex align-items-center w-100" role="search" th:action="@{/}" method="get">
+                            <input class="form-control me-3" type="search" name="q"
+                                   placeholder="관심있는 키워드로 나에게 맞는 스터디를 찾아보세요!"
+                                   style="height: 38px; flex-grow: 1;">
+                            <button class="btn btn-outline-secondary" type="submit"
+                                    style="min-width: 80px; height: 38px;">검색</button>
+                        </form>
+                    </div>
+                </div>
 
-            <!-- 메뉴 (우측) -->
-            <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav align-items-lg-center">
-                    <li class="nav-item"><a class="nav-link" th:href="@{/}">홈</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/about}">소개</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/study/create}">스터디 만들기</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/study/join}">스터디 참가하기</a></li>
+                <!-- 메뉴 (우측) -->
+                <div class="col-auto">
+                    <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+                        <ul class="navbar-nav align-items-lg-center">
+                            <li class="nav-item"><a class="nav-link" th:href="@{/}">홈</a></li>
+                            <li class="nav-item"><a class="nav-link" th:href="@{/about}">소개</a></li>
+                            <li class="nav-item ms-lg-3">
+                                <a class="btn btn-outline-secondary me-2" th:href="@{/users/login}">로그인</a>
+                                <a class="btn btn-primary" th:href="@{/users/register}">회원가입</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-                    <!-- 로그인 · 회원가입 버튼 -->
-                    <li class="nav-item ms-lg-3">
-                        <a class="btn btn-outline-secondary me-2" th:href="@{/users/login}">로그인</a>
-                        <a class="btn btn-primary"          th:href="@{/users/register}">회원가입</a>
-                    </li>
-                </ul>
             </div>
-
         </div>
+
+
     </nav>
 </header>
