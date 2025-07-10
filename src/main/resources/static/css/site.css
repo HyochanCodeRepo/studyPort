@@ -52,3 +52,26 @@ body { background:#fff; }
 /* 기타 포인트 */
 a { transition: color .15s, opacity .15s; }
 a:hover { opacity:.8; }
+
+.region-select {
+    width: 130px;
+    height: 38px;
+    font-size: 0.95rem;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    padding-right: 30px;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="gray" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.region-select:focus {
+    outline: none;
+    border-color: #198754; /* Bootstrap success color */
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.25); /* 초록색 연한 그림자 */
+}
