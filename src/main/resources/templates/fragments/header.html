@@ -34,6 +34,9 @@
                 <div class="col-auto">
                     <div class="collapse navbar-collapse justify-content-end" id="navMenu">
                         <ul class="navbar-nav align-items-lg-center">
+                            <div th:fragment="header(email)">
+                                <p>환영합니다, <span th:text="${email}"></span> 님!</p>
+                            </div>
                             <li class="nav-item"><a class="nav-link" th:href="@{/}">홈</a></li>
                             <li class="nav-item"><a class="nav-link" th:href="@{/about}">소개</a></li>
                             <li class="nav-item ms-lg-3">
