@@ -82,9 +82,9 @@ public class StudyGroupController {
         }
     }
 
-    /*-------------------------------------------------
+    /*------------------------------------------------
      * 2. 내가 만든 그룹 목록
-     *    ― 로그인 세션 완성 전까지는 ownerId 파라미터 사용
+     *    ― 로그인 세션 완성 전까지는 ownerId 파라미터 사용-
      *------------------------------------------------*/
     @GetMapping("/my")
     public List<StudyGroupDTO> myGroups(@RequestParam Long ownerId) {
