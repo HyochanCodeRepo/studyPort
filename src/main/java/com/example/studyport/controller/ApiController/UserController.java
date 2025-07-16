@@ -20,15 +20,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
-        try {
-            userService.registerUser(userDTO);
-            return ResponseEntity.ok("회원가입 성공!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("서버 오류");
-        }
+    public String register( UserDTO userDTO) {
+       log.info(userDTO);
+       log.info(userDTO);
+       log.info(userDTO);
+
+
+       return null;
+
     }
 
     @PostMapping("/login")
