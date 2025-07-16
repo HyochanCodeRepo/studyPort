@@ -15,9 +15,7 @@ import java.security.Principal;
 public class MainController {
 
     @GetMapping("/")
-    public String main(Principal principal, Model model) {
-        String email = principal.getName();
-        model.addAttribute("email", email);
+    public String main() {
 
         return "main";
     }
