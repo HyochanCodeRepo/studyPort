@@ -1,6 +1,8 @@
 package com.example.studyport.config;
 
+import com.example.studyport.service.CustomOAuth2UserService;
 import jakarta.servlet.annotation.WebListener;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,7 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableWebSecurity
 @WebListener
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,6 +41,11 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(
                         a -> a.accessDeniedHandler(new CustomAccessDeniedHandler())
+                )
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .defaultSuccessUrl("/")
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                                .userService(customOAuth2UserService))
                 );
 
         return http.build();
