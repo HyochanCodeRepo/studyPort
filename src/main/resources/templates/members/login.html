@@ -110,6 +110,59 @@
     </style>
 </head>
 <body>
+
+<div class="container min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="row w-100">
+        <div class="col-md-6 col-lg-4 mx-auto">
+            <h1 class="text-center mb-4">로그인 페이지</h1>
+
+            <!-- 로그인 폼 시작 -->
+            <form class="form" action="/members/login" method="post" style="border: 1px red solid">
+                <!-- 이메일 -->
+                <div class="flex-column">
+                    <label>Email</label>
+                </div>
+                <div class="inputForm">
+                    <!-- 이메일 아이콘 -->
+                    <!-- SVG 생략 가능 -->
+                    <input placeholder="Enter your Email" class="input" type="text" name="email">
+                </div>
+
+                <!-- 비밀번호 -->
+                <div class="flex-column">
+                    <label>Password</label>
+                </div>
+                <div class="inputForm">
+                    <!-- 비밀번호 아이콘 -->
+                    <!-- SVG 생략 가능 -->
+                    <input placeholder="Enter your Password" class="input" type="password" name="password">
+                </div>
+
+                <!-- 기억하기 / 비밀번호 찾기 -->
+                <div class="flex-row">
+                    <div>
+                        <input type="checkbox" id="remember-me" name="remember-me">
+                        <label for="remember-me">Remember me</label>
+                    </div>
+                    <span class="span">Forgot password?</span>
+                </div>
+
+                <!-- 로그인 버튼 -->
+                <button class="button-submit">Sign In</button>
+
+                <p class="p">아이디가 없으신가요? <a href="/members/signup" class="span">Sign Up</a></p>
+                <p class="p line">Or With</p>
+
+                <!-- 소셜 로그인 -->
+                <div class="flex-row">
+                    <button class="btn google" onclick="window.location.href='http://localhost:8080/oauth2/authorization/google'">Google</button>
+                    <button class="btn naver" onclick="window.location.href='http://localhost:8080/oauth2/authorization/naver'">Naver</button>
+                    <button class="btn apple">Apple</button>
+                </div>
+            </form>
+            <!-- 로그인 폼 끝 -->
+
+
 <div class="study-card shadow">
     <div class="text-center mb-4"><!--상단 타이틀 시작점-->
             <div class="study-logo">Study_Us</div>
@@ -123,6 +176,7 @@
         <div class="mb-4">
             <label for="password" class="form-label">비밀번호</label>
             <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호 입력" required>
+
         </div>
         <button type="submit" class="btn btn-study w-100 mb-2">로그인</button>
         <div class="text-center mt-2 mb-1">

@@ -1,14 +1,12 @@
 package com.example.studyport.controller;
 
+import com.example.studyport.dto.MembersDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.security.Principal;
 
@@ -18,15 +16,16 @@ import java.security.Principal;
 public class MainController {
 
     @GetMapping("/")
-    public String main(Principal principal, @AuthenticationPrincipal OAuth2User oAuth2User, Model model, HttpSession session) {
+
+    public String main(Principal principal, Model model, HttpSession session) {
         String  email = "";
-        if (oAuth2User != null) {
-            email = oAuth2User.getAttribute("email").toString();
+        MembersDTO user = (MembersDTO) session.getAttribute("user");
+        if (user != null) {
+            email = user.getEmail();
         } else {
             email = principal.getName();
+//            session.setAttribute("user", principal);
         }
-
-        session.setAttribute("user", principal);
 
         log.info("email: " + email);
         log.info("email: " + email);
