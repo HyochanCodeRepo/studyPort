@@ -117,14 +117,14 @@
         </a>
         <div class="study-sub">집중 공부의 시작, 로그인 하세요</div>
     </div><!--상단 타이틀 끝점-->
-    <form id="loginForm">
+    <form id="loginForm" action="/members/login">
         <div class="mb-3">
-            <label for="userEmail" class="form-label">이메일</label>
-            <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="이메일 입력" required>
+            <label for="email" class="form-label">이메일</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="이메일 입력" required>
         </div>
         <div class="mb-4">
-            <label for="userPassword" class="form-label">비밀번호</label>
-            <input type="password" class="form-control" id="userPassword" name="userPassword" placeholder="비밀번호 입력" required>
+            <label for="password" class="form-label">비밀번호</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호 입력" required>
         </div>
         <button type="submit" class="btn btn-study w-100 mb-2">로그인</button>
         <div class="text-center mt-2 mb-1">
@@ -146,22 +146,6 @@
         카카오로 로그인
     </button>
 </div>
-<script>
-    document.getElementById('loginForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const data = {
-            userEmail: document.getElementById('userEmail').value,
-            userPassword: document.getElementById('userPassword').value
-        };
-        const res = await fetch('/api/users/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        const text = await res.text();
-        alert(text);
-        if (res.ok) location.href = "/";/*로그인 완료시 링쿠 주소*/
-    };
-</script>
+
 </body>
 </html>
