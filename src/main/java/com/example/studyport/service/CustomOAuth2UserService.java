@@ -14,6 +14,7 @@ import com.example.studyport.entity.Members;
 import com.example.studyport.entity.User;
 import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final MemberRepository memberRepository;
     private final HttpSession httpSession;
+    private final HttpServletRequest request;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -57,8 +59,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         Members members = saveOrUpdate(attributes);
 
+        request.getSession().invalidate();
         // UserEntity 클래스를 사용하지 않고 SessionUser클래스를 사용하는 이유는 오류 방지.
         httpSession.setAttribute("user", new MembersDTO(members)); // UserDTO : 세션에 사용자 정보를 저장하기 위한 Dto 클래스
+
+        // 기존 세션 제거
+        request.getSession().invalidate();
+        HttpSession newSession = request.getSession(true);
+        // UserEntity 클래스를 사용하지 않고 SessionUser클래스를 사용하는 이유는 오류 방지.
+        newSession.setAttribute("user", new MembersDTO(members));
 
         log.info("로그인된거? {}" , members);
         return new DefaultOAuth2User(

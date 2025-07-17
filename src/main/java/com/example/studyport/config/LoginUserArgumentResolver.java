@@ -5,6 +5,7 @@ import com.example.studyport.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -14,6 +15,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @RequiredArgsConstructor
 @Component
+@Log4j2
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final HttpSession httpSession;
