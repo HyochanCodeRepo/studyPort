@@ -1,5 +1,6 @@
 package com.example.studyport.config;
 
+import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -20,7 +21,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         boolean isLoginUserAnnotation = parameter.getParameterAnnotation(LoginUser.class) != null;
-        boolean isUserClass = UserDTO.class.equals(parameter.getParameterType());
+        boolean isUserClass = MembersDTO.class.equals(parameter.getParameterType());
 
         return isLoginUserAnnotation && isUserClass;
     }

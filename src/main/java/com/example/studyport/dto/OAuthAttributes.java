@@ -7,6 +7,7 @@
  * ***********************************************/
 package com.example.studyport.dto;
 
+import com.example.studyport.entity.Members;
 import com.example.studyport.entity.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,10 +48,10 @@ public class OAuthAttributes {
                 .build();
     }
 
-    public User toEntity() {
-        return User.builder()
-                .userName(name)
-                .userEmail(email)
+    public Members toEntity() {
+        return Members.builder()
+                .name(name)
+                .email(email)
                 .provider(provider)
                 .providerId(providerId)
                 .build();
