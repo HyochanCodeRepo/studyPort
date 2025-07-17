@@ -16,6 +16,7 @@ import java.security.Principal;
 public class MainController {
 
     @GetMapping("/")
+
     public String main(Principal principal, Model model, HttpSession session) {
         String  email = "";
         MembersDTO user = (MembersDTO) session.getAttribute("user");
@@ -25,6 +26,7 @@ public class MainController {
             email = principal.getName();
 //            session.setAttribute("user", principal);
         }
+
         log.info("email: " + email);
         log.info("email: " + email);
         log.info("principal: " + principal);
@@ -32,7 +34,7 @@ public class MainController {
         return "main";
     }
 
-    @GetMapping("/main")
+    @GetMapping("/main2")
     public String mainTest(){
         return "main2";
     }
