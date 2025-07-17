@@ -3,16 +3,15 @@ package com.example.studyport.entity;
 
 import com.example.studyport.constant.Role;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Members {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +28,7 @@ public class Members {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private String provider;
+    private String providerId;
 }

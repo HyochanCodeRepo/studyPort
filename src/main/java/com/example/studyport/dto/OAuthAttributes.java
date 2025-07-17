@@ -7,6 +7,8 @@
  * ***********************************************/
 package com.example.studyport.dto;
 
+import com.example.studyport.constant.Role;
+import com.example.studyport.entity.Members;
 import com.example.studyport.entity.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,8 +34,27 @@ public class OAuthAttributes {
         this.providerId = providerId;
     }
 
-    public  static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+    public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+        if ("naver".equals(registrationId)) {
+            return ofNaver(registrationId, userNameAttributeName, attributes);
+        }
+
         return ofGoogle(registrationId, userNameAttributeName, attributes);
+    }
+
+    private static OAuthAttributes ofNaver(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+
+        //todo 일단 이름 이메일만 받아오는데 나중에 전화번호 끌어오는것도.... 한번.
+
+        return OAuthAttributes.builder()
+                .name((String) response.get("name"))
+                .email((String) response.get("email"))
+                .attributes(attributes)
+                .provider(registrationId)
+                .providerId((String) response.get("id"))
+                .nameAttributeKey(userNameAttributeName)
+                .build();
     }
 
     private static OAuthAttributes ofGoogle(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
@@ -47,10 +68,11 @@ public class OAuthAttributes {
                 .build();
     }
 
-    public User toEntity() {
-        return User.builder()
-                .userName(name)
-                .userEmail(email)
+    public Members toEntity() {
+        return Members.builder()
+                .name(name)
+                .email(email)
+                .role(Role.USER)
                 .provider(provider)
                 .providerId(providerId)
                 .build();

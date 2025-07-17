@@ -1,9 +1,11 @@
 package com.example.studyport.config;
 
+import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -13,6 +15,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 @RequiredArgsConstructor
 @Component
+@Log4j2
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final HttpSession httpSession;
@@ -20,7 +23,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         boolean isLoginUserAnnotation = parameter.getParameterAnnotation(LoginUser.class) != null;
-        boolean isUserClass = UserDTO.class.equals(parameter.getParameterType());
+        boolean isUserClass = MembersDTO.class.equals(parameter.getParameterType());
 
         return isLoginUserAnnotation && isUserClass;
     }

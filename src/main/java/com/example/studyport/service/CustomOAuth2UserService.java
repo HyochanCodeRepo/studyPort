@@ -7,10 +7,14 @@
  * ***********************************************/
 package com.example.studyport.service;
 
+import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.dto.OAuthAttributes;
 import com.example.studyport.dto.UserDTO;
+import com.example.studyport.entity.Members;
 import com.example.studyport.entity.User;
+import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +36,9 @@ import java.util.Collections;
 @Transactional
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final HttpSession httpSession;
+    private final HttpServletRequest request;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -52,31 +57,35 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // OAuth2UserService를 통해 가져온 OAuthUser의 attribute를 담을 클래스 ( 네이버 등 다른 소셜 로그인도 이 클래스 사용)
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        User user = saveOrUpdate(attributes);
+        Members members = saveOrUpdate(attributes);
 
+        request.getSession().invalidate();
         // UserEntity 클래스를 사용하지 않고 SessionUser클래스를 사용하는 이유는 오류 방지.
-        httpSession.setAttribute("user", new UserDTO(user)); // UserDTO : 세션에 사용자 정보를 저장하기 위한 Dto 클래스
+        httpSession.setAttribute("user", new MembersDTO(members)); // UserDTO : 세션에 사용자 정보를 저장하기 위한 Dto 클래스
 
-        log.info("로그인된거? {}" ,user);
+        // 기존 세션 제거
+        request.getSession().invalidate();
+        HttpSession newSession = request.getSession(true);
+        // UserEntity 클래스를 사용하지 않고 SessionUser클래스를 사용하는 이유는 오류 방지.
+        newSession.setAttribute("user", new MembersDTO(members));
+
+        log.info("로그인된거? {}" , members);
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), //todo User에 ROLE이 없어서 그냥 임시로 넣기 나중에 꼭 !! user.getRole.getKey();하기
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_"+members.getRole().name())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey());
     }
 
-    // 구글 사용자 정보 업데이트 시 User 엔티티에 반영
-    private User saveOrUpdate(OAuthAttributes attributes) {
-
+    // 구글 사용자 정보 업데이트 시 Members 엔티티에 반영
+    private Members saveOrUpdate(OAuthAttributes attributes) {
         // 이메일을 기준으로 사용자를 찾아 업데이트하거나, 사용자를 새로 생성합니다.
-        // todo 일단 지금은 이름만 바꾸는걸로...
-        User user = userRepository.findByUserEmail(attributes.toEntity().getUserEmail())
-                .map(entity -> {
-                    entity.setUserName(attributes.toEntity().getUserName());
-                    return entity;
-                })
-                .orElse(attributes.toEntity());
-
-        log.info("저장된거? {}", user);
-        return userRepository.save(user);
+        Members members = memberRepository.findByEmail(attributes.toEntity().getEmail());
+        if(members!=null){
+            members.setName(attributes.toEntity().getName());
+        }else {
+            members = attributes.toEntity();
+        }
+        log.info("저장된거? {}", members);
+        return memberRepository.save(members);
     }
 }
