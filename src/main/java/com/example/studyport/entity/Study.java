@@ -17,7 +17,8 @@ public class Study {
     @Column(name = "study_id")
     private Long id;
 
-    private String name;
+    private String title;
+    private String topic;
 
     private String description;
 
@@ -28,6 +29,10 @@ public class Study {
     private String leader;
 
     private String password;
+
+    private Boolean isPrivate;
+
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
