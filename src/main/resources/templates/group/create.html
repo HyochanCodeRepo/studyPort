@@ -126,66 +126,66 @@
     </p>
 </div>
 
-<script>
-    /* 아이콘 선택 효과 */
-    document.querySelectorAll('.icon-option').forEach(opt=>{
-        opt.onclick = ()=> {
-            document.querySelectorAll('.icon-option').forEach(o=>o.classList.remove('active','border-success'));
-            opt.classList.add('active','border-success');
-            opt.querySelector('input').checked = true;
-        };
-    });
+<!--<script>-->
+<!--    /* 아이콘 선택 효과 */-->
+<!--    document.querySelectorAll('.icon-option').forEach(opt=>{-->
+<!--        opt.onclick = ()=> {-->
+<!--            document.querySelectorAll('.icon-option').forEach(o=>o.classList.remove('active','border-success'));-->
+<!--            opt.classList.add('active','border-success');-->
+<!--            opt.querySelector('input').checked = true;-->
+<!--        };-->
+<!--    });-->
 
-    /* 파일 이름 표시 */
-    document.getElementById('researchFile').addEventListener('change', e=>{
-        const f = e.target.files[0];
-        document.getElementById('fileName').textContent = f ? f.name : '';
-    });
+<!--    /* 파일 이름 표시 */-->
+<!--    document.getElementById('researchFile').addEventListener('change', e=>{-->
+<!--        const f = e.target.files[0];-->
+<!--        document.getElementById('fileName').textContent = f ? f.name : '';-->
+<!--    });-->
 
-    /* 폼 제출 */
-    document.getElementById('groupForm').onsubmit = async e => {
-        e.preventDefault();
+<!--    /* 폼 제출 */-->
+<!--    document.getElementById('groupForm').onsubmit = async e => {-->
+<!--        e.preventDefault();-->
 
-        const fileInput = document.getElementById('researchFile');
-        const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+<!--        const fileInput = document.getElementById('researchFile');-->
+<!--        const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;-->
 
-        if (file) {
-            // 파일 있을 때: FormData (ownerId 포함, 모든 필드 name 필수)
-            const fd = new FormData(e.target);
-            // (디버깅) 실제 전송값 확인
-            for (const [k,v] of fd.entries()) console.log(k, v);
+<!--        if (file) {-->
+<!--            // 파일 있을 때: FormData (ownerId 포함, 모든 필드 name 필수)-->
+<!--            const fd = new FormData(e.target);-->
+<!--            // (디버깅) 실제 전송값 확인-->
+<!--            for (const [k,v] of fd.entries()) console.log(k, v);-->
 
-            await send('/api/groups', fd); // 서버 컨트롤러: @RequestParam
-        } else {
-            // 파일 없을 때: JSON (ownerId 등 모든 값 수동 지정)
-            const data = {
-                ownerId:     document.getElementById('ownerId').value,
-                topic:       document.getElementById('topic').value,
-                title:       document.getElementById('title').value,
-                capacity:    document.getElementById('capacity').value,
-                levelTag:    document.getElementById('levelTag').value,
-                isPrivate:   document.getElementById('privateChk').checked,
-                description: document.getElementById('description').value,
-                iconName:    document.querySelector('input[name="iconName"]:checked').value
-            };
-            // (디버깅) 실제 전송값 확인
-            console.log("---JSON body---", data);
+<!--            await send('/api/groups', fd); // 서버 컨트롤러: @RequestParam-->
+<!--        } else {-->
+<!--            // 파일 없을 때: JSON (ownerId 등 모든 값 수동 지정)-->
+<!--            const data = {-->
+<!--                ownerId:     document.getElementById('ownerId').value,-->
+<!--                topic:       document.getElementById('topic').value,-->
+<!--                title:       document.getElementById('title').value,-->
+<!--                capacity:    document.getElementById('capacity').value,-->
+<!--                levelTag:    document.getElementById('levelTag').value,-->
+<!--                isPrivate:   document.getElementById('privateChk').checked,-->
+<!--                description: document.getElementById('description').value,-->
+<!--                iconName:    document.querySelector('input[name="iconName"]:checked').value-->
+<!--            };-->
+<!--            // (디버깅) 실제 전송값 확인-->
+<!--            console.log("-&#45;&#45;JSON body-&#45;&#45;", data);-->
 
-            await send('/api/groups/json', JSON.stringify(data), 'application/json'); // 서버 컨트롤러: @RequestBody DTO
-        }
-    };
+<!--            await send('/api/groups/json', JSON.stringify(data), 'application/json'); // 서버 컨트롤러: @RequestBody DTO-->
+<!--        }-->
+<!--    };-->
 
-    /* fetch helper */
-    async function send(url, body, contentType){
-        const res = await fetch(url, {
-            method:'POST',
-            headers: contentType ? {'Content-Type': contentType} : undefined,
-            body
-        });
-        const text = await res.text();
-        alert(text);
-        if(res.ok) location.href='/groups/my';
-    }
-</script>
+<!--    /* fetch helper */-->
+<!--    async function send(url, body, contentType){-->
+<!--        const res = await fetch(url, {-->
+<!--            method:'POST',-->
+<!--            headers: contentType ? {'Content-Type': contentType} : undefined,-->
+<!--            body-->
+<!--        });-->
+<!--        const text = await res.text();-->
+<!--        alert(text);-->
+<!--        if(res.ok) location.href='/groups/my';-->
+<!--    }-->
+<!--</script>-->
 </body>
 </html>

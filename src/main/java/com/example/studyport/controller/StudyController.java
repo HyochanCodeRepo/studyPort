@@ -24,6 +24,10 @@ public class StudyController {
     @PostMapping("/create")
     public String create(StudyDTO studyDTO) {
 
+        log.info("Study create 진입");
+        log.info("Study create 진입");
+        log.info(studyDTO);
+
 
         return "study/create";
     }
