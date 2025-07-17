@@ -69,7 +69,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // UserEntity 클래스를 사용하지 않고 SessionUser클래스를 사용하는 이유는 오류 방지.
         newSession.setAttribute("user", new MembersDTO(members));
 
-        log.info("로그인된거? {}" , members);
+        log.info("OAuth 후 세션에 저장 {}" , members);
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_"+members.getRole().name())),
                 attributes.getAttributes(),
@@ -85,7 +85,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }else {
             members = attributes.toEntity();
         }
-        log.info("저장된거? {}", members);
+//        log.info("저장된거? {}", members);
         return memberRepository.save(members);
     }
 }

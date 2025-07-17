@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.RememberMeDsl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,8 +47,11 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/")
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
                                 .userService(customOAuth2UserService))
-                );
-
+                )
+                .rememberMe(rememberMe -> rememberMe
+                        .key("automatic-login-security-key")
+                        .rememberMeParameter("remember-me")
+                        .tokenValiditySeconds(60*60*24*30));
         return http.build();
     }
 
