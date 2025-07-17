@@ -19,7 +19,13 @@ public class MainController {
 
     @GetMapping("/")
     public String main(Principal principal, @AuthenticationPrincipal OAuth2User oAuth2User, Model model, HttpSession session) {
-        String email = oAuth2User.getAttribute("email").toString();
+        String  email = "";
+        if (oAuth2User != null) {
+            email = oAuth2User.getAttribute("email").toString();
+        } else {
+            email = principal.getName();
+        }
+
         session.setAttribute("user", principal);
 
         log.info("email: " + email);
@@ -29,7 +35,7 @@ public class MainController {
         return "main";
     }
 
-    @GetMapping("/main")
+    @GetMapping("/main2")
     public String mainTest(){
         return "main2";
     }

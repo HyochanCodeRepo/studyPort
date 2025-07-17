@@ -24,6 +24,16 @@ public class MemberController {
         return "members/login";
     }
 
+    @PostMapping("/login")
+    public String login(MembersDTO membersDTO) {
+
+        log.info(membersDTO.toString());
+        log.info(membersDTO.toString());
+        log.info(membersDTO.toString());
+        return "/";
+    }
+
+
     @GetMapping("/signup")
     public String signupGet(MembersDTO membersDTO) {
 
