@@ -32,50 +32,33 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-<div th:replace="~{fragments/header :: header}"></div>
+
 
 
 <div class="card-create">
     <h2 class="text-center mb-4" style="font-family:'Playfair Display',serif;">새 스터디 그룹</h2>
 
+
+    <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" id="privateChk" name="isPrivate">
+        <label class="form-check-label" for="privateChk">비공개</label>
+    </div>
+
     <!-- enctype 제거: 기본(application/x-www-form-urlencoded) -->
     <form id="groupForm" class="row g-3" action="/study/create" method="post">
-
-        <!-- 아이콘 선택 -->
-        <div class="col-12">
-            <label class="form-label d-block mb-1">머릿말 아이콘*</label>
-            <div class="d-flex flex-wrap gap-2">
-                <label class="icon-option border rounded p-2">
-                    <input type="radio" name="iconName" value="fa-book-open" hidden checked>
-                    <i class="fa-solid fa-book-open fa-xl"></i>
-                </label>
-                <label class="icon-option border rounded p-2">
-                    <input type="radio" name="iconName" value="fa-code" hidden>
-                    <i class="fa-solid fa-code fa-xl"></i>
-                </label>
-                <label class="icon-option border rounded p-2">
-                    <input type="radio" name="iconName" value="fa-chalkboard" hidden>
-                    <i class="fa-solid fa-chalkboard fa-xl"></i>
-                </label>
-                <label class="icon-option border rounded p-2">
-                    <input type="radio" name="iconName" value="fa-chart-line" hidden>
-                    <i class="fa-solid fa-chart-line fa-xl"></i>
-                </label>
-                <label class="icon-option border rounded p-2">
-                    <input type="radio" name="iconName" value="fa-flask" hidden>
-                    <i class="fa-solid fa-flask fa-xl"></i>
-                </label>
-                <label class="icon-option border rounded p-2">
-                    <input type="radio" name="iconName" value="fa-language" hidden>
-                    <i class="fa-solid fa-language fa-xl"></i>
-                </label>
-            </div>
-        </div><!--아이콘 선택 폼 끝 지짐-->
-
-        <!-- 주제 · 그룹명 -->
-
         <!-- hidden -->
         <input type="hidden" id="ownerId" name="ownerId" value="1"/>
+
+        <!-- 파일 업로드 (선택) -->
+        <div class="col-12">
+            <label for="researchFile" class="form-label">스터디 이미지(선택)</label>
+            <label class="file-label w-100">
+                <i class="fa-solid fa-cloud-arrow-up"></i><br>
+                미선택 시 기본 이미지 적용 예정
+                <input type="file" id="researchFile" name="researchFile" hidden>
+            </label>
+            <div id="fileName" class="small mt-1 text-secondary"></div>
+        </div>
 
         <div class="col-12">
             <label class="form-label">카테고리</label>
@@ -87,9 +70,15 @@
             </select>
         </div>
 
-        <div class="col-12">
-            <label class="form-label">그룹명*</label>
-            <input type="text" class="form-control" id="title" name="title" required>
+        <div class="d-flex align-items-center gap-3" style="height: 50px;">
+            <label class="form-label mb-0">그룹명*</label>
+            <input type="text" class="form-control" id="title" name="title" required style="height: 38px; max-width: 60%;">
+
+
+        </div>
+
+        <div id="passwordArea" style="opacity: 0; transition: opacity 0.5s ease">
+
         </div>
 
         <!-- 인원 · 난이도 · 비공개 -->
@@ -105,12 +94,7 @@
                 <option value="ADVANCED">Advanced</option>
             </select>
         </div>
-        <div class="col-12 col-lg-4 align-self-end">
-            <div class="form-check form-switch mt-lg-2">
-                <input class="form-check-input" type="checkbox" id="privateChk" name="isPrivate">
-                <label class="form-check-label" for="privateChk">비공개</label>
-            </div>
-        </div>
+
 
         <!-- 설명 -->
         <div class="col-12">
@@ -119,16 +103,7 @@
                       placeholder="스터디 방식, 일정 등을 적어주세요"></textarea>
         </div>
 
-        <!-- 파일 업로드 (선택) -->
-        <div class="col-12">
-            <label for="researchFile" class="form-label">주제 파일 (선택)</label>
-            <label class="file-label w-100">
-                <i class="fa-solid fa-cloud-arrow-up"></i><br>
-                파일 첨부 (모든 확장자 허용) — 첨부 시 자동 FormData 전송
-                <input type="file" id="researchFile" name="researchFile" hidden>
-            </label>
-            <div id="fileName" class="small mt-1 text-secondary"></div>
-        </div>
+
 
         <!-- 제출 -->
         <div class="col-12">
@@ -143,7 +118,31 @@
 
 
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 
+<script>
+    document.getElementById('privateChk').addEventListener('change', function () {
+        let passwordArea = document.getElementById('passwordArea');
+        if (this.checked){
+            passwordArea.innerHTML = `
+                <div class="d-flex gap-4">
+                    <label for ="passwordInput" class="form-label" style="align-items: center">비밀번호*</label>
+                    <input type="password" id="passwordInput" name="passwordInput" class="form-control" required style="max-width: 300px">
+                </div>
+            `;
+            //애니메이션
+            setTimeout(()=>{
+                passwordArea.style.opacity = '1';
+                },50);
+        }else {
+            passwordArea.style.opacity = '0'
+            setTimeout(() => {
+                passwordArea.innerHTML = '';
+            }, 500);
+        }
+    });
+</script>
 </body>
 </html>
