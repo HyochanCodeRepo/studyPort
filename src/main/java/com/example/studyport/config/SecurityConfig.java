@@ -21,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -44,9 +45,9 @@ public class SecurityConfig {
                         a -> a.accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
-                        .defaultSuccessUrl("/")
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
                                 .userService(customOAuth2UserService))
+                        .successHandler(customOAuth2SuccessHandler)
                 )
                 .rememberMe(rememberMe -> rememberMe
                         .key("automatic-login-security-key")
