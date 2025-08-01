@@ -4,6 +4,7 @@ import com.example.studyport.dto.CategoryDTO;
 import com.example.studyport.dto.StudyDTO;
 import com.example.studyport.entity.Category;
 import com.example.studyport.repository.CategoryRepository;
+import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,7 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -22,6 +26,7 @@ import java.util.List;
 public class StudyController {
     private final StudyService studyService;
     private final CategoryRepository categoryRepository;
+    private final MemberRepository memberRepository;
 
     @GetMapping("/create")
     public String create(Model model) {
@@ -33,11 +38,18 @@ public class StudyController {
     }
 
     @PostMapping("/create")
-    public String create(StudyDTO studyDTO) {
+    public String create(StudyDTO studyDTO, MultipartFile mainimg, Principal principal) throws IOException {
 
         log.info("Study create 진입");
         log.info("Study create 진입");
+        log.info(principal.getName());
+
+        log.info(mainimg.getOriginalFilename());
         log.info(studyDTO);
+
+        studyService.create(studyDTO, mainimg);
+
+
 
 
         return "study/create";

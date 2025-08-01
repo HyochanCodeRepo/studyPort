@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -17,7 +19,7 @@ public class Study {
     @Column(name = "study_id")
     private Long id;
 
-    private String title;
+    private String name;
     private String topic;
 
     private String description;
@@ -26,12 +28,13 @@ public class Study {
 
     private String capacity;
 
-    private String leader;
-
     private String password;
 
     private Boolean isPrivate;
 
+
+    @OneToMany(mappedBy = "study", fetch = FetchType.LAZY)
+    private List<Image> imageList;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
