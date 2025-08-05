@@ -1,7 +1,6 @@
 package com.example.studyport.config;
 
 import com.example.studyport.dto.MembersDTO;
-import com.example.studyport.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
