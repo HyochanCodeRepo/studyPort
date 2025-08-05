@@ -36,7 +36,7 @@
 
 
 <div class="card-create">
-    <h2 class="text-center mb-4" style="font-family:'Playfair Display',serif;">새 스터디 그룹</h2>
+    <h2 class="text-center mb-4" style="font-family:'Noto Sans KR',serif;">새 스터디 그룹</h2>
 
 
     <div class="form-check form-switch mb-3">
@@ -45,7 +45,7 @@
     </div>
 
     <!-- enctype 제거: 기본(application/x-www-form-urlencoded) -->
-    <form id="groupForm" class="row g-3" action="/study/create" method="post">
+    <form id="groupForm" class="row g-3" action="/study/create" method="post" enctype="multipart/form-data">
         <!-- hidden -->
         <input type="hidden" id="ownerId" name="ownerId" value="1"/>
 
@@ -55,7 +55,7 @@
             <label class="file-label w-100">
                 <i class="fa-solid fa-cloud-arrow-up"></i><br>
                 미선택 시 기본 이미지 적용 예정
-                <input type="file" id="researchFile" name="researchFile" hidden>
+                <input type="file" id="researchFile" name="mainimg" hidden>
             </label>
             <div id="fileName" class="small mt-1 text-secondary"></div>
         </div>
@@ -72,7 +72,7 @@
 
         <div class="d-flex align-items-center gap-3" style="height: 50px;">
             <label class="form-label mb-0">그룹명*</label>
-            <input type="text" class="form-control" id="title" name="title" required style="height: 38px; max-width: 60%;">
+            <input type="text" class="form-control" id="name" name="name" required style="height: 38px; max-width: 60%;">
 
 
         </div>
