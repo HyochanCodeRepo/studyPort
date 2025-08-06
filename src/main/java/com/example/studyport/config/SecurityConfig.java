@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.RememberMeDsl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +21,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomOAuth2RequestResolver customOAuth2RequestResolver;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,6 +45,8 @@ public class SecurityConfig {
                         a -> a.accessDeniedHandler(new CustomAccessDeniedHandler())
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
+                        .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
+                                .authorizationRequestResolver(customOAuth2RequestResolver))
                         .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
                                 .userService(customOAuth2UserService))
                         .successHandler(customOAuth2SuccessHandler)
