@@ -9,7 +9,6 @@ package com.example.studyport.dto;
 
 import com.example.studyport.constant.Role;
 import com.example.studyport.entity.Members;
-import com.example.studyport.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -22,7 +21,6 @@ public class OAuthAttributes {
     private String name;
     private String email;
     private String provider;
-    private String providerId;
 
     @Builder
     public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String provider, String providerId) {
@@ -31,7 +29,6 @@ public class OAuthAttributes {
         this.name = name;
         this.email = email;
         this.provider = provider;
-        this.providerId = providerId;
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
@@ -45,14 +42,11 @@ public class OAuthAttributes {
     private static OAuthAttributes ofNaver(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
-        //todo 일단 이름 이메일만 받아오는데 나중에 전화번호 끌어오는것도.... 한번.
-
         return OAuthAttributes.builder()
                 .name((String) response.get("name"))
                 .email((String) response.get("email"))
                 .attributes(attributes)
                 .provider(registrationId)
-                .providerId((String) response.get("id"))
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
@@ -63,7 +57,6 @@ public class OAuthAttributes {
                 .email((String) attributes.get("email"))
                 .attributes(attributes)
                 .provider(registrationId)
-                .providerId((String) attributes.get("sub"))
                 .nameAttributeKey(userNameAttributeName)
                 .build();
     }
@@ -74,7 +67,6 @@ public class OAuthAttributes {
                 .email(email)
                 .role(Role.USER)
                 .provider(provider)
-                .providerId(providerId)
                 .build();
     }
 }
