@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .rememberMe(rememberMe -> rememberMe
                         .key("automatic-login-security-key")
                         .rememberMeParameter("remember-me")
-                        .tokenValiditySeconds(60*60*24*30));
+                        .tokenValiditySeconds(60*60*24*3)); //3일 동안 저장
         return http.build();
     }
 
