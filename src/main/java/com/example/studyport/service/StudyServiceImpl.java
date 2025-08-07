@@ -2,6 +2,7 @@ package com.example.studyport.service;
 
 import com.example.studyport.dto.StudyDTO;
 import com.example.studyport.entity.Study;
+import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.repository.StudyRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,18 @@ import java.io.IOException;
 public class StudyServiceImpl implements StudyService {
     private final StudyRepository studyRepository;
     private final ModelMapper modelMapper = new ModelMapper();
+    private final MemberRepository memberRepository;
+
+
+    @Override
+    public void createStudy(StudyDTO studyDTO) {
+        log.info("스터디 크리에이트 진입");
+
+        Study study =
+            modelMapper.map(studyDTO, Study.class);
+        studyRepository.save(study);
+
+    }
     private final ImageService imageService;
 
 
@@ -32,6 +45,13 @@ public class StudyServiceImpl implements StudyService {
 
         if (mainimg != null && !mainimg.getOriginalFilename().isEmpty()) {
             imageService.register(mainimg, study.getId(), "Y");
+        }
+        if (studyDTO.getPassword() == null || studyDTO.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("비공개 체크시 비밀번호를 입력해야합니다.");
+        }
+        if (studyDTO.getPassword() != null) {
+            studyDTO.setPrivate(true);
+
         }
 
 

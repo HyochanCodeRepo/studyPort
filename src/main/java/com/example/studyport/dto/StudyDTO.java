@@ -25,7 +25,10 @@ public class StudyDTO {
 
     private String capacity;
 
-    private String leader;
+    private String topic;
+
+    private boolean isPrivate;
+
 
     private MembersDTO membersDTO;
     private String password;

@@ -5,7 +5,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import com.example.studyport.dto.StudyDTO;
+
 public interface StudyService {
+
+    void createStudy(StudyDTO studyDTO);
 
     public void create(StudyDTO studyDTO, MultipartFile mainimg) throws IOException;
 }
