@@ -26,8 +26,14 @@ public class Members {
     private String password;
     private String address;
 
+    // 단일 관심사 (카테고리 FK)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @Enumerated(EnumType.STRING)
     private Role role;
+
 
     private String provider;
     private String providerId;

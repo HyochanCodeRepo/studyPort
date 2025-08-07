@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관심사 단계별 설정 | StudyPort</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(120deg,#f7fbfa 80%,#e8f3ee 100%);
+            font-family: 'Pretendard','Apple SD Gothic Neo',sans-serif;
+            min-height: 100vh;
+        }
+        .step-box {
+            max-width: 440px; margin: 3.8rem auto 0 auto;
+            background: #fff; border-radius: 26px;
+            box-shadow: 0 14px 48px 0 rgba(90,130,100,.12);
+            padding: 2.5rem 2rem 2.4rem 2rem;
+            position: relative;
+            min-height: 390px;
+        }
+        .step-progress {
+            position:absolute; left:2rem; top:1.1rem;
+            font-size:1.02rem; color:#7ea98a; font-weight:500;
+            letter-spacing:0.04em;
+        }
+        .step-title {
+            text-align:center;
+            font-family:'Playfair Display',serif;
+            font-size:1.55rem; font-weight:600; color:#23412a;
+            margin-bottom:1.6rem; margin-top:0.25rem;
+            letter-spacing:-1.1px;
+        }
+        .step-chips {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.05rem 1.2rem;
+            justify-items: center;
+            margin-bottom: 2.1rem;
+        }
+        .chip-btn {
+            width: 100%;
+            min-width: 0;
+            max-width: 165px;
+            text-align: center;
+            background: #f3f7f5;
+            color: #33604a;
+            border: none; outline: none;
+            font-weight: 500;
+            border-radius: 999px;
+            padding: .68rem 1.55rem;
+            font-size: 1.08rem;
+            box-shadow: 0 2px 16px 0 rgba(120,150,120,0.07);
+            transition: background .16s, color .16s, box-shadow .13s, transform .14s;
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        .chip-btn.selected {
+            background: linear-gradient(93deg, #41ab77 10%, #1e5740 100%);
+            color: #fff;
+            box-shadow: 0 8px 28px 0 rgba(65,171,119,0.17);
+            transform: translateY(-1px) scale(1.045);
+        }
+        .chip-btn.selected::after {
+            content: "✓";
+            font-size: 1.07em;
+            color: #fffbe9;
+            position: absolute;
+            right: 1.1rem; top: 50%;
+            transform: translateY(-48%);
+            opacity: .92;
+        }
+        .chip-btn:active {
+            filter: brightness(.97);
+            transform: scale(0.98);
+        }
+        .step-actions {
+            display: flex;
+            gap: .8rem;
+            margin-top: .6rem;
+        }
+        .btn-step-next, .btn-step-back {
+            flex: 1 1 0; min-width: 0;
+            padding: 1.03rem 0;
+            font-weight: 700;
+            font-size: 1.11rem;
+            border-radius: 15px;
+            border: none;
+            letter-spacing: 0.07em;
+            transition: background .15s, box-shadow .12s;
+        }
+        .btn-step-next {
+            background: linear-gradient(95deg, #41ab77 0%, #356757 110%);
+            color: #fff;
+            box-shadow: 0 6px 30px 0 rgba(65,171,119,0.13);
+        }
+        .btn-step-next:disabled { background: #b9cfc6; color: #e8f0ea;}
+        .btn-step-back {
+            background: #eef4f1;
+            color: #426e5d;
+            box-shadow: 0 2px 12px 0 rgba(65,171,119,0.08);
+        }
+        .btn-step-back:disabled {
+            background: #f4f7f6;
+            color: #b5c0bc;
+            cursor: not-allowed;
+        }
+        .limit-msg {
+            text-align: center; color: #e76459; font-size: 1.01rem;
+            margin: 0.6rem 0 0.1rem 0; display: none;
+        }
+        @media (max-width:600px) {
+            .step-box { padding:1.3rem 0.4rem 1.8rem 0.4rem;}
+            .step-title { font-size: 1.13rem; }
+            .step-chips { gap: 0.67rem 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="step-box shadow">
+    <div id="stepProgress" class="step-progress">1 / 2</div>
+    <div id="stepTitle" class="step-title">관심 카테고리를 선택하세요</div>
+    <div id="stepContent">
+        <div class="step-chips">
+            <button type="button" class="chip-btn">IT/개발</button>
+            <button type="button" class="chip-btn">외국어</button>
+            <button type="button" class="chip-btn">경영/경제</button>
+            <button type="button" class="chip-btn">문학/책</button>
+            <button type="button" class="chip-btn">음악/예술</button>
+            <button type="button" class="chip-btn">자기계발</button>
+        </div>
+    </div>
+    <div class="limit-msg" id="limitMsg"></div>
+    <div class="step-actions">
+        <button class="btn-step-back" id="backBtn" disabled>이전</button>
+        <button class="btn-step-next" id="nextBtn" disabled>다음</button>
+    </div>
+</div>
+<script>
+    let step = 1;
+    let selected = {};
+    const stepTitles = [
+        '관심 카테고리를 선택하세요',
+        '세부 관심 분야를 선택하세요'
+    ];
+    const stepChips = [
+        // 1단계
+        ['IT/개발','외국어','경영/경제','문학/책','음악/예술','자기계발'],
+        // 2단계
+        ['백엔드','프론트엔드','데이터분석','인공지능','면접/취업','기타']
+    ];
+    function renderStep() {
+        document.getElementById('stepProgress').textContent = `${step} / 2`;
+        document.getElementById('stepTitle').textContent = stepTitles[step-1];
+        document.getElementById('stepContent').innerHTML =
+            `<div class="step-chips">` +
+            stepChips[step-1].map(t=>
+                `<button type="button" class="chip-btn${(selected['step'+step]||[]).includes(t)?' selected':''}">${t}</button>`
+            ).join('') +
+            `</div>`;
+        document.getElementById('limitMsg').style.display = "none";
+        document.getElementById('nextBtn').textContent = step===2 ? "저장하기" : "다음";
+        // "이전"은 1단계에선 비활성화
+        document.getElementById('backBtn').disabled = step === 1;
+        // 버튼 활성/비활성
+        document.getElementById('nextBtn').disabled = !((selected['step'+step]||[]).length);
+        // 칩 이벤트
+        document.querySelectorAll('.chip-btn').forEach(btn=>{
+            btn.onclick = ()=>{
+                btn.classList.toggle('selected');
+                let arr = [...document.querySelectorAll('.chip-btn.selected')].map(b=>b.textContent);
+                if(arr.length > 3){
+                    document.getElementById('limitMsg').textContent = "최대 3개까지 선택할 수 있어요!";
+                    document.getElementById('limitMsg').style.display = "block";
+                    btn.classList.remove('selected');
+                    arr = [...document.querySelectorAll('.chip-btn.selected')].map(b=>b.textContent);
+                } else {
+                    document.getElementById('limitMsg').style.display = "none";
+                }
+                selected['step'+step] = arr;
+                document.getElementById('nextBtn').disabled = !arr.length;
+            };
+        });
+    }
+    renderStep();
+
+    document.getElementById('nextBtn').onclick = () => {
+        const arr = [...document.querySelectorAll('.chip-btn.selected')].map(btn=>btn.textContent);
+        if(arr.length === 0){
+            document.getElementById('limitMsg').textContent = "최소 1개 이상 선택해 주세요!";
+            document.getElementById('limitMsg').style.display = "block";
+            return;
+        }
+        selected['step'+step] = arr;
+        if(step === 1){
+            step = 2;
+            renderStep();
+        }else{
+            alert("관심 카테고리: " + (selected['step1']||[]).join(', ') +
+                "\n세부 분야: " + (selected['step2']||[]).join(', '));
+            // fetch 등 서버 전송 가능!
+        }
+    };
+
+    document.getElementById('backBtn').onclick = () => {
+        if(step > 1){
+            step -= 1;
+            renderStep();
+        }
+    };
+</script>
+</body>
+</html>

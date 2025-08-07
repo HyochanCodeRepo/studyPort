@@ -23,6 +23,8 @@ public class MembersDTO {
     private String password;
     private String address;
 
+    private Long categoryId; // <- 관심사
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

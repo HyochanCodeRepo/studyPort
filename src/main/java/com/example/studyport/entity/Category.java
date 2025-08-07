@@ -19,5 +19,29 @@ public class Category {
 
     private String name;
 
+    // 다단계 확장: 자기참조 parent
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    /*
+    * INSERT INTO category (name) VALUES
+                                ('IT/개발'),
+                                ('외국어'),
+                                ('자격증'),
+                                ('문학/책'),
+                                ('음악/예술'),
+                                ('경영/경제'),
+                                ('수학/과학'),
+                                ('취업/면접'),
+                                ('자기계발'),
+                                ('취미/여가'),
+                                ('시사/트렌드'),
+                                ('운동/건강');
+    *
+    *
+    *
+    * */
+
 
 }

@@ -1,79 +1,41 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>회원가입 | StudyPort</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap5 CDN -->
+    <title>회원가입 | Study_Us</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #e6e6e6 0%, #d2f5f0 80%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .study-card {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(34, 56, 56, 0.09);
-            padding: 38px 34px 30px 34px;
-            max-width: 390px;
-            width: 100%;
-            margin: 0 auto;
-            transition: box-shadow .2s;
-        }
-        .study-card:hover {
-            box-shadow: 0 8px 32px rgba(34,56,56,0.18);
-        }
-        .study-logo {
-            font-family: 'Playfair Display', 'Pretendard', serif;
-            font-size: 2.0rem;
-            color: #215544;
-            letter-spacing: -1.5px;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-        .study-sub {
-            color: #656565;
-            font-size: 1.05rem;
-            margin-bottom: 22px;
-        }
-        .form-label {
-            font-weight: 600;
-            color: #194138;
-        }
-        .form-control {
-            border-radius: 8px;
-        }
-        .btn-study {
-            background: #215544;
-            color: #fff;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.08rem;
-            transition: background .15s;
-        }
-        .btn-study:hover, .btn-study:focus {
-            background: #41ab77;
-        }
-        .link-login {
-            font-size: .97rem;
-            color: #216c5e;
-            text-decoration: underline;
-        }
-        .link-login:hover { color: #113829;}
+        body { background: linear-gradient(120deg, #e9f5ee 70%, #dbe8e5 100%); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;}
+        .study-card { max-width: 410px; margin: 3.7rem auto 0 auto; background: #fff; border-radius: 25px; box-shadow: 0 10px 40px 0 rgba(100,150,110,.12); padding: 2.5rem 2.1rem 2rem 2.1rem;}
+        .study-logo { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #22583c; font-weight: 700; margin-bottom: .2rem; letter-spacing: -1.4px;}
+        .study-sub { color: #789b86; font-size: 1.04rem; margin-bottom: .4rem; letter-spacing: -0.01em;}
+        .form-label { font-weight: 600; color: #235344; margin-bottom: 0.3rem;}
+        .form-control { border-radius: 13px; border: 1.5px solid #e4efe7; font-size: 1.03rem; padding: .7rem 1.1rem; box-shadow: none !important;}
+        .btn-study { background: linear-gradient(93deg,#41ab77 0%,#1f5e41 110%); color: #fff; font-weight: 700; border-radius: 13px; font-size: 1.13rem; box-shadow: 0 8px 18px 0 rgba(65,171,119,0.14); letter-spacing: 0.03em; padding: .95rem 0; border: none; transition: background .14s;}
+        .btn-study:active { background: #34795b;}
+        .link-login { color: #287260; text-decoration: underline; font-weight:500; font-size:1.05rem; cursor:pointer; transition:color .15s;}
+        .link-login:hover { color: #18b87e; text-decoration: underline;}
+        /* 모달 */
+        .modal-content { border-radius: 22px; }
+        .modal-title { font-family: 'Playfair Display',serif; font-weight: 700; font-size: 1.32rem; color: #22583c;}
+        .chip-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.05rem 1.15rem; justify-items:center; margin-bottom: 1.4rem;}
+        .chip-btn { width: 100%; max-width:140px; min-width:0; background: #f3f7f5; color: #315e43; border: none; outline: none; font-weight: 500; border-radius: 999px; padding: .63rem 0; font-size: 1.07rem; box-shadow: 0 2px 10px 0 rgba(120,150,120,0.06); transition: background .16s, color .16s, box-shadow .14s, transform .13s; cursor: pointer; position: relative; overflow: hidden; text-align:center; margin-bottom: 0.1rem;}
+        .chip-btn.selected { background: linear-gradient(95deg, #41ab77 0%, #1f5e41 110%); color: #fff; box-shadow: 0 7px 24px 0 rgba(65,171,119,0.16); transform: translateY(-2px) scale(1.045);}
+        .chip-btn.selected::after { content: "✓"; font-size: 1.11em; color: #fffbe9; position: absolute; right: 1.1rem; top: 49%; transform: translateY(-50%); opacity: .93;}
+        .chip-btn:active { filter: brightness(.97); transform: scale(0.97);}
+        .modal-footer { border: 0; padding-top: 0.8rem;}
+        .limit-msg { text-align: center; color: #e76459; font-size: 1.02rem; margin: 0.3rem 0 0.1rem 0; display: none;}
+        @media (max-width:600px) { .study-card { padding: 1.7rem .5rem 1.3rem .5rem;} .chip-group { grid-template-columns: repeat(2,1fr);} .chip-btn { font-size:.97rem;}}
     </style>
 </head>
 <body>
 <div class="study-card shadow">
-    <div class="text-center mb-4"><!--상단 타이틀 시작점-->
+    <div class="text-center mb-4">
         <div class="study-logo">Study_Us</div>
-        </a>
         <div class="study-sub">나만의 스터디 카페, 지금 바로 시작하세요</div>
-    </div><!--상단 타이틀 끝점-->
+    </div>
     <form id="signupForm" action="/members/signup" method="post">
         <div class="mb-3">
             <label for="email" class="form-label">이메일</label>
@@ -91,53 +53,111 @@
             <label for="userBirth" class="form-label">생년월일</label>
             <input type="date" class="form-control" id="userBirth" name="userBirth" required>
         </div>
+        <!-- 관심사 hidden input (필수!) -->
+        <input type="hidden" name="categoryId" id="selectedCategoryId" required>
+        <div class="text-center mt-2 mb-4">
+            <a href="#" class="link-login"
+               data-bs-toggle="modal" data-bs-target="#interestModal"
+               style="font-size:1.18rem;font-weight:700;color:#14975f;letter-spacing:-0.01em;">
+                관심사등록 하기
+            </a>
+        </div>
+        <!-- 선택한 카테고리명 보여주는 영역 -->
+        <div class="text-center mb-2" id="selectedCategoryView"></div>
+
+
         <button type="submit" class="btn btn-study w-100 mb-2">가입하기</button>
         <div class="text-center mt-2">
             <a href="/members/login" class="link-login">이미 회원이신가요? 로그인</a>
         </div>
     </form>
 </div>
-<script th:inline="javascript">
-    // todo 만들고싶은기능 :
-    //     페이지 로드 되고나서
-    //     model.addAttribute으로 email이랑 provider가 넘어왔다면
-    //     provider(기본값: local) 설정하고
-    //     email 입력칸 내용 채우기. + readonly 속성 추가하기?
-    //     비밀번호는 어캐하지 사실 오어스로그인할때 비번 입력 안하니까 적어도 안적어도 상관없는거긴 한데
-    const email = /*[[${email}]]*/ null;
-    const prov = /*[[${prov}]]*/ null;
-    document.addEventListener("DOMContentLoaded", function () {
-        console.log("로그로그")
-        console.log("이메일")
-        console.log(email)
-        console.log(prov)
-        const emailInput = document.getElementById('email');
-        const pwdInput = document.getElementById('password');
-        if(email !== null && email !== "null"){
-            emailInput.value = email;
-            emailInput.readOnly = true;
-            pwdInput.disabled = true;
-        }
-    })
-</script>
 
-<!--<script>-->
-<!--    document.getElementById('signupForm').onsubmit = async function(e) {-->
-<!--        e.preventDefault();-->
-<!--        const data = {-->
-<!--            userEmail: document.getElementById('userEmail').value,-->
-<!--            userPassword: document.getElementById('userPassword').value,-->
-<!--            userAddress: document.getElementById('userAddress').value,-->
-<!--            userBirth: document.getElementById('userBirth').value-->
-<!--        };-->
-<!--        const res = await fetch('/api/users/register', {-->
-<!--            method: 'POST',-->
-<!--            headers: {'Content-Type': 'application/json'},-->
-<!--            body: JSON.stringify(data)-->
-<!--        });-->
-<!--        alert(await res.text());-->
-<!--        if (res.ok) location.href = "/users/login";-->
-<!--    };-->
-<!--</script>-->
+<!-- 관심사 설정 모달 -->
+<div class="modal fade" id="interestModal" tabindex="-1" aria-labelledby="interestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title w-100 text-center" id="interestModalLabel">관심사 선택</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-3 pb-1">
+                <div class="text-center mb-2 text-muted" style="font-size:1.04em;">관심사 1개만 선택해 주세요!</div>
+                <!-- DB 기반 칩 동적 출력 -->
+                <div class="chip-group" id="interestChips">
+                    <th:block th:each="cat : ${categories}">
+                        <button type="button" class="chip-btn" th:data-id="${cat.id}" th:text="${cat.name}"></button>
+                    </th:block>
+                </div>
+                <div class="limit-msg text-danger small text-center" id="limitMsg"></div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success px-4" id="saveInterestBtn">저장</button>
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 칩 단일 선택
+    document.addEventListener('DOMContentLoaded', function() {
+        const chipBtns = document.querySelectorAll('#interestChips .chip-btn');
+        const selectedCategoryInput = document.getElementById('selectedCategoryId');
+        const limitMsg = document.getElementById('limitMsg');
+        const selectedCategoryView = document.getElementById('selectedCategoryView');
+
+        // 칩 클릭
+        chipBtns.forEach(btn => {
+            btn.onclick = () => {
+                chipBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedCategoryInput.value = btn.dataset.id;
+                limitMsg.style.display = "none";
+            };
+        });
+
+        // 저장 버튼
+        document.getElementById('saveInterestBtn').onclick = () => {
+            const selectedBtn = document.querySelector('#interestChips .chip-btn.selected');
+            if(!selectedBtn){
+                limitMsg.textContent = '관심사를 1개 선택해주세요!';
+                limitMsg.style.display = "block";
+                return;
+            }
+            selectedCategoryInput.value = selectedBtn.dataset.id;
+            limitMsg.style.display = "none";
+
+            // 💡 선택된 카테고리명 폼에 표시
+            // **칩 버튼 디자인으로 미리보기 생성**
+            // 민트블루 스타일
+            selectedCategoryView.innerHTML =
+                `<button type="button" class="chip-btn selected" style="
+    pointer-events:none;
+    min-width:90px;
+    background: linear-gradient(95deg,#ffd96c 0%,#ffb55c 110%);
+    color: #925e13;
+    box-shadow: 0 7px 24px 0 rgba(255,210,120,0.17);
+    ">${selectedBtn.textContent}</button>`;
+
+
+
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('interestModal'));
+            modal.hide();
+        };
+
+        // 💡 회원가입 시 선택 안했을 때도 표시 유지
+        // (선택값이 있으면 폼 제출 전에도 자동 표시)
+        if(selectedCategoryInput.value) {
+            const selectedBtn = Array.from(chipBtns).find(btn => btn.dataset.id === selectedCategoryInput.value);
+            if(selectedBtn) {
+                selectedCategoryView.innerHTML =
+                    `<button type="button" class="chip-btn selected" style="pointer-events:none;min-width:90px;">${selectedBtn.textContent}</button>`;
+            }
+        }
+    });
+</script>
 </body>
 </html>

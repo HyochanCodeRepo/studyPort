@@ -2,7 +2,9 @@ package com.example.studyport.service;
 
 import com.example.studyport.constant.Role;
 import com.example.studyport.dto.MembersDTO;
+import com.example.studyport.entity.Category;
 import com.example.studyport.entity.Members;
+import com.example.studyport.repository.CategoryRepository;
 import com.example.studyport.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.awt.event.FocusAdapter;
+
 @Service
 @Transactional
 @Log4j2
@@ -23,6 +27,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     private ModelMapper modelMapper = new ModelMapper();
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
 
 
     @Override
@@ -33,6 +38,14 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         members.setRole(Role.USER);
         members.setPassword(passwordEncoder.encode(members.getPassword()));
 
+        // ⭐️ categoryId가 DTO에 들어있을 때!
+        Long categoryId = membersDTO.getCategoryId(); // getter 필요
+        // category FK 처리 (null 체크 포함)
+        if(categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
+            members.setCategory(category);
+        }
 
         memberRepository.save(members);
 
