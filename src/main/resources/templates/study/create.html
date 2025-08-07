@@ -40,7 +40,7 @@
 
 
     <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" id="privateChk" name="isPrivate">
+        <input class="form-check-input" type="checkbox" id="privateChk" name="isPrivate" value="true">
         <label class="form-check-label" for="privateChk">비공개</label>
     </div>
 
@@ -67,6 +67,14 @@
                 <th:block th:each="categories : ${categories}">
                     <option th:value="${categories.id}" th:text="${categories.name}"></option>
                 </th:block>
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="form-label">지역 설정</label>
+            <select class="form-control" id="location" name="location">
+                <option value="" disabled selected>지역을 설정해주세요</option>
+                <option>서울</option>
+                <option>부천</option>
             </select>
         </div>
 
@@ -128,8 +136,8 @@
         if (this.checked){
             passwordArea.innerHTML = `
                 <div class="d-flex gap-4">
-                    <label for ="passwordInput" class="form-label" style="align-items: center">비밀번호*</label>
-                    <input type="password" id="passwordInput" name="passwordInput" class="form-control" required style="max-width: 300px">
+                    <label for ="password" class="form-label" style="align-items: center">비밀번호*</label>
+                    <input type="password" id="password" name="password" class="form-control" required minlength="4" style="max-width: 300px">
                 </div>
             `;
             //애니메이션
