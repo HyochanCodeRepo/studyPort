@@ -110,10 +110,13 @@
         console.log("로그로그")
         console.log("이메일")
         console.log(email)
-        console.log(prov) //구글은 되는데 네이버는 안됨 WHY?;;
+        console.log(prov)
         const emailInput = document.getElementById('email');
+        const pwdInput = document.getElementById('password');
         if(email !== null && email !== "null"){
             emailInput.value = email;
+            emailInput.readOnly = true;
+            pwdInput.disabled = true;
         }
     })
 </script>
