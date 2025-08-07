@@ -97,6 +97,30 @@
         </div>
     </form>
 </div>
+<script th:inline="javascript">
+    // todo 만들고싶은기능 :
+    //     페이지 로드 되고나서
+    //     model.addAttribute으로 email이랑 provider가 넘어왔다면
+    //     provider(기본값: local) 설정하고
+    //     email 입력칸 내용 채우기. + readonly 속성 추가하기?
+    //     비밀번호는 어캐하지 사실 오어스로그인할때 비번 입력 안하니까 적어도 안적어도 상관없는거긴 한데
+    const email = /*[[${email}]]*/ null;
+    const prov = /*[[${prov}]]*/ null;
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("로그로그")
+        console.log("이메일")
+        console.log(email)
+        console.log(prov)
+        const emailInput = document.getElementById('email');
+        const pwdInput = document.getElementById('password');
+        if(email !== null && email !== "null"){
+            emailInput.value = email;
+            emailInput.readOnly = true;
+            pwdInput.disabled = true;
+        }
+    })
+</script>
+
 <!--<script>-->
 <!--    document.getElementById('signupForm').onsubmit = async function(e) {-->
 <!--        e.preventDefault();-->

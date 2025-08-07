@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
@@ -27,12 +28,18 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                                         Authentication authentication) throws IOException, ServletException {
 
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-        String email = (String) oAuth2User.getAttributes().get("email");
         String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 
+        String email;
+        if("naver".equals(provider)){
+            Map<String, Object> resp = (Map<String, Object>) oAuth2User.getAttributes().get("response");
+            email = (String) resp.get("email");
+        }else {
+            email = (String) oAuth2User.getAttributes().get("email");
+        }
+
         // 회원 여부 확인
-//        if (memberRepository.existsByEmail(email)) {
-        if (memberRepository.findByEmail(email)!=null) {
+        if (memberRepository.existsByEmail(email)) {
             response.sendRedirect("/");
         } else { //todo 일단 세션에 저장해두고 회원가입 페이지에서 가져오기 ("/member/signup")
             request.getSession().setAttribute("oauth2email", email);

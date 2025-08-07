@@ -54,6 +54,7 @@ public class CustomOAuth2RequestResolver implements OAuth2AuthorizationRequestRe
         // select_account : 어느 계정으로 로그인할건지 고르기
         // consent : 동의화면 띄우기
         // none : 없음?
+        // todo 구글은 한번 체크할 수 있는데 네이버는 뭐가 없음 😬
 
         return OAuth2AuthorizationRequest.from(authorizationRequest)
                 .additionalParameters(additionalParameters)
