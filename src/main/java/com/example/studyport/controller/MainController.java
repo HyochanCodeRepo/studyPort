@@ -1,6 +1,5 @@
 package com.example.studyport.controller;
 
-import com.example.studyport.dto.MembersDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -17,15 +16,7 @@ public class MainController {
 
     @GetMapping("/")
     public String main(Principal principal, Model model, HttpSession session) {
-        String  email = "";
-        MembersDTO user = (MembersDTO) session.getAttribute("user");
-        if (user != null) {
-            log.info(user.getEmail());
-            email = user.getEmail();
-        } else {
-            email = principal.getName();
-//            session.setAttribute("user", principal);
-        }
+        String  email = principal.getName();
 
         log.info("email: " + email);
         log.info("email: " + email);
