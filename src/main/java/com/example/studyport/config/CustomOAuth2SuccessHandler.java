@@ -36,7 +36,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         // 회원 여부 확인
         if (memberRepository.existsByEmail(email)) {
             response.sendRedirect("/");
-        } else { //todo 일단 세션에 저장해두고 회원가입 페이지에서 가져오기 ("/member/signup")
+        } else {
             request.getSession().setAttribute("oauth2email", email);
             request.getSession().setAttribute("oauth2provider", provider);
             response.sendRedirect("/members/signup");

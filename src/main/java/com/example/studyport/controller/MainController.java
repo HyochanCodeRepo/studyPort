@@ -17,6 +17,11 @@ public class MainController {
     @GetMapping("/")
     public String main(Principal principal, Model model, HttpSession session) {
         String  email = principal.getName();
+        // todo
+        //  OAuthAttribute.java에 있는 ofNaver(), ofGoogle() 리턴 부분에서
+        //  .nameAttributeKey 값만 바꿔주면 principal.getName()이 어떤 데이터를 가져올지 정할 수 있어요
+        //  지금은 이메일을 가져오게 해놨는데 로그인 환영 인사에서만 쓸 거면 name으로 바꿔도 좋겠어요
+
 
         log.info("email: " + email);
         log.info("email: " + email);

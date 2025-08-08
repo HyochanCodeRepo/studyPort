@@ -3,7 +3,6 @@ package com.example.studyport.controller;
 import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.entity.Category;
 import com.example.studyport.service.CategoryService;
-import com.example.studyport.service.CategoryServiceImpl;
 import com.example.studyport.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,6 @@ public class MemberController {
     }
 
 
-    //fixme 세션에서 끌고와서 있으면 모델로 넘겨줍니다...
     @GetMapping("/signup")
     public String signupGet(MembersDTO membersDTO, HttpSession session, Model model) {
 
