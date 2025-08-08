@@ -5,8 +5,10 @@ import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.dto.StudyDTO;
 import com.example.studyport.entity.Category;
 import com.example.studyport.entity.Members;
+import com.example.studyport.entity.Study;
 import com.example.studyport.repository.CategoryRepository;
 import com.example.studyport.repository.MemberRepository;
+import com.example.studyport.repository.StudyRepository;
 import com.example.studyport.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -32,6 +34,7 @@ public class StudyController {
     private final CategoryRepository categoryRepository;
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
+    private final StudyRepository studyRepository;
 
     @GetMapping("/create")
 
@@ -64,7 +67,7 @@ public class StudyController {
         studyService.create(studyDTO, mainimg);
 
 
-        return "study/create";
+        return "redirect:/";
     }
 
     @GetMapping("/list")
@@ -73,7 +76,13 @@ public class StudyController {
     }
 
     @GetMapping("/view")
-    public String view() {
+    public String view(Principal principal, Model model) {
+        String email = principal.getName();
+        Members members =
+            memberRepository.findByEmail(email);
+        List<Study> studyList =
+                studyRepository.findByMembers_Id(members.getId());
+        model.addAttribute("studyList", studyList);
         return "study/view";
     }
 }

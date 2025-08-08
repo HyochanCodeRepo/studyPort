@@ -16,11 +16,11 @@ import java.security.Principal;
 public class MainController {
 
     @GetMapping("/")
-
     public String main(Principal principal, Model model, HttpSession session) {
         String  email = "";
         MembersDTO user = (MembersDTO) session.getAttribute("user");
         if (user != null) {
+            log.info(user.getEmail());
             email = user.getEmail();
         } else {
             email = principal.getName();
