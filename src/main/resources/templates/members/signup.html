@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>회원가입 | Study_Us</title>
@@ -157,11 +157,19 @@
         <div class="text-center mt-2">
             <a href="/members/login" class="link-login">이미 회원이신가요? 로그인</a>
         </div>
+
+        <!--provider-->
+        <input type="hidden" id="provider" name="provider" value="local">
     </form>
 </div>
 
+<div>
+    <a href="https://nid.naver.com/internalToken/view/tokenList/pc/ko" target="_blank">
+        👈 정보제공동의 화면 다시 보려면 연결 해제하러 가기 (테스트환경용)
+    </a>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script th:inline="none">
     // 카테고리별 메시지
     const categoryMsg = {
         "IT/개발":"IT 스터디 팀에서 당신을 기다리고 있어요! 💻",
@@ -221,5 +229,30 @@
         }
     });
 </script>
+
+
+
+<script th:inline="javascript">
+    /*오어스로 온 사람은 회원가입시 이메일 적용, 비밀번호 입력 칸 숨기기*/
+    const email = /*[[${email}]]*/ null;
+    const prov = /*[[${prov}]]*/ null;
+    document.addEventListener("DOMContentLoaded", function () {
+        const emailInput = document.getElementById('email');
+        const pwdInput = document.getElementById('password');
+        const provInput = document.getElementById('provider');
+        if(email !== null && email !== "null"){
+            emailInput.value = email;
+            emailInput.readOnly = true;
+            pwdInput.closest('.mb-3').style.display = 'none';
+            pwdInput.value = "oauth2-verified";
+        }
+        if(prov !== null && prov !== "null"){
+            provInput.value = prov;
+        }
+        console.log(email)
+        console.log(prov)
+    })
+</script>
+
 </body>
 </html>

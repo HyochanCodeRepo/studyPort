@@ -1,10 +1,3 @@
-/***********************************************
- * 클래스명 : OAuthAttributes
- * 기능 :
- * 작성자 :
- * 작성일 : 2025-07-16
- * 수정 : 2025-07-16
- * ***********************************************/
 package com.example.studyport.dto;
 
 import com.example.studyport.constant.Role;
@@ -23,7 +16,7 @@ public class OAuthAttributes {
     private String provider;
 
     @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String provider, String providerId) {
+    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String provider) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
         this.name = name;
@@ -47,7 +40,7 @@ public class OAuthAttributes {
                 .email((String) response.get("email"))
                 .attributes(response)
                 .provider(registrationId)
-                .nameAttributeKey(userNameAttributeName)
+                .nameAttributeKey("name") //fixme principal.getName()이 해당되는것. email, name 가능
                 .build();
     }
 
@@ -57,7 +50,7 @@ public class OAuthAttributes {
                 .email((String) attributes.get("email"))
                 .attributes(attributes)
                 .provider(registrationId)
-                .nameAttributeKey(userNameAttributeName)
+                .nameAttributeKey("name")
                 .build();
     }
 
