@@ -24,7 +24,7 @@ public class testcontroller {
     private final CategoryService categoryService;
 
     @GetMapping("/signup01")
-    public String signupGet(MembersDTO membersDTO, HttpSession session, Model model) {
+    public String signupGet01(MembersDTO membersDTO, HttpSession session, Model model) {
 
 
         // ⭐️ 카테고리 목록을 모델에 추가
@@ -32,6 +32,17 @@ public class testcontroller {
         model.addAttribute("categories", categories);
 
         return "members/singup01";
+    }
+
+    @GetMapping("/signup02")
+    public String signupGet02(MembersDTO membersDTO, HttpSession session, Model model) {
+
+
+        // ⭐️ 카테고리 목록을 모델에 추가
+        List<Category> categories = categoryService.findAll();
+        model.addAttribute("categories", categories);
+
+        return "members/signup02";
     }
 
 
