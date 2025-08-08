@@ -1,161 +1,223 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>회원가입 | Study_Us</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Pretendard:wght@400;700&display=swap" rel="stylesheet" />
     <style>
-        body { background: linear-gradient(120deg, #e9f5ee 70%, #dbe8e5 100%); font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;}
-        .study-card { max-width: 410px; margin: 3.7rem auto 0 auto; background: #fff; border-radius: 25px; box-shadow: 0 10px 40px 0 rgba(100,150,110,.12); padding: 2.5rem 2.1rem 2rem 2.1rem;}
-        .study-logo { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #22583c; font-weight: 700; margin-bottom: .2rem; letter-spacing: -1.4px;}
-        .study-sub { color: #789b86; font-size: 1.04rem; margin-bottom: .4rem; letter-spacing: -0.01em;}
-        .form-label { font-weight: 600; color: #235344; margin-bottom: 0.3rem;}
-        .form-control { border-radius: 13px; border: 1.5px solid #e4efe7; font-size: 1.03rem; padding: .7rem 1.1rem; box-shadow: none !important;}
-        .btn-study { background: linear-gradient(93deg,#41ab77 0%,#1f5e41 110%); color: #fff; font-weight: 700; border-radius: 13px; font-size: 1.13rem; box-shadow: 0 8px 18px 0 rgba(65,171,119,0.14); letter-spacing: 0.03em; padding: .95rem 0; border: none; transition: background .14s;}
-        .btn-study:active { background: #34795b;}
-        .link-login { color: #287260; text-decoration: underline; font-weight:500; font-size:1.05rem; cursor:pointer; transition:color .15s;}
-        .link-login:hover { color: #18b87e; text-decoration: underline;}
-        /* 모달 */
-        .modal-content { border-radius: 22px; }
-        .modal-title { font-family: 'Playfair Display',serif; font-weight: 700; font-size: 1.32rem; color: #22583c;}
-        .chip-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.05rem 1.15rem; justify-items:center; margin-bottom: 1.4rem;}
-        .chip-btn { width: 100%; max-width:140px; min-width:0; background: #f3f7f5; color: #315e43; border: none; outline: none; font-weight: 500; border-radius: 999px; padding: .63rem 0; font-size: 1.07rem; box-shadow: 0 2px 10px 0 rgba(120,150,120,0.06); transition: background .16s, color .16s, box-shadow .14s, transform .13s; cursor: pointer; position: relative; overflow: hidden; text-align:center; margin-bottom: 0.1rem;}
-        .chip-btn.selected { background: linear-gradient(95deg, #41ab77 0%, #1f5e41 110%); color: #fff; box-shadow: 0 7px 24px 0 rgba(65,171,119,0.16); transform: translateY(-2px) scale(1.045);}
-        .chip-btn.selected::after { content: "✓"; font-size: 1.11em; color: #fffbe9; position: absolute; right: 1.1rem; top: 49%; transform: translateY(-50%); opacity: .93;}
-        .chip-btn:active { filter: brightness(.97); transform: scale(0.97);}
-        .modal-footer { border: 0; padding-top: 0.8rem;}
-        .limit-msg { text-align: center; color: #e76459; font-size: 1.02rem; margin: 0.3rem 0 0.1rem 0; display: none;}
-        @media (max-width:600px) { .study-card { padding: 1.7rem .5rem 1.3rem .5rem;} .chip-group { grid-template-columns: repeat(2,1fr);} .chip-btn { font-size:.97rem;}}
+        :root{
+            --mint:#e9f5ee; --mint2:#dbe8e5; --ink:#22583c; --sub:#789b86;
+            --chip:#f3f7f5; --chip-ink:#315e43; --accent:#ffd96c; --accent2:#ffb55c;
+            --grad-a:#41ab77; --grad-b:#1f5e41;
+        }
+        html,body{height:100%}
+        body{
+            background:linear-gradient(120deg,var(--mint) 65%,var(--mint2) 100%);
+            font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;
+            min-height:100vh;margin:0;
+        }
+        .wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center}
+        .title{font-family:'Playfair Display',serif;font-size:2.18rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-top:56px;margin-bottom:2px;text-align:center}
+        .desc{color:var(--sub);font-size:1.08rem;margin:0 0 2rem 0;text-align:center}
+
+        /* ===== 2열 보드 ===== */
+        .board{
+            width:100%;max-width:980px;margin:0 auto;
+            display:flex;gap:36px;align-items:stretch;justify-content:center;
+        }
+        .card{
+            background:#fff;border-radius:24px;box-shadow:0 8px 24px rgba(80,170,120,.10);
+            flex:1 1 0;min-width:0;max-width:460px;
+            padding:24px 18px 18px 18px;display:flex;flex-direction:column
+        }
+        .card.chips{
+            background:#f8faf9;border-left:5px solid var(--accent);
+            box-shadow:0 4px 18px rgba(80,160,120,.07)
+        }
+        .card h6{font-weight:800;color:#245e4a;margin:0 0 14px 4px;font-size:1.06rem}
+
+        /* inputs */
+        .form-label{font-weight:700;color:#235344;margin-bottom:.35rem}
+        .form-control{border-radius:13px;border:1.5px solid #e4efe7;font-size:1.04rem;padding:.74rem 1.1rem}
+
+        /* chip group: 깨짐 방지 flex-wrap */
+        .chip-group{
+            display:flex;flex-wrap:wrap;gap:1rem 1.1rem;align-items:flex-start
+        }
+        .chip-btn{
+            background:var(--chip);color:var(--chip-ink);
+            border:none;border-radius:999px;box-shadow:0 2px 10px rgba(120,150,120,.06);
+            padding:.62rem 1.2rem;font-size:1.06rem;font-weight:600;
+            cursor:pointer;transition:.15s;white-space:nowrap;flex:0 0 auto;min-width:88px;max-width:160px
+        }
+        .chip-btn:active{transform:scale(.97)}
+        .chip-btn.selected{
+            background:linear-gradient(95deg,var(--grad-a) 0%,var(--grad-b) 110%);
+            color:#fff;box-shadow:0 7px 24px rgba(65,171,119,.16);transform:translateY(-2px) scale(1.045)
+        }
+        .chip-btn.selected::after{
+            content:"✓";position:relative;margin-left:.45rem;opacity:.95
+        }
+        .limit{color:#e76459;font-weight:600;margin-top:.35rem;display:none}
+
+        /* 하단 미리보기/배너 (항상 공간 유지) */
+        .preview-row{
+            width:100%;max-width:980px;margin:18px auto 22px auto;
+            display:flex;justify-content:center
+        }
+        .preview{
+            min-height:56px;display:flex;gap:18px;align-items:flex-end;justify-content:center;transition:min-height .18s;width:100%
+        }
+        .preview.empty{opacity:0;min-height:56px}
+        .chip-preview{
+            pointer-events:none;background:linear-gradient(95deg,var(--accent) 0%,var(--accent2) 110%);
+            color:#925e13;border:none;border-radius:999px;box-shadow:0 7px 24px rgba(255,210,120,.17);
+            padding:.58rem 1.4rem;font-weight:800
+        }
+        .banner{
+            background:linear-gradient(89deg,#e3f9fa 40%,#faf3db 95%);border-radius:14px;
+            padding:.6em 1.2em;display:inline-flex;gap:.45em;align-items:center;
+            font-weight:700;color:#2d6568;font-size:1.03rem
+        }
+
+        .submit-btn{
+            background:linear-gradient(93deg,var(--grad-a) 0%,var(--grad-b) 110%);
+            color:#fff;font-weight:800;border:none;border-radius:13px;font-size:1.15rem;
+            padding:.95rem 0;box-shadow:0 8px 18px rgba(65,171,119,.14)
+        }
+
+        /* ===== 반응형 ===== */
+        @media (max-width: 960px){
+            .board{max-width:92vw}
+            .preview-row{max-width:92vw}
+        }
+        @media (max-width: 840px){
+            .board{flex-direction:column;gap:18px}
+            .card{max-width:100%}
+            .chip-group{gap:.7rem .9rem}
+        }
+        @media (max-width: 520px){
+            .title{font-size:1.9rem}
+            .chip-btn,.chip-preview{font-size:.98rem}
+            .banner{font-size:.95rem}
+            .preview,.preview.empty{min-height:40px}
+        }
     </style>
 </head>
 <body>
-<div class="study-card shadow">
-    <div class="text-center mb-4">
-        <div class="study-logo">Study_Us</div>
-        <div class="study-sub">나만의 스터디 카페, 지금 바로 시작하세요</div>
-    </div>
-    <form id="signupForm" action="/members/signup" method="post">
-        <div class="mb-3">
-            <label for="email" class="form-label">이메일</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="study@example.com" required>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">비밀번호</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호(6자 이상)" required minlength="6">
-        </div>
-        <div class="mb-3">
-            <label for="address" class="form-label">주소</label>
-            <input type="text" class="form-control" id="address" name="address" placeholder="거주지(시/구 등)" required>
-        </div>
-        <div class="mb-4">
-            <label for="userBirth" class="form-label">생년월일</label>
-            <input type="date" class="form-control" id="userBirth" name="userBirth" required>
-        </div>
-        <!-- 관심사 hidden input (필수!) -->
-        <input type="hidden" name="categoryId" id="selectedCategoryId" required>
-        <div class="text-center mt-2 mb-4">
-            <a href="#" class="link-login"
-               data-bs-toggle="modal" data-bs-target="#interestModal"
-               style="font-size:1.18rem;font-weight:700;color:#14975f;letter-spacing:-0.01em;">
-                관심사등록 하기
-            </a>
-        </div>
-        <!-- 선택한 카테고리명 보여주는 영역 -->
-        <div class="text-center mb-2" id="selectedCategoryView"></div>
+<div class="wrap">
+    <div class="title">회원가입</div>
+    <div class="desc">스터디 카페 서비스를 바로 시작해보세요!</div>
 
+    <form id="signupForm" action="/members/signup" method="post" style="width:100%;max-width:980px;padding:0 10px">
+        <!-- 가로 2열 -->
+        <div class="board">
+            <!-- 좌: 기본정보 -->
+            <section class="card">
+                <div class="mb-3">
+                    <label class="form-label" for="email">이메일</label>
+                    <input id="email" name="email" type="email" class="form-control" placeholder="study@example.com" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">비밀번호</label>
+                    <input id="password" name="password" type="password" class="form-control" placeholder="비밀번호(6자 이상)" minlength="6" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="address">주소</label>
+                    <input id="address" name="address" type="text" class="form-control" placeholder="거주지(시/구 등)" required />
+                </div>
+                <div>
+                    <label class="form-label" for="userBirth">생년월일</label>
+                    <input id="userBirth" name="userBirth" type="date" class="form-control" required />
+                </div>
+            </section>
 
-        <button type="submit" class="btn btn-study w-100 mb-2">가입하기</button>
+            <!-- 우: 관심사 -->
+            <section class="card chips">
+                <h6>관심사(카테고리) <span style="color:#e79523">*</span></h6>
+                <div id="interestChips" class="chip-group">
+                    <!-- DB 목록 바인딩 -->
+                    <th:block th:each="cat : ${categories}">
+                        <button type="button" class="chip-btn" th:data-id="${cat.id}" th:text="${cat.name}"></button>
+                    </th:block>
+                </div>
+                <input type="hidden" id="selectedCategoryId" name="categoryId" required />
+                <div id="limit" class="limit"></div>
+            </section>
+        </div>
+
+        <!-- [미리보기 + 배너] : 두 카드 아래, 가입하기 위 -->
+        <div class="preview-row">
+            <div id="preview" class="preview empty"></div>
+        </div>
+
+        <button type="submit" class="btn submit-btn w-100 mb-2">가입하기</button>
         <div class="text-center mt-2">
             <a href="/members/login" class="link-login">이미 회원이신가요? 로그인</a>
         </div>
     </form>
 </div>
 
-<!-- 관심사 설정 모달 -->
-<div class="modal fade" id="interestModal" tabindex="-1" aria-labelledby="interestModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title w-100 text-center" id="interestModalLabel">관심사 선택</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body pt-3 pb-1">
-                <div class="text-center mb-2 text-muted" style="font-size:1.04em;">관심사 1개만 선택해 주세요!</div>
-                <!-- DB 기반 칩 동적 출력 -->
-                <div class="chip-group" id="interestChips">
-                    <th:block th:each="cat : ${categories}">
-                        <button type="button" class="chip-btn" th:data-id="${cat.id}" th:text="${cat.name}"></button>
-                    </th:block>
-                </div>
-                <div class="limit-msg text-danger small text-center" id="limitMsg"></div>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-success px-4" id="saveInterestBtn">저장</button>
-                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">닫기</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 칩 단일 선택
-    document.addEventListener('DOMContentLoaded', function() {
-        const chipBtns = document.querySelectorAll('#interestChips .chip-btn');
-        const selectedCategoryInput = document.getElementById('selectedCategoryId');
-        const limitMsg = document.getElementById('limitMsg');
-        const selectedCategoryView = document.getElementById('selectedCategoryView');
+    // 카테고리별 메시지
+    const categoryMsg = {
+        "IT/개발":"IT 스터디 팀에서 당신을 기다리고 있어요! 💻",
+        "외국어":"글로벌 친구들이 모이는 스터디, 이제 당신 차례! 🌎",
+        "자격증":"자격증 합격을 향해 함께 달려봐요! 🏅",
+        "문학/책":"독서모임에 어울리는 감성파 멤버! 📚",
+        "음악/예술":"음악·예술 동아리에서 환영해요! 🎨",
+        "경영/경제":"경영·경제 트렌드를 함께 분석해요! 📊",
+        "수학/과학":"호기심 많은 이과 멤버들 환영! 🔬",
+        "취업/면접":"취업·면접 꿀팁 나눌 멤버를 찾고 있어요! 🎤",
+        "자기계발":"성장하는 우리 모두 응원합니다! 🚀",
+        "취미/여가":"여가·취미 스터디에서 즐겁게 만나요! 🎾",
+        "시사/트렌드":"트렌드 세터들과 통찰을 나눠보세요! 📰",
+        "운동/건강":"함께 건강하게, 함께 성장해요! 🏃‍♂️"
+    };
 
-        // 칩 클릭
-        chipBtns.forEach(btn => {
-            btn.onclick = () => {
-                chipBtns.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                selectedCategoryInput.value = btn.dataset.id;
-                limitMsg.style.display = "none";
-            };
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        const chips = [...document.querySelectorAll('#interestChips .chip-btn')];
+        const hidden = document.getElementById('selectedCategoryId');
+        const preview = document.getElementById('preview');
+        const limit = document.getElementById('limit');
+        const form = document.getElementById('signupForm');
 
-        // 저장 버튼
-        document.getElementById('saveInterestBtn').onclick = () => {
-            const selectedBtn = document.querySelector('#interestChips .chip-btn.selected');
-            if(!selectedBtn){
-                limitMsg.textContent = '관심사를 1개 선택해주세요!';
-                limitMsg.style.display = "block";
-                return;
-            }
-            selectedCategoryInput.value = selectedBtn.dataset.id;
-            limitMsg.style.display = "none";
-
-            // 💡 선택된 카테고리명 폼에 표시
-            // **칩 버튼 디자인으로 미리보기 생성**
-            // 민트블루 스타일
-            selectedCategoryView.innerHTML =
-                `<button type="button" class="chip-btn selected" style="
-    pointer-events:none;
-    min-width:90px;
-    background: linear-gradient(95deg,#ffd96c 0%,#ffb55c 110%);
-    color: #925e13;
-    box-shadow: 0 7px 24px 0 rgba(255,210,120,0.17);
-    ">${selectedBtn.textContent}</button>`;
-
-
-
-            // 모달 닫기
-            const modal = bootstrap.Modal.getInstance(document.getElementById('interestModal'));
-            modal.hide();
+        const clearPreview = () => { preview.classList.add('empty'); preview.innerHTML=''; };
+        const setPreview = (text) => {
+            const msg = categoryMsg[text] || '관심 분야의 멤버들이 기다리고 있어요!';
+            preview.innerHTML = `<span class="chip-preview">${text}</span>
+                           <span class="banner">✨ ${msg}</span>`;
+            preview.classList.remove('empty');
         };
 
-        // 💡 회원가입 시 선택 안했을 때도 표시 유지
-        // (선택값이 있으면 폼 제출 전에도 자동 표시)
-        if(selectedCategoryInput.value) {
-            const selectedBtn = Array.from(chipBtns).find(btn => btn.dataset.id === selectedCategoryInput.value);
-            if(selectedBtn) {
-                selectedCategoryView.innerHTML =
-                    `<button type="button" class="chip-btn selected" style="pointer-events:none;min-width:90px;">${selectedBtn.textContent}</button>`;
+        chips.forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                chips.forEach(b=>b.classList.remove('selected'));
+                btn.classList.add('selected');
+                hidden.value = btn.dataset.id;
+                limit.style.display='none';
+                setPreview(btn.textContent.trim());
+            });
+        });
+
+        form.addEventListener('submit', (e)=>{
+            if(!hidden.value){
+                limit.textContent='관심사를 1개 선택해 주세요!';
+                limit.style.display='block';
+                clearPreview();
+                e.preventDefault();
             }
+        });
+
+        // 새로고침 복원 처리
+        if(hidden.value){
+            const found = chips.find(b=>b.dataset.id===hidden.value);
+            if(found){ found.classList.add('selected'); setPreview(found.textContent.trim()); }
+        }else{
+            clearPreview();
         }
     });
 </script>

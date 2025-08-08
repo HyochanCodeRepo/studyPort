@@ -66,6 +66,6 @@ public class MemberController {
 
         memberService.create(membersDTO);
 
-        return "members/signup";
+        return  "redirect:/members/login";
     }
 }

@@ -1,239 +1,223 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>회원가입 | Study_Us</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Pretendard:wght@400;700&display=swap" rel="stylesheet" />
     <style>
-        body {
-            background: linear-gradient(120deg, #e9f5ee 65%, #dbe8e5 100%);
-            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-            min-height: 100vh;
+        :root{
+            --mint:#e9f5ee; --mint2:#dbe8e5; --ink:#22583c; --sub:#789b86;
+            --chip:#f3f7f5; --chip-ink:#315e43; --accent:#ffd96c; --accent2:#ffb55c;
+            --grad-a:#41ab77; --grad-b:#1f5e41;
         }
-        .main-wrap {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
+        html,body{height:100%}
+        body{
+            background:linear-gradient(120deg,var(--mint) 65%,var(--mint2) 100%);
+            font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;
+            min-height:100vh;margin:0;
         }
-        .signup-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.18rem;
-            color: #22583c;
-            font-weight: 700;
-            letter-spacing: -1.0px;
-            margin-top: 60px;
-            margin-bottom: 2px;
-            text-align: center;
+        .wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center}
+        .title{font-family:'Playfair Display',serif;font-size:2.18rem;font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-top:56px;margin-bottom:2px;text-align:center}
+        .desc{color:var(--sub);font-size:1.08rem;margin:0 0 2rem 0;text-align:center}
+
+        /* ===== 2열 보드 ===== */
+        .board{
+            width:100%;max-width:980px;margin:0 auto;
+            display:flex;gap:36px;align-items:stretch;justify-content:center;
         }
-        .signup-desc {
-            color: #789b86;
-            font-size: 1.10rem;
-            margin-bottom: 2.1vw;
-            text-align: center;
+        .card{
+            background:#fff;border-radius:24px;box-shadow:0 8px 24px rgba(80,170,120,.10);
+            flex:1 1 0;min-width:0;max-width:460px;
+            padding:24px 18px 18px 18px;display:flex;flex-direction:column
         }
-        /* 2컬럼 카드 레이아웃 */
-        .card-row-wrap {
-            display: flex;
-            gap: 34px;
-            margin: 0 auto 1.1rem auto;
-            justify-content: center;
-            align-items: flex-start;
+        .card.chips{
+            background:#f8faf9;border-left:5px solid var(--accent);
+            box-shadow:0 4px 18px rgba(80,160,120,.07)
         }
-        .form-section, .chip-section {
-            background: rgba(255,255,255,0.97);
-            border-radius: 24px;
-            box-shadow: 0 8px 24px 0 rgba(80,170,120,0.10);
-            width: 350px;
-            min-width: 0;
-            padding: 2.1rem 1.4rem 1.3rem 1.4rem;
-            margin: 0;
-            transition: box-shadow 0.16s;
+        .card h6{font-weight:800;color:#245e4a;margin:0 0 14px 4px;font-size:1.06rem}
+
+        /* inputs */
+        .form-label{font-weight:700;color:#235344;margin-bottom:.35rem}
+        .form-control{border-radius:13px;border:1.5px solid #e4efe7;font-size:1.04rem;padding:.74rem 1.1rem}
+
+        /* chip group: 깨짐 방지 flex-wrap */
+        .chip-group{
+            display:flex;flex-wrap:wrap;gap:1rem 1.1rem;align-items:flex-start
         }
-        .chip-section {
-            background: #f8faf9;
-            border-left: 5px solid #ffd96c;
-            box-shadow: 0 4px 18px 0 rgba(80,160,120,0.07);
-            padding-bottom: 1.15rem;
+        .chip-btn{
+            background:var(--chip);color:var(--chip-ink);
+            border:none;border-radius:999px;box-shadow:0 2px 10px rgba(120,150,120,.06);
+            padding:.62rem 1.2rem;font-size:1.06rem;font-weight:600;
+            cursor:pointer;transition:.15s;white-space:nowrap;flex:0 0 auto;min-width:88px;max-width:160px
         }
-        .chip-section-title {
-            font-size: 1.14rem;
-            font-weight: 700;
-            color: #245e4a;
-            margin-bottom: 1.15rem;
-            text-align: left;
+        .chip-btn:active{transform:scale(.97)}
+        .chip-btn.selected{
+            background:linear-gradient(95deg,var(--grad-a) 0%,var(--grad-b) 110%);
+            color:#fff;box-shadow:0 7px 24px rgba(65,171,119,.16);transform:translateY(-2px) scale(1.045)
         }
-        .form-label { font-weight: 600; color: #235344; margin-bottom: 0.3rem;}
-        .form-control { border-radius: 13px; border: 1.5px solid #e4efe7; font-size: 1.04rem; padding: .74rem 1.1rem;}
-        .btn-study { background: linear-gradient(93deg,#41ab77 0%,#1f5e41 110%); color: #fff; font-weight: 700; border-radius: 13px; font-size: 1.13rem; box-shadow: 0 8px 18px 0 rgba(65,171,119,0.14); letter-spacing: 0.03em; padding: .97rem 0; border: none; transition: background .14s;}
-        .btn-study:active { background: #34795b;}
-        /* 관심사(카테고리) */
-        .chip-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem 1.18rem; justify-items:center; margin-bottom: 0.1rem;}
-        .chip-btn { width: 100%; max-width:140px; min-width:0; background: #f3f7f5; color: #315e43; border: none; outline: none; font-weight: 500; border-radius: 999px; padding: .63rem 0; font-size: 1.07rem; box-shadow: 0 2px 10px 0 rgba(120,150,120,0.06); transition: background .17s, color .16s, box-shadow .14s, transform .13s; cursor: pointer; position: relative; overflow: hidden; text-align:center; margin-bottom: 0.1rem;}
-        .chip-btn.selected { background: linear-gradient(95deg, #41ab77 0%, #1f5e41 110%); color: #fff; box-shadow: 0 7px 24px 0 rgba(65,171,119,0.16); transform: translateY(-2px) scale(1.045);}
-        .chip-btn.selected::after { content: "✓"; font-size: 1.11em; color: #fffbe9; position: absolute; right: 1.1rem; top: 49%; transform: translateY(-50%); opacity: .93;}
-        .chip-btn:active { filter: brightness(.97); transform: scale(0.97);}
-        /* 하단 미리보기/배너 */
-        .bottom-preview-area {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 18px;
-            min-height: 60px;
-            margin-bottom: 1.18rem;
+        .chip-btn.selected::after{
+            content:"✓";position:relative;margin-left:.45rem;opacity:.95
         }
-        .chip-preview {
-            pointer-events: none;
-            min-width: 96px;
-            background: linear-gradient(95deg,#ffd96c 0%,#ffb55c 110%);
-            color: #925e13;
-            font-weight: 600;
-            border: none;
-            border-radius: 999px;
-            font-size: 1.09rem;
-            padding: .62rem 1.6rem;
-            box-shadow: 0 7px 24px 0 rgba(255,210,120,0.17);
-            margin-bottom: 0;
+        .limit{color:#e76459;font-weight:600;margin-top:.35rem;display:none}
+
+        /* 하단 미리보기/배너 (항상 공간 유지) */
+        .preview-row{
+            width:100%;max-width:980px;margin:18px auto 22px auto;
+            display:flex;justify-content:center
         }
-        .category-banner {
-            font-size: 1.07rem;
-            font-weight: 600;
-            color: #2d6568;
-            background: linear-gradient(89deg, #e3f9fa 40%, #faf3db 95%);
-            border-radius: 14px;
-            padding: 0.6em 1.3em;
-            box-shadow: 0 2px 10px 0 rgba(80,200,180,0.07);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45em;
-            animation: bannerFadeIn 0.5s;
+        .preview{
+            min-height:56px;display:flex;gap:18px;align-items:flex-end;justify-content:center;transition:min-height .18s;width:100%
         }
-        .category-banner .emoji { font-size: 1.27em; margin-right: 0.13em;}
-        .limit-msg { text-align: left; color: #e76459; font-size: 1.04rem; margin: 0.13rem 0 0.2rem 0; display: none;}
-        /* 반응형: 모바일/태블릿에서는 세로 배치 */
-        @media (max-width: 900px) {
-            .card-row-wrap { flex-direction: column; gap: 18px; align-items: center;}
-            .form-section, .chip-section { max-width: 95vw; width: 100%; }
-            .bottom-preview-area { flex-direction: column; align-items: center; }
+        .preview.empty{opacity:0;min-height:56px}
+        .chip-preview{
+            pointer-events:none;background:linear-gradient(95deg,var(--accent) 0%,var(--accent2) 110%);
+            color:#925e13;border:none;border-radius:999px;box-shadow:0 7px 24px rgba(255,210,120,.17);
+            padding:.58rem 1.4rem;font-weight:800
         }
-        @media (max-width: 480px) {
-            .main-wrap {padding: 1vw;}
-            .form-section, .chip-section { padding: 1.1rem 2vw;}
-            .chip-btn, .chip-preview { font-size:.95rem;}
-            .category-banner { font-size: 0.97rem;}
+        .banner{
+            background:linear-gradient(89deg,#e3f9fa 40%,#faf3db 95%);border-radius:14px;
+            padding:.6em 1.2em;display:inline-flex;gap:.45em;align-items:center;
+            font-weight:700;color:#2d6568;font-size:1.03rem
         }
-        @keyframes bannerFadeIn {
-            from { opacity: 0; transform: translateY(18px);}
-            to { opacity: 1; transform: translateY(0);}
+
+        .submit-btn{
+            background:linear-gradient(93deg,var(--grad-a) 0%,var(--grad-b) 110%);
+            color:#fff;font-weight:800;border:none;border-radius:13px;font-size:1.15rem;
+            padding:.95rem 0;box-shadow:0 8px 18px rgba(65,171,119,.14)
+        }
+
+        /* ===== 반응형 ===== */
+        @media (max-width: 960px){
+            .board{max-width:92vw}
+            .preview-row{max-width:92vw}
+        }
+        @media (max-width: 840px){
+            .board{flex-direction:column;gap:18px}
+            .card{max-width:100%}
+            .chip-group{gap:.7rem .9rem}
+        }
+        @media (max-width: 520px){
+            .title{font-size:1.9rem}
+            .chip-btn,.chip-preview{font-size:.98rem}
+            .banner{font-size:.95rem}
+            .preview,.preview.empty{min-height:40px}
         }
     </style>
 </head>
 <body>
-<div class="main-wrap">
-    <div class="signup-title">회원가입</div>
-    <div class="signup-desc">스터디 카페 서비스를 바로 시작해보세요!</div>
-    <form id="signupForm" action="/members/signup" method="post">
-        <div class="card-row-wrap">
-            <!-- 기본정보 카드 -->
-            <div class="form-section">
+<div class="wrap">
+    <div class="title">회원가입</div>
+    <div class="desc">스터디 카페 서비스를 바로 시작해보세요!</div>
+
+    <form id="signupForm" action="/members/signup" method="post" style="width:100%;max-width:980px;padding:0 10px">
+        <!-- 가로 2열 -->
+        <div class="board">
+            <!-- 좌: 기본정보 -->
+            <section class="card">
                 <div class="mb-3">
-                    <label for="email" class="form-label">이메일</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="study@example.com" required>
+                    <label class="form-label" for="email">이메일</label>
+                    <input id="email" name="email" type="email" class="form-control" placeholder="study@example.com" required />
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">비밀번호</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호(6자 이상)" required minlength="6">
+                    <label class="form-label" for="password">비밀번호</label>
+                    <input id="password" name="password" type="password" class="form-control" placeholder="비밀번호(6자 이상)" minlength="6" required />
                 </div>
                 <div class="mb-3">
-                    <label for="address" class="form-label">주소</label>
-                    <input type="text" class="form-control" id="address" name="address" placeholder="거주지(시/구 등)" required>
+                    <label class="form-label" for="address">주소</label>
+                    <input id="address" name="address" type="text" class="form-control" placeholder="거주지(시/구 등)" required />
                 </div>
                 <div>
-                    <label for="userBirth" class="form-label">생년월일</label>
-                    <input type="date" class="form-control" id="userBirth" name="userBirth" required>
+                    <label class="form-label" for="userBirth">생년월일</label>
+                    <input id="userBirth" name="userBirth" type="date" class="form-control" required />
                 </div>
-            </div>
-            <!-- 관심사(카테고리) 카드 -->
-            <div class="chip-section">
-                <div class="chip-section-title">관심사(카테고리) <span style="color:#e79523">*</span></div>
-                <div class="chip-group" id="interestChips">
+            </section>
+
+            <!-- 우: 관심사 -->
+            <section class="card chips">
+                <h6>관심사(카테고리) <span style="color:#e79523">*</span></h6>
+                <div id="interestChips" class="chip-group">
+                    <!-- DB 목록 바인딩 -->
                     <th:block th:each="cat : ${categories}">
                         <button type="button" class="chip-btn" th:data-id="${cat.id}" th:text="${cat.name}"></button>
                     </th:block>
                 </div>
-                <input type="hidden" name="categoryId" id="selectedCategoryId" required>
-                <div class="limit-msg" id="limitMsg"></div>
-            </div>
+                <input type="hidden" id="selectedCategoryId" name="categoryId" required />
+                <div id="limit" class="limit"></div>
+            </section>
         </div>
-        <!-- 하단 미리보기/배너 (가입버튼 위) -->
-        <div class="bottom-preview-area" id="bottomPreviewArea"></div>
-        <button type="submit" class="btn btn-study w-100 mb-2">가입하기</button>
+
+        <!-- [미리보기 + 배너] : 두 카드 아래, 가입하기 위 -->
+        <div class="preview-row">
+            <div id="preview" class="preview empty"></div>
+        </div>
+
+        <button type="submit" class="btn submit-btn w-100 mb-2">가입하기</button>
         <div class="text-center mt-2">
             <a href="/members/login" class="link-login">이미 회원이신가요? 로그인</a>
         </div>
     </form>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // 카테고리별 메시지
     const categoryMsg = {
-        "IT/개발": "IT 스터디 팀에서 당신을 기다리고 있어요! 💻",
-        "외국어": "글로벌 친구들이 모이는 스터디, 이제 당신 차례! 🌎",
-        "자격증": "자격증 합격을 향해 함께 달려봐요! 🏅",
-        "문학/책": "독서모임에 어울리는 감성파 멤버! 📚",
-        "음악/예술": "음악·예술 동아리에서 환영해요! 🎨",
-        "경영/경제": "경영·경제 트렌드를 함께 분석해요! 📊",
-        "수학/과학": "호기심 많은 이과 멤버들 환영! 🔬",
-        "취업/면접": "취업·면접 꿀팁 나눌 멤버를 찾고 있어요! 🎤",
-        "자기계발": "성장하는 우리 모두 응원합니다! 🚀",
-        "취미/여가": "여가·취미 스터디에서 즐겁게 만나요! 🎾",
-        "시사/트렌드": "트렌드 세터들과 통찰을 나눠보세요! 📰",
-        "운동/건강": "함께 건강하게, 함께 성장해요! 🏃‍♂️",
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        const chipBtns = document.querySelectorAll('#interestChips .chip-btn');
-        const selectedCategoryInput = document.getElementById('selectedCategoryId');
-        const limitMsg = document.getElementById('limitMsg');
-        const bottomPreviewArea = document.getElementById('bottomPreviewArea');
+        "IT/개발":"IT 스터디 팀에서 당신을 기다리고 있어요! 💻",
+        "외국어":"글로벌 친구들이 모이는 스터디, 이제 당신 차례! 🌎",
+        "자격증":"자격증 합격을 향해 함께 달려봐요! 🏅",
+        "문학/책":"독서모임에 어울리는 감성파 멤버! 📚",
+        "음악/예술":"음악·예술 동아리에서 환영해요! 🎨",
+        "경영/경제":"경영·경제 트렌드를 함께 분석해요! 📊",
+        "수학/과학":"호기심 많은 이과 멤버들 환영! 🔬",
+        "취업/면접":"취업·면접 꿀팁 나눌 멤버를 찾고 있어요! 🎤",
+        "자기계발":"성장하는 우리 모두 응원합니다! 🚀",
+        "취미/여가":"여가·취미 스터디에서 즐겁게 만나요! 🎾",
+        "시사/트렌드":"트렌드 세터들과 통찰을 나눠보세요! 📰",
+        "운동/건강":"함께 건강하게, 함께 성장해요! 🏃‍♂️"
+    };
 
-        chipBtns.forEach(btn => {
-            btn.onclick = () => {
-                chipBtns.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                selectedCategoryInput.value = btn.dataset.id;
-                limitMsg.style.display = "none";
-                // 하단 미리보기+배너
-                let txt = btn.textContent.trim();
-                let msg = categoryMsg[txt] || "관심 분야의 멤버들이 기다리고 있어요!";
-                bottomPreviewArea.innerHTML =
-                    `<button type="button" class="chip-preview">${btn.textContent}</button>
-                 <span class="category-banner"><span class="emoji">✨</span>${msg}</span>`;
-            };
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        const chips = [...document.querySelectorAll('#interestChips .chip-btn')];
+        const hidden = document.getElementById('selectedCategoryId');
+        const preview = document.getElementById('preview');
+        const limit = document.getElementById('limit');
+        const form = document.getElementById('signupForm');
 
-        document.getElementById('signupForm').onsubmit = function(e) {
-            if(!selectedCategoryInput.value) {
-                limitMsg.textContent = '관심사를 1개 선택해 주세요!';
-                limitMsg.style.display = "block";
-                bottomPreviewArea.innerHTML = '';
-                e.preventDefault();
-                return false;
-            }
-            return true;
+        const clearPreview = () => { preview.classList.add('empty'); preview.innerHTML=''; };
+        const setPreview = (text) => {
+            const msg = categoryMsg[text] || '관심 분야의 멤버들이 기다리고 있어요!';
+            preview.innerHTML = `<span class="chip-preview">${text}</span>
+                           <span class="banner">✨ ${msg}</span>`;
+            preview.classList.remove('empty');
         };
 
-        if(selectedCategoryInput.value) {
-            const selectedBtn = Array.from(chipBtns).find(btn => btn.dataset.id === selectedCategoryInput.value);
-            if(selectedBtn) {
-                selectedBtn.classList.add('selected');
-                let txt = selectedBtn.textContent.trim();
-                let msg = categoryMsg[txt] || "관심 분야의 멤버들이 기다리고 있어요!";
-                bottomPreviewArea.innerHTML =
-                    `<button type="button" class="chip-preview">${selectedBtn.textContent}</button>
-                 <span class="category-banner"><span class="emoji">✨</span>${msg}</span>`;
+        chips.forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                chips.forEach(b=>b.classList.remove('selected'));
+                btn.classList.add('selected');
+                hidden.value = btn.dataset.id;
+                limit.style.display='none';
+                setPreview(btn.textContent.trim());
+            });
+        });
+
+        form.addEventListener('submit', (e)=>{
+            if(!hidden.value){
+                limit.textContent='관심사를 1개 선택해 주세요!';
+                limit.style.display='block';
+                clearPreview();
+                e.preventDefault();
             }
+        });
+
+        // 새로고침 복원 처리
+        if(hidden.value){
+            const found = chips.find(b=>b.dataset.id===hidden.value);
+            if(found){ found.classList.add('selected'); setPreview(found.textContent.trim()); }
+        }else{
+            clearPreview();
         }
     });
 </script>
