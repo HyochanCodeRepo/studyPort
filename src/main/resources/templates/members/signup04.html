@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Onboarding UI (Bootstrap 5)</title>
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Inter 폰트 (선택) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ========== 전역 색상 변수 ========== */
+        :root{
+            --bg:#0b0b0f;              /* 전체 배경 색 */
+            --card:#18181f;            /* 카드 배경 색 */
+            --card-ink:#e7e7ec;        /* 카드 기본 텍스트 색 */
+            --muted:#9aa0a6;           /* 보조 텍스트 색 */
+            --accent:#3b82f6;          /* 포인트 색 (버튼 기본) */
+            --accent-hover:#2563eb;    /* 버튼 호버 색 */
+            --accent-ink:#ffffff;      /* 버튼 텍스트 색 */
+            --chip:#2a2a35;            /* 칩(태그) 배경 색 */
+            --chip-ink:#cbd5e1;        /* 칩 텍스트 색 */
+            --panel:#1f1f27;           /* 사이드 패널 배경 색 */
+            --panel-border:#2b2b36;    /* 사이드 패널 테두리 색 */
+        }
+
+        /* ========== 바디 기본 설정 ========== */
+        body{
+            background:var(--bg); /* 배경 색 */
+            color:#fff;           /* 기본 글자색 */
+            font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', Arial, sans-serif;
+            min-height:100vh;     /* 최소 높이 화면 전체 */
+            display:flex; flex-direction:column; /* 상하 레이아웃 */
+        }
+
+        /* ========== 헤더 ========== */
+        .hero h1{
+            font-size:clamp(22px, 3.2vw, 36px); /* 반응형 폰트 크기 */
+            line-height:1.25; font-weight:800;  /* 줄간격, 두께 */
+            letter-spacing:-0.02em;              /* 자간 줄이기 */
+        }
+
+        /* ========== 카드 컨테이너 스타일 ========== */
+        .hexa-card{
+            background:var(--card); color:var(--card-ink); border:0;
+            border-radius:18px; /* 모서리 둥글게 */
+            box-shadow:0 10px 30px rgba(0,0,0,.35); /* 그림자 */
+            transition:transform .25s ease, box-shadow .25s ease; /* 호버 효과 */
+        }
+        .hexa-card:hover{
+            transform:translateY(-4px); /* 살짝 위로 */
+            box-shadow:0 18px 40px rgba(0,0,0,.45); /* 그림자 강화 */
+        }
+
+        /* 카드 내 이미지/일러스트 영역 */
+        .illus{
+            width:100%; aspect-ratio:16/10; /* 가로:세로 비율 유지 */
+            background:
+                    radial-gradient(200px 120px at 70% 20%, rgba(59,130,246,.45), transparent 60%),
+                    radial-gradient(160px 100px at 30% 80%, rgba(147,51,234,.35), transparent 60%),
+                    linear-gradient(180deg, #232332, #1a1a24);
+            border-radius:14px;
+        }
+        .illus::after{
+            content:"일러스트 영역"; /* 더미 텍스트 */
+            color:var(--muted);
+            display:flex; align-items:center; justify-content:center; height:100%;
+            font-size:14px;
+        }
+
+        /* ========== 커스텀 버튼 (카드 내 버튼) ========== */
+        .btn-custom{
+            background:#1f1f27; /* 평상시 배경 */
+            color:var(--accent-ink); /* 글자색 */
+            border:1px solid #3a3a46;
+            border-radius:10px;
+            padding:.75rem 1.125rem;
+            font-weight:700;
+            transition:background-color .15s ease, box-shadow .15s ease, transform .04s ease;
+        }
+        .btn-custom:hover{
+            background:#2563eb; /* 호버시 배경 */
+            color:#fff;
+            box-shadow:0 6px 16px rgba(37,99,235,.35);
+        }
+        .btn-custom:active{
+            transform:translateY(1px); /* 클릭 시 눌린 효과 */
+        }
+
+        /* ========== 칩(태그) 스타일 ========== */
+        .chip{
+            background:var(--chip); color:var(--chip-ink);
+            font-size:12px; padding:6px 10px;
+            border-radius:999px; /* 완전 둥근 모양 */
+            border:1px solid #333645;
+        }
+
+        /* ========== 진행바 ========== */
+        .ticks span{
+            color:var(--muted); font-size:12px;
+        }
+        .progress{
+            height:3px; background:#242433;
+        }
+        .progress-bar{
+            background:linear-gradient(90deg, #60a5fa, #3b82f6); /* 파란색 그라데이션 */
+        }
+
+        /* ========== 사이드 아이콘 & 패널 ========== */
+        .side{
+            position:absolute;
+            top:10%;
+            z-index:10; /* 위에 표시 */
+        }
+        .side.left{ left:24px; }
+        .side.right{ right:24px; }
+        /* 화면 폭 1400px 이하에서는 숨김 */
+        @media (max-width:1400px){
+            .side{ display:none; }
+        }
+
+        /* 사이드 아이콘 버튼 */
+        .side-icon{
+            display:inline-flex; align-items:center; justify-content:center;
+            width:144px; height:144px; /* 3배 크기 */
+            border-radius:24px;
+            background:#1b1b25; border:1px solid #2f2f3c;
+            cursor:pointer;
+            transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+        }
+        .side-icon:hover{
+            background:#222233; /* 호버 시 배경 */
+            box-shadow:0 8px 20px rgba(0,0,0,.35);
+        }
+        .side-icon svg{
+            width:66px; height:66px; /* SVG도 3배 확대 */
+        }
+
+        /* 사이드 패널 */
+        .panel{
+            position:absolute; top:0;
+            width:260px;
+            background:var(--panel); border:1px solid var(--panel-border);
+            border-radius:14px; box-shadow:0 12px 32px rgba(0,0,0,.4);
+            padding:16px; display:flex; flex-direction:column; gap:12px;
+            opacity:0; pointer-events:none; transform:translateY(8px);
+            transition:opacity .18s ease, transform .18s ease;
+        }
+        /* 아이콘 144px + 간격 16px = 160px 만큼 옆으로 띄우기 */
+        .side.left .panel{ left:160px; }
+        .side.right .panel{ right:160px; }
+
+        /* 열렸을 때 패널 표시 */
+        .side.open .panel{
+            opacity:.98; pointer-events:auto; transform:translateY(0);
+        }
+
+        /* 패널 내부 버튼/닫기 */
+        .side .side-btn{
+            align-self:flex-start;
+            padding:10px 12px;
+            border-radius:10px; border:1px solid #343447;
+            color:#e5e7eb; background:#262637;
+            cursor:pointer;
+        }
+        .side .side-close{
+            align-self:flex-end;
+            background:transparent; color:#9aa0a6;
+            border:0; cursor:pointer; font-size:12px;
+        }
+    </style>
+
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="hero container text-center py-4">
+    <h1 class="mb-1">Microsoft Edge를 통해 이런한 최신 기능을 포함한 다양한 기능을 활용하세요.</h1>
+</header>
+
+<!-- 메인 -->
+<main class="position-relative flex-grow-1 d-flex align-items-center">
+    <!-- 좌측 아이콘 + 패널 -->
+    <aside class="side left">
+        <button class="side-icon" aria-expanded="false" aria-controls="side-left" title="데이터 가져오기">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 18a4 4 0 1 1 .9-7.9A5.5 5.5 0 0 1 19 11.5a3.5 3.5 0 0 1-.5 7H7Z" stroke="#a7b0c0" stroke-width="1.2"/>
+                <path d="M12 7v9m0 0l-3.5-3.5M12 16l3.5-3.5" stroke="#67b2ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <div class="panel" id="side-left" role="dialog" aria-hidden="true">
+            <button class="side-close" data-close>&times; 닫기</button>
+            <h4 class="m-0 fs-6">데이터 가져오기</h4>
+            <p class="text-secondary small mb-2">다른 브라우저의 비밀번호, 즐겨찾기 등을 한 번에 이전</p>
+            <button class="side-btn">가져오기</button>
+        </div>
+    </aside>
+
+    <!-- 우측 아이콘 + 패널 -->
+    <aside class="side right">
+        <button class="side-icon" aria-expanded="false" aria-controls="side-right" title="Edge 앱 다운로드">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#a7b0c0" stroke-width="1.2"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#a7b0c0" stroke-width="1.2"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#a7b0c0" stroke-width="1.2"/>
+                <path d="M14 14h3v3m-3 4h4m3-7v7" stroke="#67b2ff" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+        </button>
+        <div class="panel" id="side-right" role="dialog" aria-hidden="true">
+            <button class="side-close" data-close>&times; 닫기</button>
+            <h4 class="m-0 fs-6">Edge 앱 다운로드</h4>
+            <p class="text-secondary small mb-2">QR을 스캔하여 모바일에서도 이어서 사용해보세요</p>
+            <button class="side-btn">QR 열기</button>
+        </div>
+    </aside>
+
+    <!-- 카드 2개 -->
+    <div class="container py-4">
+        <div class="row g-4 justify-content-center">
+            <div class="col-12 col-lg-6">
+                <div class="card hexa-card h-100">
+                    <div class="card-body d-flex flex-column align-items-center text-center">
+                        <div class="illus w-100 mb-3"></div>
+                        <h3 class="fs-5 mb-2">Copilot에게 물어보세요</h3>
+                        <p class="text-secondary small mb-3">브라우징 중 궁금한 점은 곧바로 Copilot과 대화하며 해결하세요.</p>
+                        <button class="btn btn-custom mb-2">Copilot 열기</button>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="chip">요약</span><span class="chip">번역</span><span class="chip">코딩</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="card hexa-card h-100">
+                    <div class="card-body d-flex flex-column align-items-center text-center">
+                        <div class="illus w-100 mb-3"></div>
+                        <h3 class="fs-5 mb-2">테마 만들기</h3>
+                        <p class="text-secondary small mb-3">이미지 한 장으로 나만의 브라우저 테마를 손쉽게 생성합니다.</p>
+                        <button class="btn btn-custom mb-2">테마 만들기</button>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="chip">다크</span><span class="chip">글로시</span><span class="chip">미니멀</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 CTA + 검색 -->
+        <div class="d-flex flex-column align-items-center gap-3 mt-4">
+            <button class="btn btn-custom">검색 시작하기</button>
+
+            <form class="d-flex gap-2 align-items-center w-100" style="max-width:420px" onsubmit="event.preventDefault()">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-0 text-secondary">🔎</span>
+                    <input type="search" class="form-control bg-dark border-0 text-light" placeholder="웹 검색" aria-label="웹 검색 입력">
+                    <button class="btn btn-custom" type="submit">검색</button>
+                </div>
+            </form>
+
+            <!-- 진행 상태 7/7 -->
+            <div class="w-100" style="max-width:880px;">
+                <div class="d-flex justify-content-between align-items-end text-secondary mb-2 ticks">
+                    <span>1.</span><span>2.</span><span>3.</span><span>4.</span><span>5.</span><span>6.</span><span class="text-white fw-bold">7.</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 좌/우 아이콘 클릭 → 패널 토글, 바깥 클릭/ESC로 닫힘
+    document.querySelectorAll('.side').forEach(side => {
+        const icon = side.querySelector('.side-icon');
+        const panel = side.querySelector('.panel');
+        const closeBtn = side.querySelector('[data-close]');
+
+        const open = () => {
+            side.classList.add('open');
+            icon.setAttribute('aria-expanded','true');
+            panel.setAttribute('aria-hidden','false');
+        };
+        const close = () => {
+            side.classList.remove('open');
+            icon.setAttribute('aria-expanded','false');
+            panel.setAttribute('aria-hidden','true');
+        };
+
+        icon.addEventListener('click', (e)=>{ e.stopPropagation(); side.classList.contains('open') ? close() : open(); });
+        closeBtn.addEventListener('click', (e)=>{ e.stopPropagation(); close(); });
+
+        document.addEventListener('click', (e)=>{ if(!side.contains(e.target)) close(); });
+        document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+    });
+</script>
+</body>
+</html>
