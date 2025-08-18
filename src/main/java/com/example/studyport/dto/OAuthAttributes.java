@@ -40,7 +40,7 @@ public class OAuthAttributes {
                 .email((String) response.get("email"))
                 .attributes(response)
                 .provider(registrationId)
-                .nameAttributeKey("email") //fixme principal.getName()이 해당되는것. email, name 가능
+                .nameAttributeKey("email") //todo principal.getName()
                 .build();
     }
 
