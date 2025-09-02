@@ -17,21 +17,32 @@ public class StudyDTO {
 
     private Long id;
 
-    private String name;
+    private String name; // 스터디명
 
-    private String description;
+    private String description; // 스터디 소개
 
-    private String location;
+    private String location; // 지역
 
-    private String capacity;
+    private String capacity; // 최대인원
 
-    private String topic;
+    private String topic; // 카테고리
 
-    private boolean isPrivate;
+    private boolean isPrivate; // 비공개 여부
 
+    private String password; // 비밀번호
+
+    // 추가된 필드들
+    private String levelTag; // 난이도 (BEGINNER, INTERMEDIATE, ADVANCED)
+    
+    private String studyType; // 진행방식 (offline, online, hybrid)
+    
+    private String duration; // 스터디 기간
+    
+    private String frequency; // 모임 빈도
+    
+    private String goal; // 학습목표
 
     private MembersDTO membersDTO;
-    private String password;
 
     private List<ImageDTO> imageDTOList;
 
@@ -44,5 +55,4 @@ public class StudyDTO {
         this.imageDTOList = imageDTOList;
         return this;
     }
-
 }

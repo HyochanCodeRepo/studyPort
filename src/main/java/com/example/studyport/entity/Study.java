@@ -20,22 +20,32 @@ public class Study {
     private Long id;
 
     private String name;
-    private String topic;
+    private String topic; // 카테고리
 
     private String description;
 
-    private String location;
+    private String location; // 지역
 
-    private String capacity;
+    private String capacity; // 최대인원
 
     private String password;
 
-    private Boolean isPrivate;
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isPrivate = false;
 
+    // 추가된 필드들
+    private String levelTag; // 난이도 (BEGINNER, INTERMEDIATE, ADVANCED)
+    
+    private String studyType; // 진행방식 (offline, online, hybrid)
+    
+    private String duration; // 스터디 기간
+    
+    private String frequency; // 모임 빈도
+    
+    private String goal; // 학습목표
 
     @OneToMany(mappedBy = "study", fetch = FetchType.LAZY)
     private List<Image> imageList;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -45,6 +55,4 @@ public class Study {
         this.members = members;
         return this;
     }
-
-
 }
