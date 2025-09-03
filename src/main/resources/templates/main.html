@@ -5,626 +5,9 @@
     <title>StudyMate | 함께 성장하는 스터디 플랫폼</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/main.js"></script>
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            color: #1e293b;
-        }
-
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.4;
-        }
-
-        .floating-element {
-            position: absolute;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .floating-element:nth-child(1) { width: 120px; height: 120px; top: 10%; left: 5%; animation-delay: 0s; }
-        .floating-element:nth-child(2) { width: 80px; height: 80px; top: 70%; right: 10%; animation-delay: 3s; }
-        .floating-element:nth-child(3) { width: 150px; height: 150px; bottom: 20%; left: 20%; animation-delay: 6s; }
-        .floating-element:nth-child(4) { width: 60px; height: 60px; top: 30%; right: 25%; animation-delay: 2s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(180deg); }
-        }
-
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-            padding: 1rem 0;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #3b82f6;
-            text-decoration: none;
-            letter-spacing: -0.5px;
-        }
-
-        .search-bar {
-            flex: 1;
-            max-width: 500px;
-            margin: 0 2rem;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 3rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 50px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            width: 20px;
-            height: 20px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        .nav-btn {
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn {
-            color: #3b82f6;
-            border: 2px solid #3b82f6;
-            background: transparent;
-        }
-
-        .login-btn:hover {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .signup-btn {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            border: none;
-        }
-
-        .signup-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        /* Main Layout */
-        .main-container {
-            padding-top: 6rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            padding-left: 2rem;
-            padding-right: 2rem;
-            min-height: calc(100vh - 6rem);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .main-container.sidebar-collapsed {
-            grid-template-columns: 0 1fr;
-            gap: 0;
-        }
-
-        .sidebar-toggle-btn {
-            position: fixed;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 999;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .sidebar-toggle-btn:hover {
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .main-container.sidebar-collapsed .sidebar-toggle-btn {
-            display: flex;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 2rem;
-            height: fit-content;
-            position: sticky;
-            top: 7rem;
-            left: 0;
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            /*기존*/
-            /*transition: all 0.3s ease;*/
-            /*수정 후 */
-            transition: transform 0.3s ease;
-            overflow: hidden;
-        }
-
-        .sidebar.collapsed {
-            transform: translateX(-280px);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .sidebar-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            color: #64748b;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            right: -25px;
-        }
-
-        .sidebar-toggle:hover {
-            background: #f1f5f9;
-            color: #3b82f6;
-        }
-
-        .toggle-icon {
-            width: 20px;
-            height: 20px;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar.collapsed .toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .category-list {
-            list-style: none;
-        }
-
-        .category-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .category-link {
-            display: flex;
-            align-items: center;
-            padding: 0.875rem 1rem;
-            color: #64748b;
-            text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .category-link::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            transition: width 0.3s ease;
-            z-index: -1;
-        }
-
-        .category-link:hover::before {
-            width: 100%;
-        }
-
-        .category-link:hover {
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .category-link.active {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-        }
-
-        .category-icon {
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-        }
-
-        /* Main Content Area */
-        .content-area {
-            padding: 1rem 0;
-        }
-
-        .hero-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 3rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.1rem;
-            color: #64748b;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .cta-btn {
-            padding: 0.875rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .primary-cta {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-        }
-
-        .primary-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-        }
-
-        .secondary-cta {
-            background: rgba(255, 255, 255, 0.9);
-            color: #3b82f6;
-            border: 2px solid #3b82f6;
-        }
-
-        .secondary-cta:hover {
-            background: #3b82f6;
-            color: white;
-        }
-
-        /* Study Cards Grid */
-        .study-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .study-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .study-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
-        }
-
-        .study-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .study-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .study-category {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .study-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: #10b981;
-            font-weight: 500;
-        }
-
-        .study-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-
-        .study-description {
-            color: #64748b;
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-
-        .study-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #64748b;
-            font-size: 0.875rem;
-        }
-
-        .meta-icon {
-            width: 16px;
-            height: 16px;
-            color: #3b82f6;
-        }
-
-        .join-btn {
-            width: 100%;
-            padding: 0.75rem;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .join-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        /* Filter Bar */
-        .filter-bar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        .filter-title {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 1rem;
-        }
-
-        .filter-options {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-chip {
-            padding: 0.5rem 1rem;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 50px;
-            font-size: 0.875rem;
-            color: #475569;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-chip:hover {
-            background: #f1f5f9;
-        }
-
-        .filter-chip.active {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 1024px) {
-            .main-container {
-                grid-template-columns: 250px 1fr;
-                gap: 1.5rem;
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-
-            .sidebar {
-                padding: 1.5rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                padding: 0 1rem;
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-
-            .search-bar {
-                order: 3;
-                flex: 1 1 100%;
-                margin: 0;
-            }
-
-            .main-container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 1rem;
-            }
-
-            .sidebar {
-                order: 2;
-                position: relative;
-                top: 0;
-            }
-
-            .content-area {
-                order: 1;
-            }
-
-            .hero-section {
-                padding: 2rem;
-            }
-
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .study-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        /* Fade in animation */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in:nth-child(1) { animation-delay: 0.1s; }
-        .fade-in:nth-child(2) { animation-delay: 0.2s; }
-        .fade-in:nth-child(3) { animation-delay: 0.3s; }
-        .fade-in:nth-child(4) { animation-delay: 0.4s; }
-    </style>
 </head>
 <body>
 <!-- Animated Background -->
@@ -649,7 +32,7 @@
 
         <nav class="nav-links">
             <a href="/login" class="nav-btn login-btn">로그인</a>
-            <a href="/signup" class="nav-btn signup-btn">회원가입</a>
+            <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
         </nav>
     </div>
 </header>
@@ -752,24 +135,185 @@
             </div>
         </section>
 
-        <!-- Filter Bar -->
-<!--        봐야됨-->
+        <!-- Filter Bar with Dropdowns -->
 <!--        <section class="filter-bar fade-in">-->
-<!--            <div class="filter-title">필터</div>-->
-<!--            <div class="filter-options">-->
-<!--                <div class="filter-chip active" data-filter="all" onclick="filterStudies('all')">전체</div>-->
-<!--                <div th:each="topic : ${topicList}" class="filter-chip" th:data-filter="${topic}" th:onclick="'filterStudies(\'' + ${topic} + '\')'" th:text="${topic}">카테고리</div>-->
-<!--                <div class="filter-chip" data-filter="recruiting" onclick="filterStudies('recruiting')">모집중</div>-->
-<!--                <div class="filter-chip" data-filter="beginner" onclick="filterStudies('beginner')">초급</div>-->
-<!--                <div class="filter-chip" data-filter="intermediate" onclick="filterStudies('intermediate')">중급</div>-->
-<!--                <div class="filter-chip" data-filter="advanced" onclick="filterStudies('advanced')">고급</div>-->
+<!--            <div class="filter-title">-->
+<!--                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                    <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>-->
+<!--                </svg>-->
+<!--                필터-->
+<!--            </div>-->
+
+<!--            <div class="filter-controls">-->
+<!--                &lt;!&ndash; 카테고리 필터 &ndash;&gt;-->
+<!--                <div class="filter-dropdown-container">-->
+<!--                    <label class="filter-label">카테고리</label>-->
+<!--                    <div class="filter-dropdown" data-filter="topic">-->
+<!--                        <div class="dropdown-toggle" onclick="toggleDropdown('topic')">-->
+<!--                            <span class="dropdown-text">전체</span>-->
+<!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <div class="dropdown-menu" id="dropdown-topic">-->
+<!--                            <div class="dropdown-item active" data-value="all" onclick="selectFilter('topic', 'all', '전체')">전체</div>-->
+<!--                            <div th:each="topic : ${topicList}" class="dropdown-item" th:data-value="${topic}" th:onclick="'selectFilter(\'topic\', \'' + ${topic} + '\', \'' + ${topic} + '\')'" th:text="${topic}">카테고리</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; 지역 필터 &ndash;&gt;-->
+<!--                <div class="filter-dropdown-container">-->
+<!--                    <label class="filter-label">지역</label>-->
+<!--                    <div class="filter-dropdown" data-filter="location">-->
+<!--                        <div class="dropdown-toggle" onclick="toggleDropdown('location')">-->
+<!--                            <span class="dropdown-text">전체</span>-->
+<!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <div class="dropdown-menu" id="dropdown-location">-->
+<!--                            <div class="dropdown-item active" data-value="all" onclick="selectFilter('location', 'all', '전체')">전체</div>-->
+<!--                            &lt;!&ndash; 컨트롤러에서 locationList 추가 필요 &ndash;&gt;-->
+<!--                            <div th:each="location : ${locationList}" class="dropdown-item" th:data-value="${location}" th:onclick="'selectFilter(\'location\', \'' + ${location} + '\', \'' + ${location} + '\')'" th:text="${location}">지역</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; 난이도 필터 &ndash;&gt;-->
+<!--                <div class="filter-dropdown-container">-->
+<!--                    <label class="filter-label">난이도</label>-->
+<!--                    <div class="filter-dropdown" data-filter="level">-->
+<!--                        <div class="dropdown-toggle" onclick="toggleDropdown('level')">-->
+<!--                            <span class="dropdown-text">전체</span>-->
+<!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <div class="dropdown-menu" id="dropdown-level">-->
+<!--                            <div class="dropdown-item active" data-value="all" onclick="selectFilter('level', 'all', '전체')">전체</div>-->
+<!--                            <div class="dropdown-item" data-value="BEGINNER" onclick="selectFilter('level', 'BEGINNER', '초급')">초급</div>-->
+<!--                            <div class="dropdown-item" data-value="INTERMEDIATE" onclick="selectFilter('level', 'INTERMEDIATE', '중급')">중급</div>-->
+<!--                            <div class="dropdown-item" data-value="ADVANCED" onclick="selectFilter('level', 'ADVANCED', '고급')">고급</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; 필터 초기화 버튼 &ndash;&gt;-->
+<!--                <button class="filter-reset-btn" onclick="resetAllFilters()">-->
+<!--                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>-->
+<!--                    </svg>-->
+<!--                    초기화-->
+<!--                </button>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; 활성 필터 표시 &ndash;&gt;-->
+<!--            <div class="active-filters" id="active-filters" style="display: none;">-->
+<!--                <span class="active-filters-label">활성 필터:</span>-->
+<!--                <div class="active-filter-tags" id="active-filter-tags"></div>-->
 <!--            </div>-->
 <!--        </section>-->
+        <!-- 완전히 수정된 필터 바 섹션 -->
+        <section class="filter-bar fade-in">
+            <div class="filter-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                필터
+            </div>
 
-        <!-- Study Cards -->
+            <div class="filter-controls">
+                <!-- 카테고리 필터 -->
+                <div class="filter-dropdown-container">
+                    <label class="filter-label">카테고리</label>
+                    <div class="filter-dropdown" data-filter="topic">
+                        <div class="dropdown-toggle" onclick="toggleDropdown('topic')">
+                            <span class="dropdown-text">전체</span>
+                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-topic">
+                            <div class="dropdown-item active" data-value="all" data-type="topic" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
+                            <div th:each="topic : ${topicList}" class="dropdown-item"
+                                 th:data-value="${topic}"
+                                 th:data-type="topic"
+                                 th:data-display="${topic}"
+                                 th:text="${topic}"
+                                 onclick="selectFilterFromData(this)">카테고리</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 지역 필터 -->
+                <div class="filter-dropdown-container">
+                    <label class="filter-label">지역</label>
+                    <div class="filter-dropdown" data-filter="location">
+                        <div class="dropdown-toggle" onclick="toggleDropdown('location')">
+                            <span class="dropdown-text">전체</span>
+                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-location">
+                            <div class="dropdown-item active" data-value="all" data-type="location" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
+                            <!-- 지역 필터도 동일하게 수정 -->
+                            <div th:each="location : ${locationList}" class="dropdown-item"
+                                 th:data-value="${location}"
+                                 th:data-type="location"
+                                 th:data-display="${location}"
+                                 th:text="${location}"
+                                 onclick="selectFilterFromData(this)">지역</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 난이도 필터 -->
+                <div class="filter-dropdown-container">
+                    <label class="filter-label">난이도</label>
+                    <div class="filter-dropdown" data-filter="level">
+                        <div class="dropdown-toggle" onclick="toggleDropdown('level')">
+                            <span class="dropdown-text">전체</span>
+                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-level">
+                            <div class="dropdown-item active" data-value="all" data-type="level" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
+                            <div class="dropdown-item" data-value="BEGINNER" data-type="level" data-display="초급" onclick="selectFilterFromData(this)">초급</div>
+                            <div class="dropdown-item" data-value="INTERMEDIATE" data-type="level" data-display="중급" onclick="selectFilterFromData(this)">중급</div>
+                            <div class="dropdown-item" data-value="ADVANCED" data-type="level" data-display="고급" onclick="selectFilterFromData(this)">고급</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 필터 초기화 버튼 -->
+                <button class="filter-reset-btn" onclick="resetAllFilters()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                    </svg>
+                    초기화
+                </button>
+            </div>
+
+            <!-- 활성 필터 표시 -->
+            <div class="active-filters" id="active-filters" style="display: none;">
+                <span class="active-filters-label">활성 필터:</span>
+                <div class="active-filter-tags" id="active-filter-tags"></div>
+            </div>
+        </section>
+
+        <!-- Study Cards에 데이터 속성 추가 -->
         <section id="study-list" class="study-grid">
-            <!-- Thymeleaf로 DB에서 가져온 스터디 목록 반복 -->
-            <div th:each="study : ${studies}" class="study-card fade-in">
+            <div th:each="study : ${studies}"
+                 class="study-card fade-in"
+                 th:data-topic="${study.topic}"
+                 th:data-location="${study.location}"
+                 th:data-level="${study.levelTag}"
+                 th:data-status="${study.isPrivate ? 'private' : 'recruiting'}">
+
+                <!-- 기존 스터디 카드 내용 그대로 유지 -->
                 <div class="study-header">
                     <span class="study-category" th:text="${study.topic}">카테고리</span>
                     <div class="study-status">
@@ -780,26 +324,14 @@
                     </div>
                 </div>
                 <h3 class="study-title" th:text="${study.name}">스터디 제목</h3>
-<!--                <p class="study-description" th:text="${#strings.length(study.description) > 100} ? ${#strings.substring(study.description, 0, 100)} + '...' : ${study.description}">-->
-<!--                    스터디 설명-->
-<!--                </p>-->
-<!--                수정해야된다!!-->
-<!--                <p th:text="${#strings.length(study.description) > 100 ? #strings.substring(study.description, 0, 100).concat('...') : study.description}">-->
-<!--                    스터디 설명-->
-<!--                </p>-->
                 <p th:text="${study.description}">스터디 설명</p>
-
 
                 <div class="study-meta">
                     <div class="meta-item" th:if="${study.frequency}">
                         <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
                         </svg>
-
-<!--                        여기도 확인해야된다!!-->
                         <span th:text="${study.frequency}">frequency</span>
-
-
                     </div>
                     <div class="meta-item" th:if="${study.location}">
                         <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
@@ -807,8 +339,8 @@
                         </svg>
                         <span th:text="${study.location}">위치</span>
                         <span th:if="${study.studyType}" th:text="'(' + (${study.studyType == 'hybrid'} ? '온/오프라인 병행' :
-                                                                        (${study.studyType == 'online'} ? '온라인' :
-                                                                        (${study.studyType == 'offline'} ? '오프라인' : ${study.studyType}))) + ')'"></span>
+                                                                (${study.studyType == 'online'} ? '온라인' :
+                                                                (${study.studyType == 'offline'} ? '오프라인' : ${study.studyType}))) + ')'"></span>
                     </div>
                     <div class="meta-item" th:if="${study.capacity}">
                         <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
@@ -821,8 +353,8 @@
                             <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                         </svg>
                         <span th:text="${study.levelTag == 'BEGINNER'} ? '초급' :
-                                       (${study.levelTag == 'INTERMEDIATE'} ? '중급' :
-                                       (${study.levelTag == 'ADVANCED'} ? '고급' : ${study.levelTag}))">난이도</span>
+                               (${study.levelTag == 'INTERMEDIATE'} ? '중급' :
+                               (${study.levelTag == 'ADVANCED'} ? '고급' : ${study.levelTag}))">난이도</span>
                     </div>
                 </div>
                 <button class="join-btn" th:onclick="'joinStudy(' + ${study.id} + ')'">
@@ -831,7 +363,7 @@
             </div>
 
             <!-- 스터디가 없을 경우 메시지 -->
-            <div th:if="${#lists.isEmpty(studies)}" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
+            <div th:if="${#lists.isEmpty(studies)}" class="no-studies-message" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
                 <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; opacity: 0.5;" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>
                 </svg>
@@ -843,13 +375,6 @@
     </main>
 </div>
 
-<script>
-function joinStudy(studyId) {
-    // 스터디 참여 기능 구현 (추후 개발)
-    alert('스터디 참여 기능은 준비 중입니다. 스터디 ID: ' + studyId);
-    // 향후 Ajax로 스터디 참여 처리
-    // fetch('/study/join/' + studyId, { method: 'POST' })
-}
-</script>
+
 </body>
 </html>

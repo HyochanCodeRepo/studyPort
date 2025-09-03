@@ -16,6 +16,7 @@ import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -49,23 +50,30 @@ public class MainController {
                 .collect(Collectors.toList());
 
         log.info("조회된 공개 스터디 개수: {}", studyDTOList.size());
-        
+
         // topic별로 그룹화
         Map<String, List<StudyDTO>> studiesByTopic = studyDTOList.stream()
                 .collect(Collectors.groupingBy(
-                    study -> study.getTopic() != null ? study.getTopic() : "기타",
-                    LinkedHashMap::new,  // 순서 유지
-                    Collectors.toList()
+                        study -> study.getTopic() != null ? study.getTopic() : "기타",
+                        LinkedHashMap::new,  // 순서 유지
+                        Collectors.toList()
                 ));
-        
-        // 전체 스터디 목록과 topic별 그룹 둘 다 전달
+
+        // 지역 목록 추출 (null이 아닌 것만)
+        Set<String> locationSet = studyDTOList.stream()
+                .map(StudyDTO::getLocation)
+                .filter(location -> location != null && !location.trim().isEmpty())
+                .collect(Collectors.toSet());
+
+        // 전체 스터디 목록과 topic별 그룹, 지역 목록 전달
         model.addAttribute("studies", studyDTOList);
         model.addAttribute("studiesByTopic", studiesByTopic);
         model.addAttribute("topicList", studiesByTopic.keySet());
-        
+        model.addAttribute("locationList", locationSet);
+
         log.info("카테고리별 스터디 분류: {}", studiesByTopic.keySet());
+        log.info("지역 목록: {}", locationSet);
 
         return "main";
     }
-
 }
