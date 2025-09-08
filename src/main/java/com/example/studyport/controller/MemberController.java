@@ -33,12 +33,29 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(MembersDTO membersDTO) {
-
-        log.info(membersDTO.toString());
-        log.info(membersDTO.toString());
-        log.info(membersDTO.toString());
-        return "/";
+    public String login(MembersDTO membersDTO, HttpSession session, Model model) {
+        
+        log.info("로그인 시도: " + membersDTO.getEmail());
+        
+        // 사용자 인증
+        var authenticatedMember = memberService.authenticateUser(
+            membersDTO.getEmail(), 
+            membersDTO.getPassword()
+        );
+        
+        if (authenticatedMember != null) {
+            // 인증 성공 - 세션에 사용자 정보 저장
+            session.setAttribute("loggedInUser", authenticatedMember);
+            session.setAttribute("userEmail", authenticatedMember.getEmail());
+            session.setAttribute("userName", authenticatedMember.getName());
+            log.info("로그인 성공: " + authenticatedMember.getEmail());
+            return "redirect:/";
+        } else {
+            // 인증 실패
+            log.info("로그인 실패: " + membersDTO.getEmail());
+            model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
+            return "members/login";
+        }
     }
 
 
@@ -67,5 +84,13 @@ public class MemberController {
         memberService.create(membersDTO);
 
         return  "redirect:/members/login";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        // 세션 무효화
+        session.invalidate();
+        log.info("사용자 로그아웃 완료");
+        return "redirect:/";
     }
 }

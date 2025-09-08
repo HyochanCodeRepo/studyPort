@@ -30,17 +30,37 @@ public class MainController {
     @GetMapping("/")
     public String main(Principal principal, Model model, HttpSession session) {
         String email = "";
-        MembersDTO user = (MembersDTO) session.getAttribute("user");
-        if (user != null) {
-            log.info(user.getEmail());
-            email = user.getEmail();
-        } else if (principal != null) {
-            email = principal.getName();
+        String userName = "";
+        boolean isLoggedIn = false;
+        
+        // 세션에서 로그인된 사용자 정보 확인
+        String sessionEmail = (String) session.getAttribute("userEmail");
+        String sessionUserName = (String) session.getAttribute("userName");
+        
+        if (sessionEmail != null) {
+            email = sessionEmail;
+            userName = sessionUserName != null ? sessionUserName : email;
+            isLoggedIn = true;
+            log.info("세션에서 로그인된 사용자 확인: " + email);
+        } else {
+            // 기존 OAuth 또는 Principal 처리
+            MembersDTO user = (MembersDTO) session.getAttribute("user");
+            if (user != null) {
+                log.info(user.getEmail());
+                email = user.getEmail();
+                userName = user.getName() != null ? user.getName() : email;
+                isLoggedIn = true;
+            } else if (principal != null) {
+                email = principal.getName();
+                userName = email; // 이름이 없으면 이메일을 사용
+                isLoggedIn = true;
+            }
         }
 
-        log.info("email: " + email);
-        log.info("principal: " + principal);
+        log.info("email: " + email + ", userName: " + userName + ", isLoggedIn: " + isLoggedIn);
         model.addAttribute("email", email);
+        model.addAttribute("userName", userName);
+        model.addAttribute("isLoggedIn", isLoggedIn);
 
         // 최신 스터디 10개 조회 (공개 스터디만)
         List<Study> studyList = studyRepository.findTop10ByOrderByIdDesc();

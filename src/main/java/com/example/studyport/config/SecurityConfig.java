@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         (AuthorizeHttpRequests) -> AuthorizeHttpRequests
                                 .requestMatchers("/members/login", "/members/signup").permitAll()
+                                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().permitAll()
 
                 )

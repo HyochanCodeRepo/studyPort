@@ -21,7 +21,11 @@
 <!-- Header -->
 <header class="header">
     <div class="header-content">
-        <a href="/" class="logo">StudyUs</a>
+        <a href="/" class="logo">
+            <img src="/images/StudyUsLogo.png" alt="StudyUs" class="logo-img">
+        </a>
+
+
 
         <div class="search-bar">
             <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
@@ -31,8 +35,16 @@
         </div>
 
         <nav class="nav-links">
-            <a href="/login" class="nav-btn login-btn">로그인</a>
-            <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
+            <div th:if="${isLoggedIn}" class="user-info">
+                <span class="welcome-message">
+                    <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                </span>
+                <a href="/members/logout" class="nav-btn logout-btn">로그아웃</a>
+            </div>
+            <div th:unless="${isLoggedIn}" class="auth-links">
+                <a href="/members/login" class="nav-btn login-btn">로그인</a>
+                <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
+            </div>
         </nav>
     </div>
 </header>

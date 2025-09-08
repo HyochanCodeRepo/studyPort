@@ -52,6 +52,24 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     }
 
     @Override
+    public Members authenticateUser(String email, String password) {
+        Members member = memberRepository.findByEmail(email);
+        
+        if (member == null) {
+            log.info("해당 이메일로 가입된 사용자가 없습니다: " + email);
+            return null;
+        }
+        
+        if (passwordEncoder.matches(password, member.getPassword())) {
+            log.info("로그인 성공: " + member.getEmail());
+            return member;
+        } else {
+            log.info("비밀번호가 일치하지 않습니다: " + email);
+            return null;
+        }
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
 
         Members members = memberRepository.findByEmail(email);

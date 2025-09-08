@@ -77,6 +77,18 @@
             color: #3b82f6;
             text-decoration: none;
             letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 35px;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover .logo-img {
+            transform: scale(1.05);
         }
 
         .nav-links {
@@ -483,7 +495,9 @@
 <!-- Header -->
 <header class="header">
     <div class="header-content">
-        <a href="#" class="logo">Designspiration</a>
+        <a href="/" class="logo">
+            <img src="/images/StudyUsLogo.png" alt="StudyUs" style="height: 35px; width: auto;">
+        </a>
         <nav class="nav-links">
             <a href="#">Explore</a>
             <a href="#">Get Pro</a>

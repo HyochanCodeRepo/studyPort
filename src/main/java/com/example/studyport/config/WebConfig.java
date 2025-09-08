@@ -32,9 +32,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 업로드된 이미지에 대한 웹 접근 경로 설정
-        registry.addResourceHandler("/images/**")
+        // 업로드된 이미지
+        registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath)
-                .setCachePeriod(3600); // 1시간 캐시
+                .setCachePeriod(3600);
+
+        // static 폴더 이미지
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("classpath:/static/images/")
+                .setCachePeriod(3600);
     }
 }

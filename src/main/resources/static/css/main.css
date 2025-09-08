@@ -69,6 +69,18 @@ body {
     color: #3b82f6;
     text-decoration: none;
     letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 120px;
+    width: auto;
+    transition: all 0.3s ease;
+}
+
+.logo:hover .logo-img {
+    transform: scale(1.05);
 }
 
 .search-bar {
@@ -138,6 +150,41 @@ body {
 .signup-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* User Info Styles */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.welcome-message {
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.9rem;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.logout-btn {
+    color: #ef4444;
+    border: 2px solid #ef4444;
+    background: transparent;
+    padding: 0.5rem 1rem;
+}
+
+.logout-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.auth-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
 }
 
 /* Main Layout */
