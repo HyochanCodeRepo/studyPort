@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 public interface MemberService {
 
-    public void create(MembersDTO membersDTO);
+    public Members create(MembersDTO membersDTO);
     
     public Members authenticateUser(String email, String password);
 

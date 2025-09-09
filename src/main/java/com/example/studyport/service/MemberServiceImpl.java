@@ -17,7 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.awt.event.FocusAdapter;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -31,24 +32,33 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
 
     @Override
-    public void create(MembersDTO membersDTO) {
+    public Members create(MembersDTO membersDTO) {
 
-        Members members =
-            modelMapper.map(membersDTO, Members.class);
+        Members members = new Members();
+        // 기본 필드 수동 매핑 (ModelMapper가 categories 컬렉션을 제대로 처리하지 못할 수 있음)
+        members.setName(membersDTO.getName());
+        members.setEmail(membersDTO.getEmail());
+        members.setPhone(membersDTO.getPhone());
+        members.setAddress(membersDTO.getAddress());
+        members.setProvider(membersDTO.getProvider());
+        members.setProviderId(membersDTO.getProviderId());
         members.setRole(Role.USER);
-        members.setPassword(passwordEncoder.encode(members.getPassword()));
+        members.setPassword(passwordEncoder.encode(membersDTO.getPassword()));
 
-        // ⭐️ categoryId가 DTO에 들어있을 때!
-        Long categoryId = membersDTO.getCategoryId(); // getter 필요
-        // category FK 처리 (null 체크 포함)
-        if(categoryId != null) {
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
-            members.setCategory(category);
+        // 여러 카테고리 처리
+        if (membersDTO.getCategoryIds() != null && !membersDTO.getCategoryIds().isEmpty()) {
+            Set<Category> categories = new HashSet<>();
+            
+            for (Long categoryId : membersDTO.getCategoryIds()) {
+                Category category = categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + categoryId));
+                categories.add(category);
+            }
+            
+            members.setCategories(categories);
         }
 
-        memberRepository.save(members);
-
+        return memberRepository.save(members);
     }
 
     @Override

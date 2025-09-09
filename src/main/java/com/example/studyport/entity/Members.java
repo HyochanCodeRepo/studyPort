@@ -5,6 +5,9 @@ import com.example.studyport.constant.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -26,10 +29,14 @@ public class Members {
     private String password;
     private String address;
 
-    // 단일 관심사 (카테고리 FK)
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    // 다중 관심사 (최대 3개, 카테고리 다대다 관계)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "member_categories",
+        joinColumns = @JoinColumn(name = "member_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -2,6 +2,7 @@ package com.example.studyport.controller;
 
 import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.entity.Category;
+import com.example.studyport.entity.Members;
 import com.example.studyport.service.CategoryService;
 import com.example.studyport.service.CategoryServiceImpl;
 import com.example.studyport.service.MemberService;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -78,12 +81,39 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public String signupPost(MembersDTO membersDTO,  @RequestParam Long categoryId) {
+    public String signupPost(MembersDTO membersDTO, @RequestParam String categoryIds, HttpSession session) {
         log.info(membersDTO);
+        log.info("선택된 카테고리 IDs: " + categoryIds);
+        
+        // 쉼표로 구분된 카테고리 ID 문자열을 List<Long>으로 변환
+        if (categoryIds != null && !categoryIds.trim().isEmpty()) {
+            try {
+                List<Long> categoryIdList = Arrays.stream(categoryIds.split(","))
+                    .map(String::trim)
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+                
+                // 최대 3개 제한 확인
+                if (categoryIdList.size() > 3) {
+                    categoryIdList = categoryIdList.subList(0, 3);
+                }
+                
+                membersDTO.setCategoryIds(categoryIdList);
+            } catch (NumberFormatException e) {
+                log.error("카테고리 ID 파싱 오류: " + categoryIds, e);
+            }
+        }
 
-        memberService.create(membersDTO);
+        // 회원가입 처리
+        Members createdMember = memberService.create(membersDTO);
+        
+        // 회원가입 성공 시 세션에 사용자 정보 저장 (자동 로그인 효과)
+        session.setAttribute("loggedInUser", createdMember);
+        session.setAttribute("userEmail", createdMember.getEmail());
+        session.setAttribute("userName", createdMember.getName());
+        log.info("회원가입 성공 및 자동 로그인: " + createdMember.getEmail());
 
-        return  "redirect:/members/login";
+        return  "redirect:/";
     }
 
     @GetMapping("/logout")
