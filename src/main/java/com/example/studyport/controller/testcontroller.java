@@ -56,6 +56,12 @@ public class testcontroller {
         return "members/signup04";
     }
 
+    @GetMapping("/signup06")
+    public String signupGet07() {
+
+        return "members/signup06";
+    }
+
 
 
 }

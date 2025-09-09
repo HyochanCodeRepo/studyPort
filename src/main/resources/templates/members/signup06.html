@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Awards - 최고의 웹 디자인 트렌드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        .nav-menu a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideUp 1s ease 0.5s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 50px;
+            animation: slideUp 1s ease 0.7s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            animation: slideUp 1s ease 0.9s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4ecdc4, #ff6b6b);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 0;
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Sections */
+        .section {
+            padding: 120px 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 60px;
+            max-width: 600px;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .card-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Stats Section */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 80px 0;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .stat {
+            min-width: 200px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 60px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .social-links a {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 20px;
+            }
+
+            .nav-menu {
+                gap: 20px;
+                font-size: 0.9rem;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section {
+                padding: 80px 20px;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .footer-content {
+                padding: 0 20px;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <nav class="nav-container">
+        <a href="#" class="logo">DesignAwards</a>
+        <ul class="nav-menu">
+            <li><a href="#latest">Latest</a></li>
+            <li><a href="#nominees">Nominees</a></li>
+            <li><a href="#academy">Academy</a></li>
+            <li><a href="#collections">Collections</a></li>
+            <li><a href="#directory">Directory</a></li>
+            <li><a href="#blog">Blog</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Design<br>Excellence</h1>
+        <p class="hero-subtitle">최고의 웹 디자인 트렌드를 발견하고 영감을 받으세요</p>
+        <a href="#" class="cta-button">
+            <span>지금 탐색하기</span>
+        </a>
+    </div>
+</section>
+
+<!-- Latest Section -->
+<section id="latest" class="section">
+    <h2 class="section-title fade-in">Latest</h2>
+    <p class="section-subtitle fade-in">최신 웹사이트들을 확인하고 투표해보세요</p>
+
+    <div class="grid">
+        <div class="card fade-in">
+            <div class="card-content">
+                <div class="card-number">01</div>
+                <h3>Nominees</h3>
+                <p>최신 노미네이트된 웹사이트들을 확인하고 투표해보세요. 전 세계의 창의적인 디자인을 만나보세요.</p>
+            </div>
+        </div>
+        <div class="card fade-in">
+            <div class="card-content">
+                <div class="card-number">02</div>
+                <h3>Academy</h3>
+                <p>최고의 강사진으로부터 배우세요. 수백 개의 코스 중에서 선택할 수 있습니다.</p>
+            </div>
+        </div>
+        <div class="card fade-in">
+            <div class="card-content">
+                <div class="card-number">03</div>
+                <h3>Collections</h3>
+                <p>다양한 컬렉션을 탐색하고 프로젝트에 대한 영감을 찾으세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats fade-in">
+        <div class="stat">
+            <span class="stat-number">5,728</span>
+            <span class="stat-label">Agencies</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number">12,456</span>
+            <span class="stat-label">Projects</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number">89,342</span>
+            <span class="stat-label">Votes</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number">156</span>
+            <span class="stat-label">Countries</span>
+        </div>
+    </div>
+</section>
+
+<!-- Directory Section -->
+<section id="directory" class="section">
+    <h2 class="section-title fade-in">Directory</h2>
+    <p class="section-subtitle fade-in">전 세계 5,728개 이상의 에이전시 및 전문가들과 연결하세요</p>
+
+    <div class="grid">
+        <div class="card fade-in">
+            <div class="card-content">
+                <h3>Southmates</h3>
+                <p>International Agency • 16 Awards<br>
+                    전문 분야: 브랜딩, 웹 디자인</p>
+            </div>
+        </div>
+        <div class="card fade-in">
+            <div class="card-content">
+                <h3>Spring/Summer</h3>
+                <p>International Studio • 30 Works<br>
+                    전문 분야: UX/UI 디자인</p>
+            </div>
+        </div>
+        <div class="card fade-in">
+            <div class="card-content">
+                <h3>Studio 28K</h3>
+                <p>International Studio • 9 Works<br>
+                    전문 분야: 웹 개발, 인터랙션</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Section -->
+<section id="blog" class="section">
+    <h2 class="section-title fade-in">Blog</h2>
+    <p class="section-subtitle fade-in">인기 있는 포스트들을 탐색해보세요</p>
+
+    <div class="grid">
+        <div class="card fade-in">
+            <div class="card-content">
+                <h3>2025 최고의 무료 폰트 100선</h3>
+                <p>타이포그래피는 현재 웹 디자인에서 중심적인 역할을 하고 있으며, Variable Fonts, CSS Shapes, FlexBox 등의 발전과 함께...</p>
+            </div>
+        </div>
+        <div class="card fade-in">
+            <div class="card-content">
+                <h3>웹 디자인의 트렌디한 그라데이션</h3>
+                <p>올해 우리는 생동감 있는 색상 팔레트와 블러 및 왜곡 효과가 있는 불규칙한 모양의 다양한 다색 그라데이션을 많이 보았습니다...</p>
+            </div>
+        </div>
+        <div class="card fade-in">
+            <div class="card-content">
+                <h3>패럴랙스 스크롤링을 사용한 30개의 훌륭한 웹사이트</h3>
+                <p>패럴랙스 효과는 클래식 비디오 게임에서 수년간 사용되어 왔지만, 웹 디자인 세계에서는 하나의 트렌드가 되었습니다...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2025 DesignAwards. 모든 권리 보유.</p>
+        <p>전 세계 최고의 웹 디자인을 발견하고 공유하세요.</p>
+        <div class="social-links">
+            <a href="#">Twitter</a>
+            <a href="#">Instagram</a>
+            <a href="#">Behance</a>
+            <a href="#">Dribbble</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('.header');
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(0, 0, 0, 0.98)';
+        } else {
+            header.style.background = 'rgba(0, 0, 0, 0.95)';
+        }
+    });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Counter animation for stats
+    const animateCounter = (element, target) => {
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+            current += increment;
+            element.textContent = Math.floor(current).toLocaleString();
+            if (current >= target) {
+                element.textContent = target.toLocaleString();
+                clearInterval(timer);
+            }
+        }, 20);
+    };
+
+    // Trigger counter animation when stats section is visible
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumbers = entry.target.querySelectorAll('.stat-number');
+                statNumbers.forEach(stat => {
+                    const target = parseInt(stat.textContent.replace(/,/g, ''));
+                    animateCounter(stat, target);
+                });
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const statsSection = document.querySelector('.stats');
+    if (statsSection) {
+        statsObserver.observe(statsSection);
+    }
+
+    // Particle animation for hero background
+    const hero = document.querySelector('.hero');
+
+    function createParticle() {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                pointer-events: none;
+                left: ${Math.random() * 100}%;
+                top: 100%;
+                animation: floatUp ${3 + Math.random() * 3}s linear forwards;
+            `;
+
+        hero.appendChild(particle);
+
+        setTimeout(() => {
+            particle.remove();
+        }, 6000);
+    }
+
+    // Add CSS for particle animation
+    const style = document.createElement('style');
+    style.textContent = `
+            @keyframes floatUp {
+                to {
+                    transform: translateY(-100vh);
+                    opacity: 0;
+                }
+            }
+        `;
+    document.head.appendChild(style);
+
+    // Create particles periodically
+    setInterval(createParticle, 300);
+</script>
+</body>
+</html>
