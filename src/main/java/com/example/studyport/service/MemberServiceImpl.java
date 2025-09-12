@@ -109,4 +109,56 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         return user;
 
     }
+    
+    @Override
+    public Members findByEmail(String email) {
+        return memberRepository.findByEmail(email);
+    }
+    
+    @Override
+    public Members updateMember(Members member) {
+        log.info("회원 정보 업데이트: {}", member.getEmail());
+        return memberRepository.save(member);
+    }
+    
+    @Override
+    public boolean validatePassword(String email, String password) {
+        Members member = memberRepository.findByEmail(email);
+        
+        if (member == null) {
+            log.info("해당 이메일로 가입된 사용자가 없습니다: " + email);
+            return false;
+        }
+        
+        boolean isValid = passwordEncoder.matches(password, member.getPassword());
+        log.info("비밀번호 검증 결과 for {}: {}", email, isValid);
+        return isValid;
+    }
+    
+    @Override
+    public boolean changePassword(Members member, String newPassword) {
+        try {
+            // 새 비밀번호 암호화
+            String encodedNewPassword = passwordEncoder.encode(newPassword);
+            member.setPassword(encodedNewPassword);
+            
+            // 데이터베이스에 저장
+            memberRepository.save(member);
+            
+            log.info("비밀번호 변경 성공: {}", member.getEmail());
+            return true;
+        } catch (Exception e) {
+            log.error("비밀번호 변경 실패: {}", member.getEmail(), e);
+            return false;
+        }
+    }
+    
+    @Override
+    public String getUserNameByEmail(String email) {
+        Members member = memberRepository.findByEmail(email);
+        if (member != null && member.getName() != null) {
+            return member.getName();
+        }
+        return email; // 이름이 없으면 이메일을 반환
+    }
 }

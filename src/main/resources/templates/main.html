@@ -36,10 +36,35 @@
 
         <nav class="nav-links">
             <div th:if="${isLoggedIn}" class="user-info">
-                <span class="welcome-message">
-                    <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
-                </span>
-                <a href="/members/logout" class="nav-btn logout-btn">로그아웃</a>
+                <div class="user-dropdown">
+                    <span class="welcome-message" onclick="toggleDropdown()">
+                        <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="/members/profile" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                            </svg>
+                            내정보 변경
+                        </a>
+                        <a href="/study/manage" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            내 스터디 관리
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="/members/logout" class="dropdown-item logout">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            로그아웃
+                        </a>
+                    </div>
+                </div>
             </div>
             <div th:unless="${isLoggedIn}" class="auth-links">
                 <a href="/members/login" class="nav-btn login-btn">로그인</a>
@@ -67,56 +92,11 @@
             </button>
         </h3>
 
-        <!-- 여기에 Thymeleaf th:each로 카테고리 목록이 들어갈 예정 -->
-<!--        컨트롤러에서 category 던지고 ul에 for each 로 넣고 li로 카테고리 뽑아주면 될듯?-->
         <ul class="category-list">
-            <!-- th:each="category : ${categories}" -->
-            <li class="category-item">
-                <a href="/category/programming" class="category-link active">
-                    <span class="category-icon">💻</span>
-                    프로그래밍
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/language" class="category-link">
-                    <span class="category-icon">🗣️</span>
-                    외국어
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/exam" class="category-link">
-                    <span class="category-icon">📝</span>
-                    자격증
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/book" class="category-link">
+            <li th:each="category : ${categories}" class="category-item">
+                <a th:href="@{/categories(name=${category.name})}" class="category-link">
                     <span class="category-icon">📚</span>
-                    독서
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/investment" class="category-link">
-                    <span class="category-icon">💰</span>
-                    재테크
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/design" class="category-link">
-                    <span class="category-icon">🎨</span>
-                    디자인
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/marketing" class="category-link">
-                    <span class="category-icon">📊</span>
-                    마케팅
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/self-development" class="category-link">
-                    <span class="category-icon">🌱</span>
-                    자기계발
+                    <span th:text="${category.name}">카테고리명</span>
                 </a>
             </li>
         </ul>
@@ -161,7 +141,7 @@
 <!--                <div class="filter-dropdown-container">-->
 <!--                    <label class="filter-label">카테고리</label>-->
 <!--                    <div class="filter-dropdown" data-filter="topic">-->
-<!--                        <div class="dropdown-toggle" onclick="toggleDropdown('topic')">-->
+<!--                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('topic')">-->
 <!--                            <span class="dropdown-text">전체</span>-->
 <!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
 <!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
@@ -178,7 +158,7 @@
 <!--                <div class="filter-dropdown-container">-->
 <!--                    <label class="filter-label">지역</label>-->
 <!--                    <div class="filter-dropdown" data-filter="location">-->
-<!--                        <div class="dropdown-toggle" onclick="toggleDropdown('location')">-->
+<!--                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('location')">-->
 <!--                            <span class="dropdown-text">전체</span>-->
 <!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
 <!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
@@ -196,7 +176,7 @@
 <!--                <div class="filter-dropdown-container">-->
 <!--                    <label class="filter-label">난이도</label>-->
 <!--                    <div class="filter-dropdown" data-filter="level">-->
-<!--                        <div class="dropdown-toggle" onclick="toggleDropdown('level')">-->
+<!--                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('level')">-->
 <!--                            <span class="dropdown-text">전체</span>-->
 <!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
 <!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
@@ -226,95 +206,6 @@
 <!--                <div class="active-filter-tags" id="active-filter-tags"></div>-->
 <!--            </div>-->
 <!--        </section>-->
-        <!-- 완전히 수정된 필터 바 섹션 -->
-        <section class="filter-bar fade-in">
-            <div class="filter-title">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                필터
-            </div>
-
-            <div class="filter-controls">
-                <!-- 카테고리 필터 -->
-                <div class="filter-dropdown-container">
-                    <label class="filter-label">카테고리</label>
-                    <div class="filter-dropdown" data-filter="topic">
-                        <div class="dropdown-toggle" onclick="toggleDropdown('topic')">
-                            <span class="dropdown-text">전체</span>
-                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <div class="dropdown-menu" id="dropdown-topic">
-                            <div class="dropdown-item active" data-value="all" data-type="topic" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
-                            <div th:each="topic : ${topicList}" class="dropdown-item"
-                                 th:data-value="${topic}"
-                                 th:data-type="topic"
-                                 th:data-display="${topic}"
-                                 th:text="${topic}"
-                                 onclick="selectFilterFromData(this)">카테고리</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 지역 필터 -->
-                <div class="filter-dropdown-container">
-                    <label class="filter-label">지역</label>
-                    <div class="filter-dropdown" data-filter="location">
-                        <div class="dropdown-toggle" onclick="toggleDropdown('location')">
-                            <span class="dropdown-text">전체</span>
-                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <div class="dropdown-menu" id="dropdown-location">
-                            <div class="dropdown-item active" data-value="all" data-type="location" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
-                            <!-- 지역 필터도 동일하게 수정 -->
-                            <div th:each="location : ${locationList}" class="dropdown-item"
-                                 th:data-value="${location}"
-                                 th:data-type="location"
-                                 th:data-display="${location}"
-                                 th:text="${location}"
-                                 onclick="selectFilterFromData(this)">지역</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 난이도 필터 -->
-                <div class="filter-dropdown-container">
-                    <label class="filter-label">난이도</label>
-                    <div class="filter-dropdown" data-filter="level">
-                        <div class="dropdown-toggle" onclick="toggleDropdown('level')">
-                            <span class="dropdown-text">전체</span>
-                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <div class="dropdown-menu" id="dropdown-level">
-                            <div class="dropdown-item active" data-value="all" data-type="level" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
-                            <div class="dropdown-item" data-value="BEGINNER" data-type="level" data-display="초급" onclick="selectFilterFromData(this)">초급</div>
-                            <div class="dropdown-item" data-value="INTERMEDIATE" data-type="level" data-display="중급" onclick="selectFilterFromData(this)">중급</div>
-                            <div class="dropdown-item" data-value="ADVANCED" data-type="level" data-display="고급" onclick="selectFilterFromData(this)">고급</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 필터 초기화 버튼 -->
-                <button class="filter-reset-btn" onclick="resetAllFilters()">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
-                    </svg>
-                    초기화
-                </button>
-            </div>
-
-            <!-- 활성 필터 표시 -->
-            <div class="active-filters" id="active-filters" style="display: none;">
-                <span class="active-filters-label">활성 필터:</span>
-                <div class="active-filter-tags" id="active-filter-tags"></div>
-            </div>
-        </section>
 
         <!-- Study Cards에 데이터 속성 추가 -->
         <section id="study-list" class="study-grid">

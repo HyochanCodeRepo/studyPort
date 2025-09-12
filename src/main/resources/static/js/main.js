@@ -1,10 +1,48 @@
-// 기존 joinStudy 함수는 그대로 유지
 function joinStudy(studyId) {
-    // 스터디 참여 기능 구현 (추후 개발)
-    alert('스터디 참여 기능은 준비 중입니다. 스터디 ID: ' + studyId);
-    // 향후 Ajax로 스터디 참여 처리
-    // fetch('/study/join/' + studyId, { method: 'POST' })
+    // 스터디 상세 페이지로 이동
+    window.location.href = '/study/read/' + studyId;
 }
+
+// 사용자 드롭다운 토글 함수
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const welcomeMessage = document.querySelector('.welcome-message');
+    
+    if (dropdown && welcomeMessage) {
+        dropdown.classList.toggle('show');
+        welcomeMessage.classList.toggle('active');
+    }
+}
+
+// 문서 클릭 시 모든 드롭다운 닫기 (통합된 이벤트 리스너)
+document.addEventListener('click', function(event) {
+    // 사용자 드롭다운 처리
+    const userDropdown = document.getElementById('userDropdown');
+    const userInfo = document.querySelector('.user-info');
+    
+    if (userDropdown && userInfo && !userInfo.contains(event.target)) {
+        userDropdown.classList.remove('show');
+        const welcomeMessage = document.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.classList.remove('active');
+        }
+    }
+    
+    // 필터 드롭다운 처리
+    if (!event.target.closest('.filter-dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if (menu.id !== 'userDropdown') { // 사용자 드롭다운 제외
+                menu.classList.remove('show');
+                if (menu.previousElementSibling) {
+                    menu.previousElementSibling.classList.remove('active');
+                }
+                if (menu.closest('.filter-dropdown')) {
+                    menu.closest('.filter-dropdown').classList.remove('active');
+                }
+            }
+        });
+    }
+});
 
 // data 속성에서 필터 선택 (Thymeleaf 보안 문제 해결)
 function selectFilterFromData(element) {
@@ -21,22 +59,29 @@ let activeFilters = {
     level: 'all'
 };
 
-// 드롭다운 토글
-function toggleDropdown(filterType) {
+// 필터 드롭다운 토글
+function toggleFilterDropdown(filterType) {
     const dropdown = document.getElementById(`dropdown-${filterType}`);
+    
+    if (!dropdown) return;
+    
     const toggle = dropdown.previousElementSibling;
 
-    // 다른 드롭다운들 닫기
+    // 다른 필터 드롭다운들 닫기
     document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        if (menu.id !== `dropdown-${filterType}`) {
+        if (menu.id !== `dropdown-${filterType}` && menu.id !== 'userDropdown') {
             menu.classList.remove('show');
-            menu.previousElementSibling.classList.remove('active');
+            if (menu.previousElementSibling) {
+                menu.previousElementSibling.classList.remove('active');
+            }
         }
     });
 
     // 현재 드롭다운 토글
     dropdown.classList.toggle('show');
-    toggle.classList.toggle('active');
+    if (toggle) {
+        toggle.classList.toggle('active');
+    }
 }
 
 // 필터 선택
@@ -220,47 +265,6 @@ function toggleSidebar() {
     mainContainer.classList.toggle('sidebar-collapsed');
 }
 
-// 외부 클릭 시 드롭다운 닫기
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('.filter-dropdown')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.classList.remove('show');
-            menu.previousElementSibling.classList.remove('active');
-            menu.closest('.filter-dropdown').classList.remove('active');
-        });
-    }
-});
-
-// 모든 필터 초기화
-function resetAllFilters() {
-    activeFilters = {
-        topic: 'all',
-        location: 'all',
-        level: 'all'
-    };
-
-    // 모든 드롭다운 텍스트 초기화
-    document.querySelectorAll('.dropdown-text').forEach(text => {
-        text.textContent = '전체';
-    });
-
-    // 모든 드롭다운 아이템 활성 상태 초기화
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.value === 'all') {
-            item.classList.add('active');
-        }
-    });
-
-    // 필터링 적용
-    applyFilters();
-
-    // 활성 필터 태그 비우기
-    const activeFiltersContainer = document.getElementById('active-filters');
-    const tagsContainer = document.getElementById('active-filter-tags');
-    tagsContainer.innerHTML = '';
-    activeFiltersContainer.style.display = 'none';
-}
 
 
 

@@ -9,5 +9,15 @@ public interface MemberService {
     public Members create(MembersDTO membersDTO);
     
     public Members authenticateUser(String email, String password);
+    
+    public Members findByEmail(String email);
+    
+    public Members updateMember(Members member);
+    
+    public boolean validatePassword(String email, String password);
+    
+    public boolean changePassword(Members member, String newPassword);
+    
+    public String getUserNameByEmail(String email);
 
 }

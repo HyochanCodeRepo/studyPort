@@ -27,7 +27,7 @@ public class StudyDTO {
 
     private String topic; // 카테고리
 
-    private boolean isPrivate; // 비공개 여부
+    private Boolean isPrivate; // 비공개 여부
 
     private String password; // 비밀번호
 
