@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내정보 변경 | StudyMate</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/create.css">
+</head>
+<body>
+<!-- Animated Background -->
+<div class="bg-animation">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <a href="/" class="logo">
+            <img src="/images/StudyUsLogo.png" alt="StudyUs" class="logo-img">
+        </a>
+
+        <div class="search-bar">
+            <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" placeholder="관심있는 스터디를 검색해보세요...">
+        </div>
+
+        <nav class="nav-links">
+            <div th:if="${isLoggedIn}" class="user-info">
+                <div class="user-dropdown">
+                    <span class="welcome-message" onclick="toggleDropdown()">
+                        <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="/members/profile" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                            </svg>
+                            내 정보 변경
+                        </a>
+                        <a href="/study/manage" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            내 스터디 관리
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="/members/logout" class="dropdown-item logout">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            로그아웃
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${isLoggedIn}" class="auth-links">
+                <a href="/members/login" class="nav-btn login-btn">로그인</a>
+                <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h3 class="sidebar-title">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                </svg>
+                내 정보
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <svg class="toggle-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </h3>
+
+        <ul class="category-list">
+            <li class="category-item">
+                <a href="/members/profile" class="category-link active">
+                    <span class="category-icon">👤</span>
+                    기본 정보
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/study/manage" class="category-link">
+                    <span class="category-icon">📚</span>
+                    스터디 관리
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Profile Content -->
+    <main class="create-container fade-in">
+        <h2 class="create-title">내정보 변경</h2>
+        <p class="create-subtitle">개인정보를 안전하게 관리하세요</p>
+
+        <div class="profile-container">
+            <!-- 기본 정보 섹션 -->
+            <div class="section-divider">
+                <div class="section-title">기본 정보</div>
+            </div>
+
+            <form id="profile-form">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">이메일</label>
+                        <div class="info-display readonly" th:text="${member.email}">이메일</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">이름/닉네임</label>
+                        <input type="text" class="form-input" id="name-input" th:value="${member.name}" placeholder="이름을 입력하세요">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">전화번호</label>
+                        <div class="info-display readonly" th:text="${member.phone}">전화번호</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">주소</label>
+                        <input type="text" class="form-input" id="address-input" th:value="${member.address}" placeholder="주소를 입력하세요">
+                    </div>
+                </div>
+            </form>
+
+            <!-- 보안 설정 섹션 -->
+            <div class="section-divider">
+                <div class="section-title">보안 설정</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">비밀번호</label>
+                <div class="password-section">
+                    <div class="info-display password">••••••••</div>
+                    <button type="button" class="change-password-btn" onclick="togglePasswordChange()">비밀번호 변경</button>
+                </div>
+                
+                <div class="password-change-form hidden" id="password-change-form">
+                    <div class="form-row-1">
+                        <input type="password" class="form-input" id="current-password" placeholder="현재 비밀번호">
+                    </div>
+                    <div class="form-row-1">
+                        <input type="password" class="form-input" id="new-password" placeholder="새 비밀번호">
+                    </div>
+                    <div class="form-row-1">
+                        <input type="password" class="form-input" id="confirm-password" placeholder="새 비밀번호 확인">
+                    </div>
+                    <div class="form-row-2">
+                        <button type="button" class="submit-btn" onclick="changePassword()">비밀번호 변경</button>
+                        <button type="button" class="cancel-btn" onclick="cancelPasswordChange()">취소</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 관심 카테고리 섹션 -->
+            <div class="section-divider">
+                <div class="section-title">관심 카테고리</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">선택한 관심사</label>
+                <div class="category-badges">
+                    <span th:each="category : ${member.categories}" class="category-badge" th:text="${category.name}">카테고리</span>
+                    <span th:if="${#lists.isEmpty(member.categories)}" class="no-category">선택된 카테고리가 없습니다</span>
+                </div>
+            </div>
+
+            <!-- 수정 버튼 -->
+            <div class="update-button-container">
+                <button type="button" class="update-profile-btn" onclick="updateProfile()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"></path>
+                    </svg>
+                    정보 저장
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Sidebar Toggle Button (for collapsed state) -->
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+    </svg>
+</button>
+
+<style>
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.info-display {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #333333;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.info-display.readonly {
+    background: rgba(200, 200, 200, 0.3);
+    color: #666666;
+}
+
+.info-display.editable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.info-display.editable:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.edit-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-btn:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.form-input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #333333;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.password-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.password-section .info-display {
+    flex: 1;
+}
+
+.change-password-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.change-password-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.password-change-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.category-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.no-category {
+    color: #666666;
+    font-style: italic;
+    padding: 0.5rem 0;
+}
+
+.section-divider {
+    margin: 2rem 0 1.5rem 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.section-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* 수정 버튼 컨테이너 */
+.update-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.update-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.update-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+.update-profile-btn:active {
+    transform: translateY(0);
+}
+
+.update-profile-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* 로딩 스피너 애니메이션 */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@media (max-width: 768px) {
+    .form-row-2 {
+        flex-direction: column;
+    }
+    
+    .password-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .update-profile-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const welcomeMessage = document.querySelector('.welcome-message');
+    
+    dropdown.classList.toggle('show');
+    welcomeMessage.classList.toggle('active');
+}
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContainer = document.querySelector('.main-container');
+
+    sidebar.classList.toggle('collapsed');
+    mainContainer.classList.toggle('sidebar-collapsed');
+}
+
+// 프로필 수정 함수
+function updateProfile() {
+    // 수정된 데이터 수집
+    const updatedData = {
+        name: document.getElementById('name-input').value.trim(),
+        address: document.getElementById('address-input').value.trim()
+    };
+    
+    // 빈 값 체크
+    if (!updatedData.name) {
+        alert('이름을 입력해주세요.');
+        document.getElementById('name-input').focus();
+        return;
+    }
+    
+    // 버튼 상태 변경
+    const updateBtn = document.querySelector('.update-profile-btn');
+    const originalText = updateBtn.innerHTML;
+    updateBtn.disabled = true;
+    updateBtn.innerHTML = `
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" class="animate-spin">
+            <path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm6 9V8a1 1 0 10-2 0v3a1 1 0 001 1h3a1 1 0 100-2h-2z"/>
+        </svg>
+        수정 중...
+    `;
+    
+    // 서버에 업데이트 요청
+    fetch('/members/profile/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('서버 오류가 발생했습니다.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert('수정 완료되었습니다!');
+            // 메인 페이지로 리다이렉트
+            window.location.href = '/';
+        } else {
+            throw new Error(data.message || '수정에 실패했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('수정 중 오류가 발생했습니다: ' + error.message);
+    })
+    .finally(() => {
+        // 버튼 상태 복원
+        updateBtn.disabled = false;
+        updateBtn.innerHTML = originalText;
+    });
+}
+
+// 초기 값을 저장하여 변경 사항 감지에 사용
+let originalValues = {
+    name: document.getElementById('name-input')?.value || '',
+    address: document.getElementById('address-input')?.value || ''
+};
+
+// 페이지 로드 시 초기값 설정
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('name-input');
+    const addressInput = document.getElementById('address-input');
+    
+    if (nameInput) originalValues.name = nameInput.value;
+    if (addressInput) originalValues.address = addressInput.value;
+});
+
+function togglePasswordChange() {
+    const form = document.getElementById('password-change-form');
+    form.classList.toggle('hidden');
+}
+
+function cancelPasswordChange() {
+    const form = document.getElementById('password-change-form');
+    form.classList.add('hidden');
+    
+    // 입력 필드 초기화
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+}
+
+function changePassword() {
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    // 유효성 검사
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        alert('모든 비밀번호 필드를 입력해주세요.');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        alert('새 비밀번호와 확인 비밀번호가 일치하지 않습니다.');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        alert('새 비밀번호는 8자리 이상이어야 합니다.');
+        return;
+    }
+    
+    // 버튼 상태 변경
+    const changeBtn = document.querySelector('.password-change-form .submit-btn');
+    const originalText = changeBtn.textContent;
+    changeBtn.disabled = true;
+    changeBtn.textContent = '변경 중...';
+    
+    // 비밀번호 변경 데이터
+    const passwordData = {
+        currentPassword: currentPassword,
+        newPassword: newPassword
+    };
+    
+    // 서버에 비밀번호 변경 요청
+    fetch('/members/profile/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(passwordData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('서버 오류가 발생했습니다.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert('비밀번호 변경 완료되었습니다.');
+            
+            // 현재 비밀번호 표시 부분 업데이트 (새 비밀번호 길이만큼 점으로 표시)
+            const newPasswordLength = newPassword.length;
+            const passwordDisplay = document.querySelector('.password-section .info-display.password');
+            if (passwordDisplay) {
+                passwordDisplay.textContent = '•'.repeat(newPasswordLength);
+            }
+            
+            cancelPasswordChange(); // 폼 닫기 및 초기화
+        } else {
+            throw new Error(data.message || '비밀번호 변경에 실패했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('비밀번호 변경 중 오류가 발생했습니다: ' + error.message);
+    })
+    .finally(() => {
+        // 버튼 상태 복원
+        changeBtn.disabled = false;
+        changeBtn.textContent = originalText;
+    });
+}
+
+// 외부 클릭시 드롭다운 닫기
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('userDropdown');
+    const userInfo = document.querySelector('.user-info');
+    
+    if (dropdown && userInfo && !userInfo.contains(event.target)) {
+        dropdown.classList.remove('show');
+        document.querySelector('.welcome-message').classList.remove('active');
+    }
+});
+</script>
+
+</body>
+</html>

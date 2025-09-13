@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${categoryName} + ' | StudyMate'">카테고리 | StudyMate</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/main.js"></script>
+</head>
+<body>
+<!-- Animated Background -->
+<div class="bg-animation">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <a href="/" class="logo">
+            <img src="/images/StudyUsLogo.png" alt="StudyUs" class="logo-img">
+        </a>
+
+        <div class="search-bar">
+            <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" placeholder="관심있는 스터디를 검색해보세요...">
+        </div>
+
+        <nav class="nav-links">
+            <div th:if="${isLoggedIn}" class="user-info">
+                <div class="user-dropdown">
+                    <span class="welcome-message" onclick="toggleDropdown()">
+                        <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="/members/profile" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                            </svg>
+                            내정보 변경
+                        </a>
+                        <a href="/study/manage" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            내 스터디 관리
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="/members/logout" class="dropdown-item logout">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            로그아웃
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${isLoggedIn}" class="auth-links">
+                <a href="/members/login" class="nav-btn login-btn">로그인</a>
+                <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h3 class="sidebar-title">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                </svg>
+                카테고리
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <svg class="toggle-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </h3>
+
+        <ul class="category-list">
+            <li th:each="category : ${categories}" class="category-item">
+                <a th:href="@{/categories(name=${category.name})}" 
+                   th:class="${category.name == categoryName} ? 'category-link active' : 'category-link'">
+                    <span class="category-icon">📚</span>
+                    <span th:text="${category.name}">카테고리명</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="content-area">
+        <!-- Category Header -->
+        <section class="hero-section fade-in">
+            <h1 class="hero-title" th:text="${categoryName} + ' 스터디'">카테고리 스터디</h1>
+            <p class="hero-subtitle">
+                <span th:text="${categoryName}">카테고리</span> 분야의 스터디를 찾아보세요.<br>
+                총 <strong th:text="${#lists.size(studies)}">0</strong>개의 스터디가 있습니다.
+            </p>
+            <div class="cta-buttons">
+                <a href="/study/create" class="cta-btn primary-cta">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    스터디 만들기
+                </a>
+                <a href="/" class="cta-btn secondary-cta">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    전체 스터디 보기
+                </a>
+            </div>
+        </section>
+
+        <!-- Filter Bar -->
+        <section class="filter-bar fade-in">
+            <div class="filter-title">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                필터
+            </div>
+
+            <div class="filter-controls">
+                <!-- 지역 필터 -->
+                <div class="filter-dropdown-container">
+                    <label class="filter-label">지역</label>
+                    <div class="filter-dropdown" data-filter="location">
+                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('location')">
+                            <span class="dropdown-text">전체</span>
+                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-location">
+                            <div class="dropdown-item active" data-value="all" data-type="location" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
+                            <div th:each="location : ${locationList}" class="dropdown-item"
+                                 th:data-value="${location}"
+                                 th:data-type="location"
+                                 th:data-display="${location}"
+                                 th:text="${location}"
+                                 onclick="selectFilterFromData(this)">지역</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 난이도 필터 -->
+                <div class="filter-dropdown-container">
+                    <label class="filter-label">난이도</label>
+                    <div class="filter-dropdown" data-filter="level">
+                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('level')">
+                            <span class="dropdown-text">전체</span>
+                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-level">
+                            <div class="dropdown-item active" data-value="all" data-type="level" data-display="전체" onclick="selectFilterFromData(this)">전체</div>
+                            <div class="dropdown-item" data-value="BEGINNER" data-type="level" data-display="초급" onclick="selectFilterFromData(this)">초급</div>
+                            <div class="dropdown-item" data-value="INTERMEDIATE" data-type="level" data-display="중급" onclick="selectFilterFromData(this)">중급</div>
+                            <div class="dropdown-item" data-value="ADVANCED" data-type="level" data-display="고급" onclick="selectFilterFromData(this)">고급</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 필터 초기화 버튼 -->
+                <button class="filter-reset-btn" onclick="resetAllFilters()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                    </svg>
+                    초기화
+                </button>
+            </div>
+
+            <!-- 활성 필터 표시 -->
+            <div class="active-filters" id="active-filters" style="display: none;">
+                <span class="active-filters-label">활성 필터:</span>
+                <div class="active-filter-tags" id="active-filter-tags"></div>
+            </div>
+        </section>
+
+        <!-- Study Cards -->
+        <section id="study-list" class="study-grid">
+            <div th:each="study : ${studies}"
+                 class="study-card fade-in"
+                 th:data-topic="${study.topic}"
+                 th:data-location="${study.location}"
+                 th:data-level="${study.levelTag}"
+                 th:data-status="${study.isPrivate ? 'private' : 'recruiting'}">
+
+                <div class="study-header">
+                    <span class="study-category" th:text="${study.topic}">카테고리</span>
+                    <div class="study-status">
+                        <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span th:text="${study.isPrivate} ? '비공개' : '모집중'">모집중</span>
+                    </div>
+                </div>
+                <h3 class="study-title" th:text="${study.name}">스터디 제목</h3>
+                <p th:text="${study.description}">스터디 설명</p>
+
+                <div class="study-meta">
+                    <div class="meta-item" th:if="${study.frequency}">
+                        <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span th:text="${study.frequency}">frequency</span>
+                    </div>
+                    <div class="meta-item" th:if="${study.location}">
+                        <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span th:text="${study.location}">위치</span>
+                        <span th:if="${study.studyType}" th:text="'(' + (${study.studyType == 'hybrid'} ? '온/오프라인 병행' :
+                                                                (${study.studyType == 'online'} ? '온라인' :
+                                                                (${study.studyType == 'offline'} ? '오프라인' : ${study.studyType}))) + ')'"></span>
+                    </div>
+                    <div class="meta-item" th:if="${study.capacity}">
+                        <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                        </svg>
+                        <span th:text="'1/' + ${study.capacity} + '명'">정원</span>
+                    </div>
+                    <div class="meta-item" th:if="${study.levelTag}">
+                        <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span th:text="${study.levelTag == 'BEGINNER'} ? '초급' :
+                               (${study.levelTag == 'INTERMEDIATE'} ? '중급' :
+                               (${study.levelTag == 'ADVANCED'} ? '고급' : ${study.levelTag}))">난이도</span>
+                    </div>
+                </div>
+                <button class="join-btn" th:onclick="'joinStudy(' + ${study.id} + ')'">
+                    <span th:text="${study.isPrivate} ? '참여 신청' : '스터디 참여하기'">스터디 참여하기</span>
+                </button>
+            </div>
+
+            <!-- 스터디가 없을 경우 메시지 -->
+            <div th:if="${#lists.isEmpty(studies)}" class="no-studies-message" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #64748b;">
+                <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; opacity: 0.5;" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>
+                </svg>
+                <h3 style="margin-bottom: 0.5rem; color: #374151;">해당 카테고리에 스터디가 없습니다</h3>
+                <p style="margin-bottom: 1.5rem;" th:text="${categoryName} + ' 분야의 첫 번째 스터디를 만들어보세요!'">카테고리의 첫 번째 스터디를 만들어보세요!</p>
+                <a href="/study/create" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; text-decoration: none; border-radius: 50px; font-weight: 500;">스터디 만들기</a>
+            </div>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

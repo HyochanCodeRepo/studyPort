@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>스터디 승인 관리 | StudyMate</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/create.css">
+</head>
+<body>
+<!-- Animated Background -->
+<div class="bg-animation">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <a href="/" class="logo">
+            <img src="/images/StudyUsLogo.png" alt="StudyUs" class="logo-img">
+        </a>
+
+        <div class="search-bar">
+            <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" placeholder="관심있는 스터디를 검색해보세요...">
+        </div>
+
+        <nav class="nav-links">
+            <div th:if="${isLoggedIn}" class="user-info">
+                <div class="user-dropdown">
+                    <span class="welcome-message" onclick="toggleDropdown()">
+                        <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="/members/profile" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                            </svg>
+                            내정보 변경
+                        </a>
+                        <a href="/study/manage" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            내 스터디 관리
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="/members/logout" class="dropdown-item logout">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            로그아웃
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${isLoggedIn}" class="auth-links">
+                <a href="/members/login" class="nav-btn login-btn">로그인</a>
+                <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h3 class="sidebar-title">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                </svg>
+                스터디 관리
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <svg class="toggle-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </h3>
+
+        <ul class="category-list">
+            <li class="category-item">
+                <a href="/members/profile" class="category-link">
+                    <span class="category-icon">👤</span>
+                    내정보 변경
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/study/manage" class="category-link">
+                    <span class="category-icon">📚</span>
+                    스터디 관리
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/study/approval-requests" class="category-link active">
+                    <span class="category-icon">✅</span>
+                    스터디 승인 관리
+                    <span th:if="${pendingRequestsCount != null && pendingRequestsCount > 0}" 
+                          class="notification-badge" 
+                          th:text="${pendingRequestsCount}">0</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Approval Requests Content -->
+    <main class="create-container fade-in">
+        <h2 class="create-title">스터디 승인 관리</h2>
+        <p class="create-subtitle">내 스터디 참여 신청을 확인하고 승인/거절하세요</p>
+
+        <div class="approval-container">
+            <!-- 통계 섹션 -->
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${pendingRequestsCount}">0</div>
+                    <div class="stat-label">승인 대기</div>
+                    <div class="stat-icon">⏳</div>
+                </div>
+            </div>
+
+            <!-- 승인 요청 목록 -->
+            <div class="requests-section">
+                <div th:if="${#lists.isEmpty(pendingRequests)}" class="empty-state">
+                    <svg width="64" height="64" fill="currentColor" viewBox="0 0 20 20" style="opacity: 0.5; margin-bottom: 1rem;">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 style="margin-bottom: 1rem; color: #374151;">승인 대기 중인 요청이 없습니다</h3>
+                    <p style="color: #6b7280;">새로운 참여 신청이 들어오면 여기에 표시됩니다.</p>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(pendingRequests)}" class="requests-list">
+                    <div th:each="request : ${pendingRequests}" class="request-card">
+                        <div class="request-header">
+                            <div class="applicant-info">
+                                <div class="applicant-avatar">
+                                    <span th:text="${#strings.substring(request.member.name, 0, 1)}">A</span>
+                                </div>
+                                <div class="applicant-details">
+                                    <h3 class="applicant-name" th:text="${request.member.name}">신청자 이름</h3>
+                                    <p class="applicant-email" th:text="${request.member.email}">신청자 이메일</p>
+                                </div>
+                            </div>
+                            <div class="request-date">
+                                <span th:text="${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}">신청 일시</span>
+                            </div>
+                        </div>
+
+                        <div class="study-info">
+                            <h4 class="study-name">
+                                <span class="study-icon">📖</span>
+                                <span th:text="${request.study.name}">스터디 이름</span>
+                            </h4>
+                        </div>
+
+                        <div class="request-message">
+                            <h5 class="message-title">자기소개</h5>
+                            <div class="message-content" th:text="${request.message}">
+                                자기소개 내용입니다.
+                            </div>
+                        </div>
+
+                        <div class="request-actions">
+                            <form th:action="@{/study/approval-requests/{id}(id=${request.id})}" method="post" style="display: inline;">
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="action-btn approve-btn">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    승인
+                                </button>
+                            </form>
+                            <form th:action="@{/study/approval-requests/{id}(id=${request.id})}" method="post" style="display: inline;">
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="action-btn reject-btn">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    거절
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Sidebar Toggle Button (for collapsed state) -->
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+    </svg>
+</button>
+
+<style>
+.approval-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stats-section {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    position: relative;
+    min-width: 200px;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.stat-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    opacity: 0.7;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.request-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.request-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.applicant-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.applicant-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.applicant-details h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.applicant-details p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.request-date {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.study-info {
+    margin-bottom: 1rem;
+}
+
+.study-name {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.study-icon {
+    font-size: 1.1rem;
+}
+
+.request-message {
+    margin-bottom: 1.5rem;
+}
+
+.message-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.message-content {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #374151;
+}
+
+.request-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.approve-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.approve-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.reject-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.reject-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* 알림 뱃지 스타일 */
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 50px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.category-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .request-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .request-actions {
+        flex-direction: column;
+    }
+    
+    .approval-container {
+        padding: 0 1rem;
+    }
+}
+</style>
+
+<script>
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const welcomeMessage = document.querySelector('.welcome-message');
+    
+    dropdown.classList.toggle('show');
+    welcomeMessage.classList.toggle('active');
+}
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContainer = document.querySelector('.main-container');
+
+    sidebar.classList.toggle('collapsed');
+    mainContainer.classList.toggle('sidebar-collapsed');
+}
+
+// 외부 클릭시 드롭다운 닫기
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('userDropdown');
+    const userInfo = document.querySelector('.user-info');
+    
+    if (dropdown && userInfo && !userInfo.contains(event.target)) {
+        dropdown.classList.remove('show');
+        document.querySelector('.welcome-message').classList.remove('active');
+    }
+});
+</script>
+
+</body>
+</html>

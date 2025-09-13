@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${study.name} + ' | StudyMate'">스터디 상세 | StudyMate</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/create.css">
+</head>
+<body>
+<!-- Animated Background -->
+<div class="bg-animation">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <a href="/" class="logo">StudyMate</a>
+
+        <div class="search-bar">
+            <svg class="search-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+            <input type="text" class="search-input" placeholder="관심있는 스터디를 검색해보세요...">
+        </div>
+
+        <nav class="nav-links">
+            <div th:if="${isLoggedIn}" class="user-info">
+                <span class="welcome-message">
+                    <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                </span>
+                <a href="/members/logout" class="nav-btn logout-btn">로그아웃</a>
+            </div>
+            <div th:unless="${isLoggedIn}" class="auth-links">
+                <a href="/members/login" class="nav-btn login-btn">로그인</a>
+                <a href="/members/signup" class="nav-btn signup-btn">회원가입</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h3 class="sidebar-title">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                </svg>
+                카테고리
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <svg class="toggle-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </h3>
+
+        <ul class="category-list">
+            <li class="category-item">
+                <a href="/category/programming" class="category-link">
+                    <span class="category-icon">💻</span>
+                    프로그래밍
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/language" class="category-link">
+                    <span class="category-icon">🗣️</span>
+                    외국어
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/exam" class="category-link">
+                    <span class="category-icon">📝</span>
+                    자격증
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/book" class="category-link">
+                    <span class="category-icon">📚</span>
+                    독서
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/investment" class="category-link">
+                    <span class="category-icon">💰</span>
+                    재테크
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/design" class="category-link">
+                    <span class="category-icon">🎨</span>
+                    디자인
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/marketing" class="category-link">
+                    <span class="category-icon">📊</span>
+                    마케팅
+                </a>
+            </li>
+            <li class="category-item">
+                <a href="/category/self-development" class="category-link">
+                    <span class="category-icon">🌱</span>
+                    자기계발
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Study Detail -->
+    <main class="create-container fade-in">
+        <h2 class="create-title" th:text="${study.name}">스터디 이름</h2>
+        <p class="create-subtitle">스터디 정보를 확인해보세요</p>
+
+        <div class="study-detail-container">
+            <!-- 공개/비공개 상태 표시 -->
+            <div class="form-group">
+                <label class="form-label">스터디 공개 설정</label>
+                <div class="info-display">
+                    <span th:if="${study.isPrivate}" class="status-badge private">🔒 비공개 스터디</span>
+                    <span th:unless="${study.isPrivate}" class="status-badge public">🌍 공개 스터디</span>
+                </div>
+            </div>
+
+            <!-- 기본 정보 섹션 -->
+            <div class="section-divider">
+                <div class="section-title">기본 정보</div>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label">스터디명</label>
+                    <div class="info-display" th:text="${study.name ?: '정보 없음'}">스터디 이름</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">카테고리</label>
+                    <div class="info-display" th:text="${study.topic ?: '정보 없음'}">카테고리</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">지역</label>
+                <div class="info-display" th:text="${study.location ?: '지역 미설정'}">지역</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">스터디 소개</label>
+                <div class="info-display description" th:text="${study.description}">스터디 소개</div>
+            </div>
+
+            <!-- 모임 설정 섹션 -->
+            <div class="section-divider">
+                <div class="section-title">모임 설정</div>
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label class="form-label">최대 인원</label>
+                    <div class="info-display" th:text="${study.capacity + '명'}">인원</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">난이도</label>
+                    <div class="info-display">
+                        <span th:switch="${study.levelTag}">
+                            <span th:case="'BEGINNER'">Beginner</span>
+                            <span th:case="'INTERMEDIATE'">Intermediate</span>
+                            <span th:case="'ADVANCED'">Advanced</span>
+                            <span th:case="*">-</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">진행 방식</label>
+                    <div class="info-display">
+                        <span th:switch="${study.studyType}">
+                            <span th:case="'offline'">오프라인</span>
+                            <span th:case="'online'">온라인</span>
+                            <span th:case="'hybrid'">온/오프라인 병행</span>
+                            <span th:case="*">-</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label">스터디 기간</label>
+                    <div class="info-display">
+                        <span th:if="${study.duration != null and study.duration != ''}" th:text="${study.duration + '주'}">기간</span>
+                        <span th:unless="${study.duration != null and study.duration != ''}">기간 미정</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">모임 빈도</label>
+                    <div class="info-display">
+                        <span th:switch="${study.frequency}">
+                            <span th:case="'weekly1'">주 1회</span>
+                            <span th:case="'weekly2'">주 2회</span>
+                            <span th:case="'weekly3'">주 3회</span>
+                            <span th:case="'daily'">매일</span>
+                            <span th:case="*">-</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" th:if="${study.goal != null and study.goal != ''}">
+                <label class="form-label">학습 목표</label>
+                <div class="info-display description" th:text="${study.goal}">학습 목표</div>
+            </div>
+
+            <!-- 스터디장 정보 -->
+            <div class="section-divider">
+                <div class="section-title">스터디장 정보</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">스터디장</label>
+                <div class="info-display" th:text="${study.membersDTO != null ? study.membersDTO.name : '정보 없음'}">스터디장 이름</div>
+            </div>
+
+            <!-- 참여 버튼 (스터디장이 아닌 경우에만) -->
+            <div th:unless="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
+                <button type="button" class="submit-btn" onclick="joinStudy()">
+                    <span>스터디 참여하기</span>
+                </button>
+                <button type="button" class="cancel-btn" onclick="history.back()">
+                    목록으로 돌아가기
+                </button>
+            </div>
+
+            <!-- 스터디 멤버 섹션 (모든 사용자가 볼 수 있음) -->
+            <div class="section-divider">
+                <div class="section-title">스터디 멤버</div>
+            </div>
+
+            <div class="participants-section">
+                <h4 class="participants-title">
+                    <span class="status-icon approved">✅</span>
+                    활성 멤버
+                    <span class="participants-count" th:text="${approvedParticipants != null ? #lists.size(approvedParticipants) : 0}">0</span>
+                </h4>
+                
+                <div th:if="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="empty-participants">
+                    <p>아직 참여 중인 멤버가 없습니다.</p>
+                </div>
+                
+                <div th:unless="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="participants-list">
+                    <div th:each="member : ${approvedParticipants}" class="participant-card approved">
+                        <div class="participant-info">
+                            <div class="participant-avatar approved">
+                                <span th:text="${#strings.substring(member.member.name, 0, 1)}">A</span>
+                            </div>
+                            <div class="participant-details">
+                                <h5 class="participant-name" th:text="${member.member.name}">멤버 이름</h5>
+                                <p class="participant-email" th:text="${member.member.email}">멤버 이메일</p>
+                                <p class="participant-date" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')} + ' 참여'">참여 일시</p>
+                            </div>
+                        </div>
+                        <div class="member-status">
+                            <span class="status-badge">활성 멤버</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 스터디장 전용 관리 버튼 -->
+            <div th:if="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
+                <a th:href="@{/study/manage/{id}(id=${study.id})}" class="submit-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <span>스터디 관리하기</span>
+                </a>
+                <button type="button" class="cancel-btn" onclick="history.back()">
+                    목록으로 돌아가기
+                </button>
+            </div>
+
+            <!-- 일반 사용자 버튼 -->
+            <div th:unless="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
+                <button type="button" class="cancel-btn" onclick="history.back()">
+                    목록으로 돌아가기
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Join Modal -->
+<div id="joinModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>스터디 참여 신청</h3>
+            <button class="close-btn" onclick="closeJoinModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">스터디장에게 보낼 자기소개를 작성해주세요.</p>
+            <textarea 
+                id="introMessage" 
+                placeholder="안녕하세요! 저는... (최소 10자 이상)"
+                maxlength="500"
+                rows="6"></textarea>
+            <div class="char-count">
+                <span id="charCount">0</span>/500
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-cancel-btn" onclick="closeJoinModal()">취소</button>
+            <button type="button" class="modal-submit-btn" onclick="submitJoinRequest()">승인 요청하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button (for collapsed state) -->
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+    </svg>
+</button>
+
+<style>
+.study-detail-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.info-display {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #333333;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.info-display.description {
+    min-height: 60px;
+    align-items: flex-start;
+    padding-top: 16px;
+    white-space: pre-wrap;
+}
+
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-badge.private {
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    color: white;
+}
+
+.status-badge.public {
+    background: linear-gradient(135deg, #51cf66, #69db7c);
+    color: white;
+}
+
+.section-divider {
+    margin: 2rem 0 1.5rem 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.section-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.25rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-description {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.modal-body textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    font-family: inherit;
+    background: white;
+    transition: border-color 0.2s ease;
+}
+
+.modal-body textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.char-count {
+    text-align: right;
+    color: #999;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    justify-content: flex-end;
+}
+
+.modal-cancel-btn, .modal-submit-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.modal-cancel-btn {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #e9ecef;
+}
+
+.modal-cancel-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.modal-submit-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+}
+
+.modal-submit-btn:hover {
+    background: linear-gradient(135deg, #5b21b6, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+@media (max-width: 768px) {
+    .form-row-2, .form-row-3 {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+    
+    .modal-header, .modal-body, .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .modal-cancel-btn, .modal-submit-btn {
+        width: 100%;
+    }
+}
+
+/* Participants Management Styles */
+.participants-section {
+    margin: 1.5rem 0;
+}
+
+.participants-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.status-icon {
+    font-size: 1.2rem;
+}
+
+.status-icon.pending {
+    filter: hue-rotate(30deg);
+}
+
+.status-icon.approved {
+    filter: hue-rotate(90deg);
+}
+
+.participants-count {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.empty-participants {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #64748b;
+}
+
+.participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.participant-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.participant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.participant-card.approved {
+    border-left: 4px solid #10b981;
+}
+
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.participant-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.participant-avatar.approved {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.participant-details h5 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.participant-details p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.participant-message {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.message-label {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.message-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #374151;
+}
+
+.participant-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.approve-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.approve-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.reject-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.reject-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.member-status {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.status-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .participant-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .participant-actions {
+        flex-direction: column;
+    }
+    
+    .participants-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContainer = document.querySelector('.main-container');
+
+    sidebar.classList.toggle('collapsed');
+    mainContainer.classList.toggle('sidebar-collapsed');
+}
+
+function joinStudy() {
+    // 로그인 체크
+    const isLoggedIn = [[${isLoggedIn}]];
+    if (!isLoggedIn) {
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href = '/members/login';
+        return;
+    }
+    
+    // 팝업 열기
+    document.getElementById('joinModal').style.display = 'block';
+}
+
+function closeJoinModal() {
+    document.getElementById('joinModal').style.display = 'none';
+    document.getElementById('introMessage').value = '';
+    document.getElementById('charCount').textContent = '0';
+}
+
+// 글자 수 카운터
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('introMessage');
+    const charCount = document.getElementById('charCount');
+    
+    if (textarea && charCount) {
+        textarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+    }
+});
+
+function submitJoinRequest() {
+    const message = document.getElementById('introMessage').value.trim();
+    
+    if (message.length < 10) {
+        alert('자기소개는 10자 이상 작성해주세요.');
+        return;
+    }
+    
+    const studyId = [[${study.id}]];
+    
+    // 폼 생성 및 제출
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/study/join';
+    
+    const studyIdInput = document.createElement('input');
+    studyIdInput.type = 'hidden';
+    studyIdInput.name = 'studyId';
+    studyIdInput.value = studyId;
+    
+    const messageInput = document.createElement('input');
+    messageInput.type = 'hidden';
+    messageInput.name = 'message';
+    messageInput.value = message;
+    
+    form.appendChild(studyIdInput);
+    form.appendChild(messageInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+
+</body>
+</html>
