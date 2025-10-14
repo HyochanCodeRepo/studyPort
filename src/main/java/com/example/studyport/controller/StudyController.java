@@ -49,21 +49,48 @@ public class StudyController {
     private final MemberService memberService;
 
     @GetMapping("/create")
-    public String create(Model model, Principal principal) {
+    public String create(Model model, Principal principal, HttpSession session) {
         log.info("스터디 생성 페이지 진입");
-        
-        // 로그인 체크
+
+        // 로그인 체크 (Principal과 세션 둘 다 확인)
         if (principal == null) {
-            log.info("로그인되지 않은 사용자의 스터디 생성 페이지 접근 시도");
-            return "redirect:/members/login";
+            // 세션에서도 확인
+            String sessionEmail = (String) session.getAttribute("userEmail");
+            if (sessionEmail == null) {
+                log.info("로그인되지 않은 사용자의 스터디 생성 페이지 접근 시도");
+                return "redirect:/members/login";
+            }
         }
         
         // 카테고리 목록을 모델에 추가
         List<Category> categories = categoryRepository.findAll();
         model.addAttribute("categories", categories);
-        
+
         // 빈 StudyDTO 객체 추가
         model.addAttribute("studyDTO", new StudyDTO());
+
+        // 헤더용 사용자 정보 추가
+        String email = "";
+        String userName = "";
+        boolean isLoggedIn = false;
+
+        if (principal != null) {
+            email = principal.getName();
+            userName = memberService.getUserNameByEmail(email);
+            isLoggedIn = true;
+        } else {
+            String sessionEmail = (String) session.getAttribute("userEmail");
+            String sessionUserName = (String) session.getAttribute("userName");
+            if (sessionEmail != null) {
+                email = sessionEmail;
+                userName = sessionUserName != null ? sessionUserName : sessionEmail;
+                isLoggedIn = true;
+            }
+        }
+
+        model.addAttribute("email", email);
+        model.addAttribute("userName", userName);
+        model.addAttribute("isLoggedIn", isLoggedIn);
 
         return "study/create";
     }
@@ -253,11 +280,15 @@ public class StudyController {
     @GetMapping("/read/{id}")
     public String read(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
         log.info("스터디 상세 페이지 진입: {}", id);
-        
-        // 로그인 체크
+
+        // 로그인 체크 (Principal과 세션 둘 다 확인)
         if (principal == null) {
-            log.info("로그인되지 않은 사용자의 스터디 상세 페이지 접근 시도");
-            return "redirect:/members/login";
+            // 세션에서도 확인
+            String sessionEmail = (String) session.getAttribute("userEmail");
+            if (sessionEmail == null) {
+                log.info("로그인되지 않은 사용자의 스터디 상세 페이지 접근 시도");
+                return "redirect:/members/login";
+            }
         }
         
         Study study = studyRepository.findById(id).orElse(null);
@@ -343,11 +374,15 @@ public class StudyController {
     @GetMapping("/manage")
     public String manage(Principal principal, Model model, HttpSession session) {
         log.info("내 스터디 관리 페이지 진입");
-        
-        // 로그인 체크
+
+        // 로그인 체크 (Principal과 세션 둘 다 확인)
         if (principal == null) {
-            log.info("로그인되지 않은 사용자의 스터디 관리 페이지 접근 시도");
-            return "redirect:/members/login";
+            // 세션에서도 확인
+            String sessionEmail = (String) session.getAttribute("userEmail");
+            if (sessionEmail == null) {
+                log.info("로그인되지 않은 사용자의 스터디 관리 페이지 접근 시도");
+                return "redirect:/members/login";
+            }
         }
         
         String email = principal.getName();
@@ -370,10 +405,23 @@ public class StudyController {
             StudyParticipant.ParticipantStatus.PENDING
         );
         
-        // Principal 기반 사용자 정보
-        String userName = memberService.getUserNameByEmail(email);
-        boolean isLoggedIn = true;
-        
+        // 헤더용 사용자 정보 (Principal과 세션 통합)
+        String userName = "";
+        boolean isLoggedIn = false;
+
+        if (principal != null) {
+            userName = memberService.getUserNameByEmail(email);
+            isLoggedIn = true;
+        } else {
+            String sessionEmail = (String) session.getAttribute("userEmail");
+            String sessionUserName = (String) session.getAttribute("userName");
+            if (sessionEmail != null) {
+                email = sessionEmail;
+                userName = sessionUserName != null ? sessionUserName : sessionEmail;
+                isLoggedIn = true;
+            }
+        }
+
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
         model.addAttribute("isLoggedIn", isLoggedIn);

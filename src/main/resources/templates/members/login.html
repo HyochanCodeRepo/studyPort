@@ -277,6 +277,48 @@
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
+        /* Demo Login Button */
+        .demo-login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .demo-login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transition: left 0.5s ease;
+        }
+
+        .demo-login-btn:hover::before {
+            left: 0;
+        }
+
+        .demo-login-btn span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .demo-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
         .signup-link {
             text-align: center;
             margin-top: 1.5rem;
@@ -474,6 +516,11 @@
                     <span>로그인</span>
                 </button>
 
+                <!-- 시연용 빠른 로그인 버튼 -->
+                <button type="button" class="demo-login-btn" onclick="quickLogin()">
+                    <span>🚀 시연용 빠른 로그인</span>
+                </button>
+
                 <div class="signup-link">
                     처음이신가요? <a href="/members/signup">회원가입</a>
                 </div>
@@ -498,6 +545,17 @@
         </div>
     </div>
 </div>
+
+<script>
+function quickLogin() {
+    // 시연용 계정 정보 자동 입력
+    document.getElementById('email').value = 'test@test';
+    document.getElementById('password').value = 'Hyochan!23';
+
+    // 폼 자동 제출
+    document.getElementById('loginForm').submit();
+}
+</script>
 
 </body>
 </html>

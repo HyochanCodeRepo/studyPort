@@ -45,7 +45,7 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(MembersDTO membersDTO, Model model) {
+    public String login(MembersDTO membersDTO, Model model, HttpSession session) {
         log.info("로그인 시도: " + membersDTO.getEmail());
 
         // 서비스에서 이메일로 사용자 정보 조회
@@ -62,8 +62,11 @@ public class MemberController {
         boolean isPasswordMatch = memberService.validatePassword(membersDTO.getEmail(), membersDTO.getPassword());
 
         if (isPasswordMatch) {
-            // 로그인 성공
-            log.info("로그인 성공: " + member.getEmail());
+            // 로그인 성공 - 세션에 사용자 정보 저장
+            session.setAttribute("userEmail", member.getEmail());
+            session.setAttribute("userName", member.getName() != null ? member.getName() : member.getEmail());
+            session.setAttribute("isLoggedIn", true);
+            log.info("로그인 성공: " + member.getEmail() + ", 세션 저장 완료");
             return "redirect:/";
         } else {
             // 비밀번호 불일치
@@ -132,13 +135,17 @@ public class MemberController {
     }
     
     @GetMapping("/profile")
-    public String profile(Principal principal, Model model) {
+    public String profile(Principal principal, Model model, HttpSession session) {
         log.info("내정보 변경 페이지 진입");
 
-        // 로그인 체크
+        // 로그인 체크 (Principal과 세션 둘 다 확인)
         if (principal == null) {
-            log.info("로그인되지 않은 사용자의 프로필 페이지 접근 시도");
-            return "redirect:/members/login";
+            // 세션에서도 확인
+            String sessionEmail = (String) session.getAttribute("userEmail");
+            if (sessionEmail == null) {
+                log.info("로그인되지 않은 사용자의 프로필 페이지 접근 시도");
+                return "redirect:/members/login";
+            }
         }
 
         // 사용자 정보 조회
