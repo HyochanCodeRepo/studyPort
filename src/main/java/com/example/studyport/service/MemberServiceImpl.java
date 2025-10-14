@@ -105,7 +105,6 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                         .password(members.getPassword())
                         .roles(role)
                         .build();
-
         return user;
 
     }
@@ -124,13 +123,22 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public boolean validatePassword(String email, String password) {
         Members member = memberRepository.findByEmail(email);
-        
+
         if (member == null) {
             log.info("해당 이메일로 가입된 사용자가 없습니다: " + email);
             return false;
         }
-        
-        boolean isValid = passwordEncoder.matches(password, member.getPassword());
+
+        log.info("입력된 비밀번호: {}", password);
+        log.info("DB에 저장된 암호화된 비밀번호: {}", member.getPassword());
+        log.info("비밀번호가 BCrypt로 암호화되어 있는가? {}", member.getPassword().startsWith("$2"));
+
+        // 테스트: 입력된 비밀번호를 암호화해서 비교해보기
+        String encodedInput = passwordEncoder.encode(password);
+        log.info("입력된 비밀번호를 암호화한 결과: {}", encodedInput);
+        log.info("같은 비밀번호를 다시 암호화: {}", passwordEncoder.encode(password));
+
+        boolean isValid = passwordEncoder.matches(password,member.getPassword());
         log.info("비밀번호 검증 결과 for {}: {}", email, isValid);
         return isValid;
     }

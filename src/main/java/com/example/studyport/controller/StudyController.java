@@ -272,11 +272,18 @@ public class StudyController {
         
         log.info("매핑된 StudyDTO 데이터: {}", studyDTO);
         
-        // MembersDTO 수동 설정
+        // MembersDTO 수동 설정 (null 안전 처리)
         if (study.getMembers() != null) {
             MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
             studyDTO.setMembersDTO(membersDTO);
             log.info("매핑된 MembersDTO 데이터: {}", membersDTO);
+        } else {
+            // 스터디장 정보가 없는 경우 기본값 처리
+            log.warn("스터디 {}에 스터디장 정보가 없습니다", study.getId());
+            MembersDTO defaultMemberDTO = new MembersDTO();
+            defaultMemberDTO.setName(study.getLeader() != null ? study.getLeader() : "알 수 없음");
+            defaultMemberDTO.setEmail("");
+            studyDTO.setMembersDTO(defaultMemberDTO);
         }
         
         // 로그인한 사용자 정보 추가 (메인 페이지와 동일한 로직)
@@ -363,23 +370,9 @@ public class StudyController {
             StudyParticipant.ParticipantStatus.PENDING
         );
         
-        // 헤더 표시용 사용자 정보 추가
-        String userName = "";
-        boolean isLoggedIn = false;
-        
-        // 세션에서 로그인된 사용자 정보 확인
-        String sessionEmail = (String) session.getAttribute("userEmail");
-        String sessionUserName = (String) session.getAttribute("userName");
-        
-        if (sessionEmail != null) {
-            email = sessionEmail;
-            userName = sessionUserName != null ? sessionUserName : email;
-            isLoggedIn = true;
-        } else if (principal != null) {
-            email = principal.getName();
-            userName = email;
-            isLoggedIn = true;
-        }
+        // Principal 기반 사용자 정보
+        String userName = memberService.getUserNameByEmail(email);
+        boolean isLoggedIn = true;
         
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
@@ -608,11 +601,18 @@ public class StudyController {
         
         StudyDTO studyDTO = modelMapper.map(study, StudyDTO.class);
         
-        // MembersDTO 수동 설정
+        // MembersDTO 수동 설정 (null 안전 처리)
         if (study.getMembers() != null) {
             MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
             studyDTO.setMembersDTO(membersDTO);
             log.info("매핑된 MembersDTO 데이터: {}", membersDTO);
+        } else {
+            // 스터디장 정보가 없는 경우 기본값 처리
+            log.warn("스터디 {}에 스터디장 정보가 없습니다", study.getId());
+            MembersDTO defaultMemberDTO = new MembersDTO();
+            defaultMemberDTO.setName(study.getLeader() != null ? study.getLeader() : "알 수 없음");
+            defaultMemberDTO.setEmail("");
+            studyDTO.setMembersDTO(defaultMemberDTO);
         }
         
         // 승인 대기 중인 참여자
@@ -673,11 +673,18 @@ public class StudyController {
         
         log.info("매핑된 StudyDTO 데이터: {}", studyDTO);
         
-        // MembersDTO 수동 설정
+        // MembersDTO 수동 설정 (null 안전 처리)
         if (study.getMembers() != null) {
             MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
             studyDTO.setMembersDTO(membersDTO);
             log.info("매핑된 MembersDTO 데이터: {}", membersDTO);
+        } else {
+            // 스터디장 정보가 없는 경우 기본값 처리
+            log.warn("스터디 {}에 스터디장 정보가 없습니다", study.getId());
+            MembersDTO defaultMemberDTO = new MembersDTO();
+            defaultMemberDTO.setName(study.getLeader() != null ? study.getLeader() : "알 수 없음");
+            defaultMemberDTO.setEmail("");
+            studyDTO.setMembersDTO(defaultMemberDTO);
         }
         
         // 로그인한 사용자 정보 추가

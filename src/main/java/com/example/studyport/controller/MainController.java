@@ -34,33 +34,17 @@ public class MainController {
     private final MemberService memberService;
 
     @GetMapping("/")
-    public String main(Principal principal, Model model, HttpSession session) {
+    public String main(Principal principal, Model model) {
         String email = "";
         String userName = "";
         boolean isLoggedIn = false;
-        
-        // 세션에서 로그인된 사용자 정보 확인
-        String sessionEmail = (String) session.getAttribute("userEmail");
-        
-        if (sessionEmail != null) {
-            email = sessionEmail;
-            // 서비스에서 userName 가져오기
-            userName = memberService.getUserNameByEmail(sessionEmail);
+
+        // Principal 기반 사용자 정보
+        if (principal != null) {
+            email = principal.getName();
+            userName = memberService.getUserNameByEmail(email);
             isLoggedIn = true;
-            log.info("세션에서 로그인된 사용자 확인: " + email + ", 실제 이름: " + userName);
-        } else {
-            // 기존 OAuth 또는 Principal 처리
-            MembersDTO user = (MembersDTO) session.getAttribute("user");
-            if (user != null) {
-                log.info(user.getEmail());
-                email = user.getEmail();
-                userName = user.getName() != null ? user.getName() : email;
-                isLoggedIn = true;
-            } else if (principal != null) {
-                email = principal.getName();
-                userName = memberService.getUserNameByEmail(email);
-                isLoggedIn = true;
-            }
+            log.info("로그인된 사용자: " + email + ", 실제 이름: " + userName);
         }
 
         log.info("email: " + email + ", userName: " + userName + ", isLoggedIn: " + isLoggedIn);
@@ -72,7 +56,14 @@ public class MainController {
         List<Study> studyList = studyRepository.findTop10ByOrderByIdDesc();
         List<StudyDTO> studyDTOList = studyList.stream()
                 .filter(study -> study.getIsPrivate() == null || !study.getIsPrivate()) // null 체크 추가
-                .map(study -> modelMapper.map(study, StudyDTO.class))
+                .map(study -> {
+                    StudyDTO dto = modelMapper.map(study, StudyDTO.class);
+                    // isPrivate null 방지
+                    if (dto.getIsPrivate() == null) {
+                        dto.setIsPrivate(false);
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         log.info("조회된 공개 스터디 개수: {}", studyDTOList.size());
@@ -109,34 +100,20 @@ public class MainController {
     }
     
     @GetMapping("/categories")
-    public String categoryPage(@RequestParam("name") String categoryName, Principal principal, Model model, HttpSession session) {
+    public String categoryPage(@RequestParam("name") String categoryName, Principal principal, Model model) {
         try {
             log.info("카테고리 페이지 요청: {}", categoryName);
-            
+
             String email = "";
             String userName = "";
             boolean isLoggedIn = false;
-            
-            // 세션에서 로그인된 사용자 정보 확인 (메인과 동일한 로직)
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            
-            if (sessionEmail != null) {
-                email = sessionEmail;
-                userName = memberService.getUserNameByEmail(sessionEmail);
+
+            // Principal 기반 사용자 정보
+            if (principal != null) {
+                email = principal.getName();
+                userName = memberService.getUserNameByEmail(email);
                 isLoggedIn = true;
-                log.info("세션에서 로그인된 사용자 확인: " + email + ", 실제 이름: " + userName);
-            } else {
-                MembersDTO user = (MembersDTO) session.getAttribute("user");
-                if (user != null) {
-                    log.info(user.getEmail());
-                    email = user.getEmail();
-                    userName = user.getName() != null ? user.getName() : email;
-                    isLoggedIn = true;
-                } else if (principal != null) {
-                    email = principal.getName();
-                    userName = memberService.getUserNameByEmail(email);
-                    isLoggedIn = true;
-                }
+                log.info("로그인된 사용자: " + email + ", 실제 이름: " + userName);
             }
 
             log.info("email: " + email + ", userName: " + userName + ", isLoggedIn: " + isLoggedIn);
@@ -159,7 +136,14 @@ public class MainController {
             List<StudyDTO> studyDTOList = allStudies.stream()
                     .filter(study -> study.getIsPrivate() == null || !study.getIsPrivate()) // 공개 스터디만
                     .filter(study -> categoryName.equals(study.getTopic())) // 해당 카테고리만
-                    .map(study -> modelMapper.map(study, StudyDTO.class))
+                    .map(study -> {
+                        StudyDTO dto = modelMapper.map(study, StudyDTO.class);
+                        // isPrivate null 방지
+                        if (dto.getIsPrivate() == null) {
+                            dto.setIsPrivate(false);
+                        }
+                        return dto;
+                    })
                     .collect(Collectors.toList());
 
             log.info("카테고리 '{}' 스터디 개수: {}", categoryName, studyDTOList.size());

@@ -26,7 +26,7 @@ public class Study {
 
     private String location; // 지역
 
-    private String capacity; // 최대인원
+    private Integer capacity; // 최대인원
 
     private String password;
 
@@ -50,6 +50,8 @@ public class Study {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Members members;
+
+    private String leader; // 스터디장 이름 (성능 향상을 위해 직접 저장)
 
     public Study setMembers(Members members) {
         this.members = members;

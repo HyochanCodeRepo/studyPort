@@ -40,17 +40,26 @@ public class StudyServiceImpl implements StudyService {
 
         // StudyDTO를 Study 엔티티로 변환
         Study study = modelMapper.map(studyDTO, Study.class);
-        
+
         // 비공개 스터디 설정
         if (studyDTO.getPassword() != null && !studyDTO.getPassword().trim().isEmpty()) {
             study.setIsPrivate(true);
         } else {
             study.setIsPrivate(false);
         }
-        
+
         // null 방지를 위한 추가 체크
         if (study.getIsPrivate() == null) {
             study.setIsPrivate(false);
+        }
+
+        // 스터디장 이름 설정 (성능 향상을 위해 직접 저장)
+        if (study.getMembers() != null && study.getMembers().getName() != null) {
+            study.setLeader(study.getMembers().getName());
+            log.info("스터디장 설정: {}", study.getLeader());
+        } else {
+            study.setLeader("알 수 없음");
+            log.warn("스터디장 정보가 없어 기본값으로 설정");
         }
 
         // 스터디 저장

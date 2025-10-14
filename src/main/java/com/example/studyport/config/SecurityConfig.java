@@ -34,11 +34,7 @@ public class SecurityConfig {
 
                 )
                 .csrf(csrf -> csrf.disable())
-                .formLogin(
-                        formLogin -> formLogin.loginPage("/members/login")
-                                .defaultSuccessUrl("/")
-                                .usernameParameter("email")
-                )
+                .formLogin(formLogin -> formLogin.disable()) // 폼 로그인 비활성화 (수동 처리)
                 .logout(logout -> logout.logoutUrl("/members/logout")
                         .logoutSuccessUrl("/members/login").invalidateHttpSession(true)
                 )

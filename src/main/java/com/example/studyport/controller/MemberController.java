@@ -35,32 +35,39 @@ public class MemberController {
 
 
     @GetMapping("/login")
-    public String login() {
+    public String login(@RequestParam(value = "error", required = false) String error, Model model) {
+
+        if (error != null) {
+            model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
 
         return "members/login";
     }
 
     @PostMapping("/login")
-    public String login(MembersDTO membersDTO, HttpSession session, Model model) {
-        
+    public String login(MembersDTO membersDTO, Model model) {
         log.info("로그인 시도: " + membersDTO.getEmail());
-        
-        // 사용자 인증
-        var authenticatedMember = memberService.authenticateUser(
-            membersDTO.getEmail(), 
-            membersDTO.getPassword()
-        );
-        
-        if (authenticatedMember != null) {
-            // 인증 성공 - 세션에 사용자 정보 저장
-            session.setAttribute("loggedInUser", authenticatedMember);
-            session.setAttribute("userEmail", authenticatedMember.getEmail());
-            session.setAttribute("userName", authenticatedMember.getName());
-            log.info("로그인 성공: " + authenticatedMember.getEmail());
+
+        // 서비스에서 이메일로 사용자 정보 조회
+        Members member = memberService.findByEmail(membersDTO.getEmail());
+
+        if (member == null) {
+            // 이메일로 가입된 사용자가 없음
+            log.info("가입되지 않은 이메일: " + membersDTO.getEmail());
+            model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
+            return "members/login";
+        }
+
+        // 비밀번호 대조
+        boolean isPasswordMatch = memberService.validatePassword(membersDTO.getEmail(), membersDTO.getPassword());
+
+        if (isPasswordMatch) {
+            // 로그인 성공
+            log.info("로그인 성공: " + member.getEmail());
             return "redirect:/";
         } else {
-            // 인증 실패
-            log.info("로그인 실패: " + membersDTO.getEmail());
+            // 비밀번호 불일치
+            log.info("비밀번호 불일치: " + membersDTO.getEmail());
             model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
             return "members/login";
         }
@@ -86,10 +93,10 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public String signupPost(MembersDTO membersDTO, @RequestParam String categoryIds, HttpSession session) {
+    public String signupPost(MembersDTO membersDTO, @RequestParam String categoryIds) {
         log.info(membersDTO);
         log.info("선택된 카테고리 IDs: " + categoryIds);
-        
+
         // 쉼표로 구분된 카테고리 ID 문자열을 List<Long>으로 변환
         if (categoryIds != null && !categoryIds.trim().isEmpty()) {
             try {
@@ -97,12 +104,12 @@ public class MemberController {
                     .map(String::trim)
                     .map(Long::parseLong)
                     .collect(Collectors.toList());
-                
+
                 // 최대 3개 제한 확인
                 if (categoryIdList.size() > 3) {
                     categoryIdList = categoryIdList.subList(0, 3);
                 }
-                
+
                 membersDTO.setCategoryIds(categoryIdList);
             } catch (NumberFormatException e) {
                 log.error("카테고리 ID 파싱 오류: " + categoryIds, e);
@@ -111,65 +118,45 @@ public class MemberController {
 
         // 회원가입 처리
         Members createdMember = memberService.create(membersDTO);
-        
-        // 회원가입 성공 시 세션에 사용자 정보 저장 (자동 로그인 효과)
-        session.setAttribute("loggedInUser", createdMember);
-        session.setAttribute("userEmail", createdMember.getEmail());
-        session.setAttribute("userName", createdMember.getName());
-        log.info("회원가입 성공 및 자동 로그인: " + createdMember.getEmail());
+        log.info("회원가입 성공: " + createdMember.getEmail());
 
-        return  "redirect:/";
+        // Spring Security 자동 로그인은 별도 구현 필요
+        return "redirect:/members/login";
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        // 세션 무효화
-        session.invalidate();
+    public String logout() {
+        // Spring Security가 로그아웃 처리
         log.info("사용자 로그아웃 완료");
         return "redirect:/";
     }
     
     @GetMapping("/profile")
-    public String profile(Principal principal, Model model, HttpSession session) {
+    public String profile(Principal principal, Model model) {
         log.info("내정보 변경 페이지 진입");
-        
+
         // 로그인 체크
         if (principal == null) {
             log.info("로그인되지 않은 사용자의 프로필 페이지 접근 시도");
             return "redirect:/members/login";
         }
-        
+
         // 사용자 정보 조회
         Members member = memberService.findByEmail(principal.getName());
         if (member == null) {
             log.error("사용자를 찾을 수 없습니다: {}", principal.getName());
             return "redirect:/members/login";
         }
-        
-        // 헤더 표시용 사용자 정보 추가 (메인 페이지와 동일한 로직)
-        String email = "";
-        String userName = "";
-        boolean isLoggedIn = false;
-        
-        // 세션에서 로그인된 사용자 정보 확인
-        String sessionEmail = (String) session.getAttribute("userEmail");
-        String sessionUserName = (String) session.getAttribute("userName");
-        
-        if (sessionEmail != null) {
-            email = sessionEmail;
-            userName = sessionUserName != null ? sessionUserName : email;
-            isLoggedIn = true;
-        } else if (principal != null) {
-            email = principal.getName();
-            userName = email;
-            isLoggedIn = true;
-        }
-        
+
+        // Principal 기반 사용자 정보
+        String email = principal.getName();
+        String userName = memberService.getUserNameByEmail(email);
+
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isLoggedIn", true);
         model.addAttribute("member", member);
-        
+
         return "members/profile";
     }
     
@@ -178,9 +165,8 @@ public class MemberController {
      */
     @PostMapping("/profile/update")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, String> requestData, 
-                                                              Principal principal, 
-                                                              HttpSession session) {
+    public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, String> requestData,
+                                                              Principal principal) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -233,15 +219,9 @@ public class MemberController {
             // 변경사항이 있을 경우만 저장
             if (updated) {
                 Members updatedMember = memberService.updateMember(currentMember);
-                
-                // 세션 정보도 업데이트
-                if (session.getAttribute("userName") != null) {
-                    session.setAttribute("userName", updatedMember.getName());
-                    session.setAttribute("loggedInUser", updatedMember);
-                }
-                
+
                 log.info("프로필 업데이트 완료: {}", updatedMember.getEmail());
-                
+
                 response.put("success", true);
                 response.put("message", "정보가 성공적으로 수정되었습니다.");
             } else {
