@@ -17,6 +17,7 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
     // 다단계 확장: 자기참조 parent

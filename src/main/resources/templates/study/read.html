@@ -62,54 +62,14 @@
         </h3>
 
         <ul class="category-list">
-            <li class="category-item">
-                <a href="/category/programming" class="category-link">
-                    <span class="category-icon">💻</span>
-                    프로그래밍
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/language" class="category-link">
-                    <span class="category-icon">🗣️</span>
-                    외국어
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/exam" class="category-link">
-                    <span class="category-icon">📝</span>
-                    자격증
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/book" class="category-link">
+            <li th:each="category : ${categories}" class="category-item">
+                <a th:href="@{/categories(name=${category.name})}" class="category-link">
                     <span class="category-icon">📚</span>
-                    독서
+                    <span th:text="${category.name}">카테고리명</span>
                 </a>
+
             </li>
-            <li class="category-item">
-                <a href="/category/investment" class="category-link">
-                    <span class="category-icon">💰</span>
-                    재테크
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/design" class="category-link">
-                    <span class="category-icon">🎨</span>
-                    디자인
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/marketing" class="category-link">
-                    <span class="category-icon">📊</span>
-                    마케팅
-                </a>
-            </li>
-            <li class="category-item">
-                <a href="/category/self-development" class="category-link">
-                    <span class="category-icon">🌱</span>
-                    자기계발
-                </a>
-            </li>
+
         </ul>
     </aside>
 

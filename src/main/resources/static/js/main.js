@@ -184,6 +184,11 @@ function updateActiveFilterTags() {
     const activeFiltersContainer = document.getElementById('active-filters');
     const tagsContainer = document.getElementById('active-filter-tags');
 
+    // 필터 컨테이너가 없으면 (주석 처리된 경우) 함수 종료
+    if (!activeFiltersContainer || !tagsContainer) {
+        return;
+    }
+
     // 활성 필터가 있는지 확인
     const hasActiveFilters = Object.values(activeFilters).some(value => value !== 'all');
 
@@ -268,8 +273,196 @@ function toggleSidebar() {
 
 
 
+// ========================================
+// 검색 기능 (AJAX)
+// ========================================
+
+// 검색 실행 함수
+async function searchStudies() {
+    const keyword = document.querySelector('.search-input').value.trim();
+    const studyGrid = document.querySelector('.study-grid');
+
+    // 로딩 표시
+    showLoading(true);
+
+    try {
+        // 서버에 검색 요청
+        const response = await fetch(`/api/studies/search?keyword=${encodeURIComponent(keyword)}`);
+
+        if (!response.ok) {
+            throw new Error('검색 실패');
+        }
+
+        const studies = await response.json();
+
+        // 결과 렌더링
+        renderSearchResults(studies);
+
+    } catch (error) {
+        console.error('검색 오류:', error);
+        showError('검색 중 오류가 발생했습니다.');
+    } finally {
+        // 로딩 숨김
+        showLoading(false);
+    }
+}
+
+// 검색 결과 렌더링
+function renderSearchResults(studies) {
+    const studyGrid = document.querySelector('.study-grid');
+
+    // 기존 카드 모두 제거
+    studyGrid.innerHTML = '';
+
+    // 결과 없을 때
+    if (studies.length === 0) {
+        studyGrid.innerHTML = `
+            <div class="no-studies-message" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; opacity: 0.5;" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                </svg>
+                <h3 style="margin-bottom: 0.5rem; color: #374151;">검색 결과가 없습니다</h3>
+                <p style="color: #64748b;">다른 검색어로 시도해보세요.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // 각 스터디를 카드로 생성
+    studies.forEach(study => {
+        const card = createStudyCard(study);
+        studyGrid.appendChild(card);
+    });
+}
+
+// 스터디 카드 HTML 생성
+function createStudyCard(study) {
+    const card = document.createElement('div');
+    card.className = 'study-card fade-in';
+    card.setAttribute('data-topic', study.topic || '');
+    card.setAttribute('data-location', study.location || '');
+    card.setAttribute('data-level', study.levelTag || '');
+    card.setAttribute('data-status', study.isPrivate ? 'private' : 'recruiting');
+
+    // 레벨 텍스트 변환
+    const levelText = {
+        'BEGINNER': '초급',
+        'INTERMEDIATE': '중급',
+        'ADVANCED': '고급'
+    }[study.levelTag] || study.levelTag;
+
+    // 스터디 타입 텍스트 변환
+    const typeText = {
+        'hybrid': '온/오프라인 병행',
+        'online': '온라인',
+        'offline': '오프라인'
+    }[study.studyType] || '';
+
+    card.innerHTML = `
+        <div class="study-header">
+            <span class="study-category">${study.topic || ''}</span>
+            <div class="study-status">
+                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <span>${study.isPrivate ? '비공개' : '모집중'}</span>
+            </div>
+        </div>
+        <h3 class="study-title">${study.name || ''}</h3>
+        <p>${study.description || ''}</p>
+
+        <div class="study-meta">
+            ${study.frequency ? `
+                <div class="meta-item">
+                    <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${study.frequency}</span>
+                </div>
+            ` : ''}
+
+            ${study.location ? `
+                <div class="meta-item">
+                    <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${study.location}</span>
+                    ${typeText ? `<span>(${typeText})</span>` : ''}
+                </div>
+            ` : ''}
+
+            ${study.capacity ? `
+                <div class="meta-item">
+                    <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                    </svg>
+                    <span>1/${study.capacity}명</span>
+                </div>
+            ` : ''}
+
+            ${study.levelTag ? `
+                <div class="meta-item">
+                    <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${levelText || ''}</span>
+                </div>
+            ` : ''}
+        </div>
+
+        <button class="join-btn" onclick="joinStudy(${study.id})">
+            <span>${study.isPrivate ? '참여 신청' : '스터디 참여하기'}</span>
+        </button>
+    `;
+
+    return card;
+}
+
+// 로딩 표시
+function showLoading(show) {
+    const studyGrid = document.querySelector('.study-grid');
+
+    if (show) {
+        studyGrid.innerHTML = `
+            <div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="margin-top: 1rem; color: #64748b;">검색 중...</p>
+            </div>
+        `;
+    }
+}
+
+// 에러 메시지 표시
+function showError(message) {
+    const studyGrid = document.querySelector('.study-grid');
+    studyGrid.innerHTML = `
+        <div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #ef4444;">
+            <h3 style="margin-bottom: 0.5rem;">오류 발생</h3>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     // 초기 필터 상태 설정
     updateActiveFilterTags();
+
+    // 검색 이벤트 리스너 등록
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+
+    // Enter 키로 검색
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchStudies();
+            }
+        });
+    }
+
+    // 버튼 클릭으로 검색
+    if (searchBtn) {
+        searchBtn.addEventListener('click', searchStudies);
+    }
 });

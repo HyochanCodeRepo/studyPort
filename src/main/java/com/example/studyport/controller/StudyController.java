@@ -49,19 +49,15 @@ public class StudyController {
     private final MemberService memberService;
 
     @GetMapping("/create")
-    public String create(Model model, Principal principal, HttpSession session) {
+    public String create(Model model, Principal principal) {
         log.info("스터디 생성 페이지 진입");
 
-        // 로그인 체크 (Principal과 세션 둘 다 확인)
+        // 로그인 체크
         if (principal == null) {
-            // 세션에서도 확인
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            if (sessionEmail == null) {
-                log.info("로그인되지 않은 사용자의 스터디 생성 페이지 접근 시도");
-                return "redirect:/members/login";
-            }
+            log.info("로그인되지 않은 사용자의 스터디 생성 페이지 접근 시도");
+            return "redirect:/members/login";
         }
-        
+
         // 카테고리 목록을 모델에 추가
         List<Category> categories = categoryRepository.findAll();
         model.addAttribute("categories", categories);
@@ -70,27 +66,12 @@ public class StudyController {
         model.addAttribute("studyDTO", new StudyDTO());
 
         // 헤더용 사용자 정보 추가
-        String email = "";
-        String userName = "";
-        boolean isLoggedIn = false;
-
-        if (principal != null) {
-            email = principal.getName();
-            userName = memberService.getUserNameByEmail(email);
-            isLoggedIn = true;
-        } else {
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            String sessionUserName = (String) session.getAttribute("userName");
-            if (sessionEmail != null) {
-                email = sessionEmail;
-                userName = sessionUserName != null ? sessionUserName : sessionEmail;
-                isLoggedIn = true;
-            }
-        }
+        String email = principal.getName();
+        String userName = memberService.getUserNameByEmail(email);
 
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isLoggedIn", true);
 
         return "study/create";
     }
@@ -278,31 +259,21 @@ public class StudyController {
     }
 
     @GetMapping("/read/{id}")
-    public String read(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+    public String read(@PathVariable Long id, Model model, Principal principal) {
         log.info("스터디 상세 페이지 진입: {}", id);
 
-        // 로그인 체크 (Principal과 세션 둘 다 확인)
-        if (principal == null) {
-            // 세션에서도 확인
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            if (sessionEmail == null) {
-                log.info("로그인되지 않은 사용자의 스터디 상세 페이지 접근 시도");
-                return "redirect:/members/login";
-            }
-        }
-        
         Study study = studyRepository.findById(id).orElse(null);
         if (study == null) {
             log.error("스터디를 찾을 수 없습니다: {}", id);
             return "redirect:/";
         }
-        
+
         log.info("조회된 Study 데이터: {}", study);
-        
+
         StudyDTO studyDTO = modelMapper.map(study, StudyDTO.class);
-        
+
         log.info("매핑된 StudyDTO 데이터: {}", studyDTO);
-        
+
         // MembersDTO 수동 설정 (null 안전 처리)
         if (study.getMembers() != null) {
             MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
@@ -316,26 +287,18 @@ public class StudyController {
             defaultMemberDTO.setEmail("");
             studyDTO.setMembersDTO(defaultMemberDTO);
         }
-        
-        // 로그인한 사용자 정보 추가 (메인 페이지와 동일한 로직)
+
+        // 로그인한 사용자 정보 추가
         String email = "";
         String userName = "";
         boolean isLoggedIn = false;
-        
-        // 세션에서 로그인된 사용자 정보 확인
-        String sessionEmail = (String) session.getAttribute("userEmail");
-        String sessionUserName = (String) session.getAttribute("userName");
-        
-        if (sessionEmail != null) {
-            email = sessionEmail;
-            userName = sessionUserName != null ? sessionUserName : email;
-            isLoggedIn = true;
-        } else if (principal != null) {
+
+        if (principal != null) {
             email = principal.getName();
-            userName = email;
+            userName = memberService.getUserNameByEmail(email);
             isLoggedIn = true;
         }
-        
+
         // 현재 로그인한 사용자가 스터디장인지 확인
         Members currentUser = null;
         boolean isStudyAuthor = false;
@@ -345,21 +308,23 @@ public class StudyController {
                 isStudyAuthor = study.getMembers().getId().equals(currentUser.getId());
             }
         }
-        
+
         // 스터디장인 경우에만 참여자 목록 조회
         List<StudyParticipant> pendingParticipants = null;
         List<StudyParticipant> approvedParticipants = null;
-        
+
         if (isStudyAuthor) {
             // 승인 대기 중인 참여자
             pendingParticipants = studyParticipantRepository.findByStudyIdAndStatus(
                 study.getId(), StudyParticipant.ParticipantStatus.PENDING);
-            
+
             // 승인된 참여자
             approvedParticipants = studyParticipantRepository.findByStudyIdAndStatus(
                 study.getId(), StudyParticipant.ParticipantStatus.APPROVED);
         }
-        
+
+        List<Category> categories = categoryRepository.findAll();
+
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
         model.addAttribute("isLoggedIn", isLoggedIn);
@@ -367,68 +332,51 @@ public class StudyController {
         model.addAttribute("isStudyAuthor", isStudyAuthor);
         model.addAttribute("pendingParticipants", pendingParticipants);
         model.addAttribute("approvedParticipants", approvedParticipants);
-        
+        model.addAttribute("categories", categories);
+
         return "study/read";
     }
 
     @GetMapping("/manage")
-    public String manage(Principal principal, Model model, HttpSession session) {
+    public String manage(Principal principal, Model model) {
         log.info("내 스터디 관리 페이지 진입");
 
-        // 로그인 체크 (Principal과 세션 둘 다 확인)
+        // 로그인 체크
         if (principal == null) {
-            // 세션에서도 확인
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            if (sessionEmail == null) {
-                log.info("로그인되지 않은 사용자의 스터디 관리 페이지 접근 시도");
-                return "redirect:/members/login";
-            }
+            log.info("로그인되지 않은 사용자의 스터디 관리 페이지 접근 시도");
+            return "redirect:/members/login";
         }
-        
+
         String email = principal.getName();
         Members currentUser = memberRepository.findByEmail(email);
-        
+
         if (currentUser == null) {
             log.error("사용자를 찾을 수 없습니다: {}", email);
             return "redirect:/members/login";
         }
-        
+
         // 내가 관리하는 스터디 (스터디장인 스터디)
         List<Study> managedStudies = studyRepository.findByMembers_Id(currentUser.getId());
         List<StudyDTO> managedStudyDTOList = managedStudies.stream()
             .map(study -> modelMapper.map(study, StudyDTO.class))
             .collect(Collectors.toList());
-        
+
         // 승인 대기 중인 요청 건수 조회
         long pendingRequestsCount = studyParticipantRepository.countPendingRequestsByAuthor(
-            currentUser.getId(), 
+            currentUser.getId(),
             StudyParticipant.ParticipantStatus.PENDING
         );
-        
-        // 헤더용 사용자 정보 (Principal과 세션 통합)
-        String userName = "";
-        boolean isLoggedIn = false;
 
-        if (principal != null) {
-            userName = memberService.getUserNameByEmail(email);
-            isLoggedIn = true;
-        } else {
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            String sessionUserName = (String) session.getAttribute("userName");
-            if (sessionEmail != null) {
-                email = sessionEmail;
-                userName = sessionUserName != null ? sessionUserName : sessionEmail;
-                isLoggedIn = true;
-            }
-        }
+        // 헤더용 사용자 정보
+        String userName = memberService.getUserNameByEmail(email);
 
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isLoggedIn", true);
         model.addAttribute("managedStudies", managedStudyDTOList);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
-        
+
         return "study/manage";
     }
     
@@ -502,42 +450,41 @@ public class StudyController {
      * 승인 요청 목록 페이지
      */
     @GetMapping("/approval-requests")
-    public String approvalRequests(Principal principal, Model model, HttpSession session) {
+    public String approvalRequests(Principal principal, Model model) {
         log.info("승인 요청 목록 페이지 진입");
-        
+
         // 로그인 체크
         if (principal == null) {
             log.info("로그인되지 않은 사용자의 승인 요청 페이지 접근 시도");
             return "redirect:/members/login";
         }
-        
+
         String email = principal.getName();
         Members currentUser = memberRepository.findByEmail(email);
-        
+
         if (currentUser == null) {
             log.error("사용자를 찾을 수 없습니다: {}", email);
             return "redirect:/members/login";
         }
-        
+
         // 내가 만든 스터디들의 승인 대기 요청 목록 조회
         List<StudyParticipant> pendingRequests = studyParticipantRepository.findPendingRequestsByAuthor(
-            currentUser.getId(), 
+            currentUser.getId(),
             StudyParticipant.ParticipantStatus.PENDING
         );
-        
+
         // 승인 대기 건수
         long pendingRequestsCount = pendingRequests.size();
-        
+
         // 헤더 표시용 사용자 정보 추가
         String userName = memberService.getUserNameByEmail(email);
-        boolean isLoggedIn = true;
-        
+
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isLoggedIn", true);
         model.addAttribute("pendingRequests", pendingRequests);
         model.addAttribute("pendingRequestsCount", pendingRequestsCount);
-        
+
         return "study/approval-requests";
     }
     
@@ -613,23 +560,23 @@ public class StudyController {
      * 스터디장 전용 스터디 상세 관리 페이지
      */
     @GetMapping("/manage/{id}")
-    public String manageStudyDetail(@PathVariable Long id, Principal principal, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String manageStudyDetail(@PathVariable Long id, Principal principal, Model model, RedirectAttributes redirectAttributes) {
         log.info("스터디장 전용 관리 상세페이지 진입: studyId={}", id);
-        
+
         // 로그인 체크
         if (principal == null) {
             log.info("로그인되지 않은 사용자의 스터디 관리 페이지 접근 시도");
             return "redirect:/members/login";
         }
-        
+
         String email = principal.getName();
         Members currentUser = memberRepository.findByEmail(email);
-        
+
         if (currentUser == null) {
             log.error("사용자를 찾을 수 없습니다: {}", email);
             return "redirect:/members/login";
         }
-        
+
         // 스터디 조회
         Study study = studyRepository.findById(id).orElse(null);
         if (study == null) {
@@ -637,18 +584,18 @@ public class StudyController {
             redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 스터디입니다.");
             return "redirect:/study/manage";
         }
-        
+
         // 권한 체크: 스터디장인지 확인
         if (!study.getMembers().getId().equals(currentUser.getId())) {
             log.warn("스터디장이 아닌 사용자의 관리 페이지 접근 시도: userId={}, studyId={}", currentUser.getId(), id);
             redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 관리 권한이 없습니다.");
             return "redirect:/study/read/" + id;
         }
-        
+
         log.info("조회된 Study 데이터: {}", study);
-        
+
         StudyDTO studyDTO = modelMapper.map(study, StudyDTO.class);
-        
+
         // MembersDTO 수동 설정 (null 안전 처리)
         if (study.getMembers() != null) {
             MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
@@ -662,30 +609,29 @@ public class StudyController {
             defaultMemberDTO.setEmail("");
             studyDTO.setMembersDTO(defaultMemberDTO);
         }
-        
+
         // 승인 대기 중인 참여자
         List<StudyParticipant> pendingParticipants = studyParticipantRepository.findByStudyIdAndStatus(
             study.getId(), StudyParticipant.ParticipantStatus.PENDING);
-        
+
         // 승인된 참여자
         List<StudyParticipant> approvedParticipants = studyParticipantRepository.findByStudyIdAndStatus(
             study.getId(), StudyParticipant.ParticipantStatus.APPROVED);
-        
+
         // 헤더 표시용 사용자 정보 추가
         String userName = memberService.getUserNameByEmail(email);
-        boolean isLoggedIn = true;
-        
+
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isLoggedIn", true);
         model.addAttribute("study", studyDTO);
         model.addAttribute("isStudyAuthor", true); // 스터디장만 접근 가능하므로 true
         model.addAttribute("pendingParticipants", pendingParticipants);
         model.addAttribute("approvedParticipants", approvedParticipants);
-        
-        log.info("스터디장 관리 페이지 데이터 로드 완료: pendingCount={}, approvedCount={}", 
+
+        log.info("스터디장 관리 페이지 데이터 로드 완료: pendingCount={}, approvedCount={}",
             pendingParticipants.size(), approvedParticipants.size());
-        
+
         return "study/manage-detail";
     }
     
@@ -693,34 +639,34 @@ public class StudyController {
      * 스터디장 전용 스터디 상세 조회 페이지 (관리자 전용)
      */
     @GetMapping("/admin/read/{id}")
-    public String adminRead(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+    public String adminRead(@PathVariable Long id, Model model, Principal principal) {
         log.info("스터디장 전용 상세 페이지 진입: {}", id);
-        
+
         // 로그인 체크
         if (principal == null) {
             log.info("로그인되지 않은 사용자의 스터디 상세 페이지 접근 시도");
             return "redirect:/members/login";
         }
-        
+
         Study study = studyRepository.findById(id).orElse(null);
         if (study == null) {
             log.error("스터디를 찾을 수 없습니다: {}", id);
             return "redirect:/";
         }
-        
+
         // 현재 로그인한 사용자가 스터디장인지 확인
         Members currentUser = memberRepository.findByEmail(principal.getName());
         if (currentUser == null || !study.getMembers().getId().equals(currentUser.getId())) {
             log.warn("스터디장이 아닌 사용자의 admin/read 접근 시도: {}", principal.getName());
             return "redirect:/study/read/" + id;
         }
-        
+
         log.info("조회된 Study 데이터: {}", study);
-        
+
         StudyDTO studyDTO = modelMapper.map(study, StudyDTO.class);
-        
+
         log.info("매핑된 StudyDTO 데이터: {}", studyDTO);
-        
+
         // MembersDTO 수동 설정 (null 안전 처리)
         if (study.getMembers() != null) {
             MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
@@ -734,42 +680,27 @@ public class StudyController {
             defaultMemberDTO.setEmail("");
             studyDTO.setMembersDTO(defaultMemberDTO);
         }
-        
+
         // 로그인한 사용자 정보 추가
-        String email = "";
-        String userName = "";
-        boolean isLoggedIn = false;
-        
-        // 세션에서 로그인된 사용자 정보 확인
-        String sessionEmail = (String) session.getAttribute("userEmail");
-        String sessionUserName = (String) session.getAttribute("userName");
-        
-        if (sessionEmail != null) {
-            email = sessionEmail;
-            userName = sessionUserName != null ? sessionUserName : email;
-            isLoggedIn = true;
-        } else if (principal != null) {
-            email = principal.getName();
-            userName = email;
-            isLoggedIn = true;
-        }
-        
+        String email = principal.getName();
+        String userName = memberService.getUserNameByEmail(email);
+
         // 승인 대기 중인 참여자 (스터디장만 볼 수 있음)
         List<StudyParticipant> pendingParticipants = studyParticipantRepository.findByStudyIdAndStatus(
             study.getId(), StudyParticipant.ParticipantStatus.PENDING);
-        
+
         // 승인된 참여자
         List<StudyParticipant> approvedParticipants = studyParticipantRepository.findByStudyIdAndStatus(
             study.getId(), StudyParticipant.ParticipantStatus.APPROVED);
-        
+
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isLoggedIn", true);
         model.addAttribute("study", studyDTO);
         model.addAttribute("isStudyAuthor", true); // 스터디장만 접근 가능하므로 true
         model.addAttribute("pendingParticipants", pendingParticipants);
         model.addAttribute("approvedParticipants", approvedParticipants);
-        
+
         return "study/admin-read";
     }
 }

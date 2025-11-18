@@ -36,45 +36,13 @@ public class MemberController {
 
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error, Model model) {
-
         if (error != null) {
             model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
         }
-
         return "members/login";
     }
 
-    @PostMapping("/login")
-    public String login(MembersDTO membersDTO, Model model, HttpSession session) {
-        log.info("로그인 시도: " + membersDTO.getEmail());
-
-        // 서비스에서 이메일로 사용자 정보 조회
-        Members member = memberService.findByEmail(membersDTO.getEmail());
-
-        if (member == null) {
-            // 이메일로 가입된 사용자가 없음
-            log.info("가입되지 않은 이메일: " + membersDTO.getEmail());
-            model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
-            return "members/login";
-        }
-
-        // 비밀번호 대조
-        boolean isPasswordMatch = memberService.validatePassword(membersDTO.getEmail(), membersDTO.getPassword());
-
-        if (isPasswordMatch) {
-            // 로그인 성공 - 세션에 사용자 정보 저장
-            session.setAttribute("userEmail", member.getEmail());
-            session.setAttribute("userName", member.getName() != null ? member.getName() : member.getEmail());
-            session.setAttribute("isLoggedIn", true);
-            log.info("로그인 성공: " + member.getEmail() + ", 세션 저장 완료");
-            return "redirect:/";
-        } else {
-            // 비밀번호 불일치
-            log.info("비밀번호 불일치: " + membersDTO.getEmail());
-            model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
-            return "members/login";
-        }
-    }
+    // POST /members/login은 Spring Security가 자동으로 처리합니다
 
 
     //fixme 세션에서 끌고와서 있으면 모델로 넘겨줍니다...
@@ -127,36 +95,26 @@ public class MemberController {
         return "redirect:/members/login";
     }
 
-    @GetMapping("/logout")
-    public String logout() {
-        // Spring Security가 로그아웃 처리
-        log.info("사용자 로그아웃 완료");
-        return "redirect:/";
-    }
+    // GET /members/logout은 Spring Security가 자동으로 처리합니다
     
     @GetMapping("/profile")
-    public String profile(Principal principal, Model model, HttpSession session) {
+    public String profile(Principal principal, Model model) {
         log.info("내정보 변경 페이지 진입");
 
-        // 로그인 체크 (Principal과 세션 둘 다 확인)
+        // 로그인 체크
         if (principal == null) {
-            // 세션에서도 확인
-            String sessionEmail = (String) session.getAttribute("userEmail");
-            if (sessionEmail == null) {
-                log.info("로그인되지 않은 사용자의 프로필 페이지 접근 시도");
-                return "redirect:/members/login";
-            }
-        }
-
-        // 사용자 정보 조회
-        Members member = memberService.findByEmail(principal.getName());
-        if (member == null) {
-            log.error("사용자를 찾을 수 없습니다: {}", principal.getName());
+            log.info("로그인되지 않은 사용자의 프로필 페이지 접근 시도");
             return "redirect:/members/login";
         }
 
-        // Principal 기반 사용자 정보
+        // 사용자 정보 조회
         String email = principal.getName();
+        Members member = memberService.findByEmail(email);
+        if (member == null) {
+            log.error("사용자를 찾을 수 없습니다: {}", email);
+            return "redirect:/members/login";
+        }
+
         String userName = memberService.getUserNameByEmail(email);
 
         model.addAttribute("email", email);

@@ -39,7 +39,7 @@ public class MainController {
         String userName = "";
         boolean isLoggedIn = false;
 
-        // Principal 기반 사용자 정보
+        // Spring Security Principal 기반 사용자 정보
         if (principal != null) {
             email = principal.getName();
             userName = memberService.getUserNameByEmail(email);
@@ -108,7 +108,7 @@ public class MainController {
             String userName = "";
             boolean isLoggedIn = false;
 
-            // Principal 기반 사용자 정보
+            // Spring Security Principal 기반 사용자 정보
             if (principal != null) {
                 email = principal.getName();
                 userName = memberService.getUserNameByEmail(email);

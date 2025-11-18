@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -79,5 +81,29 @@ public class StudyServiceImpl implements StudyService {
         } else {
             log.info("이미지 없이 스터디만 생성");
         }
+    }
+
+    @Override
+    public List<StudyDTO> searchByKeyword(String keyword) {
+        log.info("검색 키워드: {}", keyword);
+
+        List<Study> studies = studyRepository.searchByKeyword(keyword);
+
+        // Entity를 DTO로 변환
+        return studies.stream()
+                .map(study -> modelMapper.map(study, StudyDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StudyDTO> getAllStudies() {
+        log.info("전체 스터디 조회");
+
+        List<Study> studies = studyRepository.findAll();
+
+        // Entity를 DTO로 변환
+        return studies.stream()
+                .map(study -> modelMapper.map(study, StudyDTO.class))
+                .collect(Collectors.toList());
     }
 }
