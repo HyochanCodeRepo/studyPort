@@ -20,31 +20,47 @@
         }
     });
 
-    // 파일 업로드 기능
-    const fileUpload = document.getElementById('fileUpload');
-    const fileInput = document.getElementById('mainimg');
-    const selectedFileDiv = document.getElementById('selectedFile');
-
-    fileUpload.addEventListener('click', () => {
-    fileInput.click();
-});
-
-    fileInput.addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-    const fileName = this.files[0].name;
-    selectedFileDiv.innerHTML = `
-                    <div class="file-selected">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                        </svg>
-                        ${fileName}
-                    </div>
-                `;
-}
-});
 
     // 폼 제출 처리
     document.getElementById('studyCreateForm').addEventListener('submit', function(e) {
     console.log('스터디 생성 폼 제출');
 });
 });
+
+// 썸네일 미리보기 함수
+function previewThumbnail(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // 파일 크기 체크 (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('파일 크기는 10MB를 초과할 수 없습니다.');
+            event.target.value = '';
+            return;
+        }
+
+        // 이미지 파일인지 확인
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드할 수 있습니다.');
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('selectedFileName').textContent = '선택된 파일: ' + file.name;
+            document.getElementById('thumbnailPreview').style.display = 'block';
+            document.getElementById('fileUpload').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// 썸네일 제거 함수
+function removeThumbnail() {
+    document.getElementById('thumbnail').value = '';
+    document.getElementById('previewImage').src = '';
+    document.getElementById('selectedFileName').textContent = '';
+    document.getElementById('thumbnailPreview').style.display = 'none';
+    document.getElementById('fileUpload').style.display = 'block';
+}

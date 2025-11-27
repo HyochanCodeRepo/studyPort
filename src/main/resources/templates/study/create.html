@@ -71,7 +71,7 @@
         <h2 class="create-title">새 스터디 그룹 만들기</h2>
         <p class="create-subtitle">함께 성장할 스터디 멤버들을 모집해보세요</p>
 
-        <form id="studyCreateForm" action="/study/create" method="post">
+        <form id="studyCreateForm" action="/study/create" method="post" enctype="multipart/form-data">
 
             <!-- 공개/비공개 설정 -->
             <div class="form-group">
@@ -101,20 +101,24 @@
                 <div class="section-title">기본 정보</div>
             </div>
 
-            <!-- 이미지 업로드는 multipart 오류로 인해 임시 제거
             <div class="form-group">
-                <label class="form-label">스터디 이미지</label>
-                <div class="file-upload" id="fileUpload">
+                <label class="form-label">스터디 썸네일 이미지</label>
+                <div class="file-upload" id="fileUpload" onclick="document.getElementById('mainImg').click()">
                     <svg class="file-upload-icon" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                     </svg>
-                    <div class="file-upload-text">클릭하여 이미지 업로드</div>
+                    <div class="file-upload-text">클릭하여 썸네일 이미지 업로드</div>
                     <div class="file-upload-hint">PNG, JPG 파일 (최대 10MB)</div>
-                    <input type="file" id="mainimg" name="mainimg" accept="image/*" style="display: none;">
+                    <input type="file" id="mainImg" name="mainImg" style="display: none;" onchange="previewThumbnail(event)">
                 </div>
-                <div id="selectedFile"></div>
+                <div id="thumbnailPreview" style="display: none; margin-top: 1rem;">
+                    <div style="position: relative; display: inline-block;">
+                        <img id="previewImage" src="" alt="썸네일 미리보기" style="max-width: 100%; max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <button type="button" onclick="removeThumbnail()" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;">×</button>
+                    </div>
+                    <p id="selectedFileName" style="margin-top: 0.5rem; font-size: 0.9rem; color: #64748b;"></p>
+                </div>
             </div>
-            -->
 
             <div class="form-row-2">
                 <div class="form-group">

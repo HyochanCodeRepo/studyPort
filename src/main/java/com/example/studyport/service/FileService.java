@@ -50,7 +50,7 @@ public class FileService {
         ImageDTO imageDTO = new ImageDTO();
         imageDTO.setOriImgName(oriImgName);
         imageDTO.setImgName(imgName);
-        imageDTO.setImgUrl(imgLocation);
+        imageDTO.setImgUrl("/uploads/"); // 웹 접근 경로
 
         return imageDTO;
     }

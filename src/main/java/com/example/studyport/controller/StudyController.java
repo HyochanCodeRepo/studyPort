@@ -158,27 +158,46 @@ public class StudyController {
     }
 
     @PostMapping("/create")
-    public String create(StudyDTO studyDTO, Principal principal, 
-                        RedirectAttributes redirectAttributes, Model model) {
-        
-        log.info("스터디 생성 요청 진입 (이미지 없음)");
+    public String create(StudyDTO studyDTO,
+                        MultipartFile mainImg,
+                        Principal principal,
+                        RedirectAttributes redirectAttributes,
+                        Model model) {
+
+        log.info("===========================================");
+        log.info("==================여기까지 오냐=========================");
+        log.info("===========================================");
+        log.info("스터디 생성 요청 진입");
+        log.info("===========================================");
         log.info("Principal: {}", principal);
         log.info("StudyDTO: {}", studyDTO);
-        
+        log.info("썸네일 이미지: {}", mainImg != null && !mainImg.isEmpty() ? mainImg.getOriginalFilename() : "없음");
+
         try {
+            // 로그인 확인
+            if (principal == null) {
+                log.error("로그인되지 않은 사용자의 요청");
+                model.addAttribute("errorMessage", "로그인이 필요합니다.");
+                List<Category> categories = categoryRepository.findAll();
+                model.addAttribute("categories", categories);
+                return "study/create";
+            }
+
             String email = principal.getName();
             log.info("로그인한 사용자 이메일: {}", email);
-            
+
             Members members = memberRepository.findByEmail(email);
             if (members == null) {
                 log.error("사용자를 찾을 수 없습니다: {}", email);
                 model.addAttribute("errorMessage", "사용자 정보를 찾을 수 없습니다.");
+                List<Category> categories = categoryRepository.findAll();
+                model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             MembersDTO membersDTO = modelMapper.map(members, MembersDTO.class);
             studyDTO.setMembersDTO(membersDTO);
-            
+
             // 필수 필드 검증
             if (studyDTO.getName() == null || studyDTO.getName().trim().isEmpty()) {
                 model.addAttribute("errorMessage", "스터디명을 입력해주세요.");
@@ -186,28 +205,28 @@ public class StudyController {
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             if (studyDTO.getTopic() == null || studyDTO.getTopic().trim().isEmpty()) {
                 model.addAttribute("errorMessage", "카테고리를 선택해주세요.");
                 List<Category> categories = categoryRepository.findAll();
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             if (studyDTO.getDescription() == null || studyDTO.getDescription().trim().isEmpty()) {
                 model.addAttribute("errorMessage", "스터디 소개를 입력해주세요.");
                 List<Category> categories = categoryRepository.findAll();
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             if (studyDTO.getCapacity() == null || studyDTO.getCapacity().trim().isEmpty()) {
                 model.addAttribute("errorMessage", "최대 인원을 입력해주세요.");
                 List<Category> categories = categoryRepository.findAll();
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             // 비공개 스터디의 경우 비밀번호 검증
             if (Boolean.TRUE.equals(studyDTO.getIsPrivate()) && (studyDTO.getPassword() == null || studyDTO.getPassword().trim().length() < 4)) {
                 model.addAttribute("errorMessage", "비공개 스터디는 4자리 이상의 비밀번호가 필요합니다.");
@@ -215,16 +234,37 @@ public class StudyController {
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
-            // 스터디 생성 (이미지 없이)
-            studyService.create(studyDTO, null);
-            
-            log.info("스터디 생성 성공 (이미지 없음)");
+
+            log.info("===========================================");
+            log.info("검증 완료, 스터디 생성 서비스 호출");
+            log.info("===========================================");
+
+            // 스터디 생성 (썸네일 이미지 포함)
+            studyService.create(studyDTO, mainImg);
+
+            log.info("===========================================");
+            log.info("스터디 생성 성공");
+            log.info("===========================================");
             redirectAttributes.addFlashAttribute("successMessage", "스터디가 성공적으로 생성되었습니다!");
-            
+
         } catch (Exception e) {
+            log.error("===========================================");
             log.error("스터디 생성 중 오류 발생", e);
-            model.addAttribute("errorMessage", "스터디 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+            log.error("===========================================");
+            
+            String errorMessage = "스터디 생성 중 오류가 발생했습니다. ";
+            
+            // 상세한 에러 메시지
+            if (e.getCause() != null) {
+                String causeMsg = e.getCause().getMessage();
+                if (causeMsg != null && causeMsg.contains("FileCountLimitExceededException")) {
+                    errorMessage = "⚠ 동시 업로드 파일 개수가 많습니다. 다시 시도해주세요.";
+                } else if (causeMsg != null && causeMsg.contains("FileSizeLimitExceededException")) {
+                    errorMessage = "⚠ 파일 크기가 너무 큽니다.";
+                }
+            }
+            
+            model.addAttribute("errorMessage", errorMessage);
             List<Category> categories = categoryRepository.findAll();
             model.addAttribute("categories", categories);
             return "study/create";
