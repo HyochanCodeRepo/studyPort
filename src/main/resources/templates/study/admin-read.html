@@ -298,7 +298,25 @@
                 </div>
                 
                 <div th:unless="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="participants-list">
-                    <div th:each="member : ${approvedParticipants}" class="participant-card approved">
+                    <!-- 스터디장 표시 -->
+                    <div th:if="${study.membersDTO != null}" class="participant-card approved leader" th:attr="data-member-id='leader'">
+                        <div class="participant-info">
+                            <div class="participant-avatar leader">
+                                <span>👑</span>
+                            </div>
+                            <div class="participant-details">
+                                <h5 class="participant-name" th:text="${study.membersDTO.name}">스터디장 이름</h5>
+                                <p class="participant-email" th:text="${study.membersDTO.email}">스터디장 이메일</p>
+                                <p class="participant-date">스터디 개설자</p>
+                            </div>
+                        </div>
+                        <div class="member-status">
+                            <span class="status-badge leader-badge">👑 스터디장</span>
+                        </div>
+                    </div>
+
+                    <!-- 일반 멤버 및 운영진 표시 -->
+                    <div th:each="member : ${approvedParticipants}" class="participant-card approved" th:attr="data-member-id=${member.id}">
                         <div class="participant-info">
                             <div class="participant-avatar approved">
                                 <span th:text="${#strings.substring(member.member.name, 0, 1)}">A</span>
@@ -310,7 +328,51 @@
                             </div>
                         </div>
                         <div class="member-status">
-                            <span class="status-badge">활성 멤버</span>
+                            <div class="member-dropdown">
+
+                                <button class="member-dropdown-toggle" onclick="toggleMemberDropdown(event, this)">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.5 1.5H9.5A1.5 1.5 0 008 3v2a1.5 1.5 0 003 0V3a1.5 1.5 0 00-1.5-1.5zM10.5 9.5H9.5A1.5 1.5 0 008 11v2a1.5 1.5 0 003 0v-2a1.5 1.5 0 00-1.5-1.5zM10.5 17.5H9.5A1.5 1.5 0 008 19v0a1.5 1.5 0 003 0v0a1.5 1.5 0 00-1.5-1.5z"></path>
+                                    </svg>
+                                </button>
+
+                                <div class="member-dropdown-menu" style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); z-index: 99999; min-width: 220px; max-width: 250px; visibility: hidden; opacity: 0; transform: translateY(-10px); transition: all 0.3s ease; pointer-events: none;">
+                                    <h5 class="dropdown-header">역할 관리</h5>
+                                    <!-- 일반 멤버(USER)인 경우만 운영진으로 승격 옵션 표시 -->
+                                    <form th:if="${member.role.name() == 'USER'}" th:action="@{/study/members/{studyId}/change-role(studyId=${study.id})}" method="post" style="display: inline;">
+                                        <input type="hidden" name="memberId" th:value="${member.id}">
+                                        <input type="hidden" name="role" value="STUDY_OPERATOR">
+                                        <button type="submit" class="dropdown-item" onclick="return confirmRoleChange(this, '운영진으로 승격')">
+                                            <span class="role-icon">⬆️</span>
+                                            <span class="role-text">
+                                                <span class="role-title">운영진으로 승격</span>
+                                                <span class="role-desc">일반멤버 → 운영진</span>
+                                            </span>
+                                        </button>
+                                    </form>
+                                    <!-- 운영진(STUDY_OPERATOR)인 경우만 일반 멤버로 강등 옵션 표시 -->
+                                    <form th:if="${member.role.name() == 'STUDY_OPERATOR'}" th:action="@{/study/members/{studyId}/change-role(studyId=${study.id})}" method="post" style="display: inline;">
+                                        <input type="hidden" name="memberId" th:value="${member.id}">
+                                        <input type="hidden" name="role" value="USER">
+                                        <button type="submit" class="dropdown-item" onclick="return confirmRoleChange(this, '일반 멤버로 변경')">
+                                            <span class="role-icon">⬇️</span>
+                                            <span class="role-text">
+                                                <span class="role-title">일반 멤버로 변경</span>
+                                                <span class="role-desc">운영진 → 일반멤버</span>
+                                            </span>
+                                        </button>
+                                    </form>
+                                    <hr class="dropdown-divider">
+                                    <button type="button" class="dropdown-item danger" onclick="removeMember(this)">
+                                        <span class="role-icon">❌</span>
+                                        <span class="role-text">
+                                            <span class="role-title">멤버 강퇴</span>
+                                            <span class="role-desc">스터디에서 제거</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="status-badge" th:text="${member.role.name() == 'STUDY_OPERATOR'} ? '👑 운영진' : '활성 멤버'">활성 멤버</span>
                         </div>
                     </div>
                 </div>
@@ -445,16 +507,27 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    overflow: visible;
+    position: relative;
 }
 
 .participant-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 0.75rem;
     border: 1px solid rgba(148, 163, 184, 0.1);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+.participant-card.approved.leader {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 158, 11, 0.05));
+    border: 2px solid #f59e0b;
 }
 
 .participant-card:hover {
@@ -576,6 +649,145 @@
 .member-status {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 멤버 관리 드롭다운 메뉴 스타일 */
+.member-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.member-dropdown-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.member-dropdown-toggle:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.member-dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    background: white !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    z-index: 10000 !important;
+    min-width: 220px !important;
+    max-width: 250px !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.member-dropdown-menu.active {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(5px) !important;
+    pointer-events: auto !important;
+}
+
+.dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    background: white !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    z-index: 9999 !important;
+    min-width: 220px !important;
+    max-width: 250px !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.dropdown-menu.active {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(5px) !important;
+    pointer-events: auto !important;
+}
+
+.dropdown-header {
+    padding: 0.75rem 1rem;
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #94a3b8;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+.dropdown-item:hover:not(.danger) {
+    background: rgba(59, 130, 246, 0.05);
+    color: #3b82f6;
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(239, 68, 68, 0.05);
+    color: #ef4444;
+}
+
+.role-icon {
+    font-size: 1.2rem;
+    min-width: 24px;
+    text-align: center;
+}
+
+.role-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.role-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.role-desc {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+    border: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .status-badge {
@@ -603,8 +815,53 @@
         align-items: flex-start;
         gap: 0.5rem;
     }
+
+    .member-status {
+        flex-direction: column;
+        align-items: flex-end;
+        width: 100%;
+    }
+
+    .dropdown-menu {
+        right: auto;
+        left: 0;
+    }
 }
 </style>
+
+<script>
+// 드롭다운 메뉴 CSS 강제 적용
+document.addEventListener('DOMContentLoaded', function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .dropdown-menu {
+            display: block !important;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            background: white !important;
+            border: 1px solid rgba(148, 163, 184, 0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            z-index: 10000 !important;
+            min-width: 220px !important;
+            max-width: 250px !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            transform: translateY(-10px) !important;
+            transition: all 0.3s ease !important;
+            pointer-events: none !important;
+        }
+        .dropdown-menu.active {
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: translateY(5px) !important;
+            pointer-events: auto !important;
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
 
 <script>
 function toggleSidebar() {
@@ -614,6 +871,43 @@ function toggleSidebar() {
     sidebar.classList.toggle('collapsed');
     mainContainer.classList.toggle('sidebar-collapsed');
 }
+
+/**
+ * 멤버 드롭다운 메뉴 토글
+ */
+function toggleMemberDropdown(event, toggleBtn) {
+    event.stopPropagation();
+    
+    const menu = toggleBtn.nextElementSibling;
+    const isActive = menu.classList.contains('active');
+    
+    // 다른 열려있는 멤버 드롭다운 닫기
+    document.querySelectorAll('.member-dropdown-menu.active').forEach(m => {
+        if (m !== menu) {
+            m.classList.remove('active');
+        }
+    });
+    
+    // 현재 드롭다운 토글
+    if (isActive) {
+        menu.classList.remove('active');
+    } else {
+        menu.classList.add('active');
+    }
+}
+
+/**
+ * 페이지 외부 클릭 시 멤버 드롭다운 닫기
+ */
+document.addEventListener('click', function(event) {
+    const isMemberDropdown = event.target.closest('.member-dropdown');
+    
+    if (!isMemberDropdown) {
+        document.querySelectorAll('.member-dropdown-menu.active').forEach(menu => {
+            menu.classList.remove('active');
+        });
+    }
+});
 </script>
 
 </body>

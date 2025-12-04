@@ -1,5 +1,6 @@
 package com.example.studyport.entity;
 
+import com.example.studyport.constant.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +32,16 @@ public class StudyParticipant {
     
     @Enumerated(EnumType.STRING)
     private ParticipantStatus status = ParticipantStatus.PENDING;
+    
+    /**
+     * 스터디 내 역할
+     * - USER: 일반 멤버
+     * - STUDY_OPERATOR: 스터디 운영진
+     * 기본값: USER
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(50) DEFAULT 'USER'")
+    private Role role = Role.USER;
     
     @CreatedDate
     private LocalDateTime createdAt;

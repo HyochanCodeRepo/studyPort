@@ -106,4 +106,15 @@ public class StudyServiceImpl implements StudyService {
                 .map(study -> modelMapper.map(study, StudyDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void joinStudy(Long studyId, Long memberId) {
+        log.info("스터디 참여 요청: studyId={}, memberId={}", studyId, memberId);
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 스터디를 찾을 수 없습니다."));
+
+        // 참여 로직 (필요에 따라 구현)
+        log.info("스터디 참여 완료: {}", studyId);
+    }
 }

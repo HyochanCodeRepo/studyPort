@@ -17,4 +17,7 @@ public interface StudyService {
 
     // 전체 스터디 조회
     List<StudyDTO> getAllStudies();
+
+    // 스터디 참여
+    void joinStudy(Long studyId, Long memberId);
 }

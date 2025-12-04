@@ -3,8 +3,10 @@ package com.example.studyport.controller;
 import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.dto.StudyDTO;
 import com.example.studyport.entity.Category;
+import com.example.studyport.entity.Members;
 import com.example.studyport.entity.Study;
 import com.example.studyport.repository.CategoryRepository;
+import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.repository.StudyRepository;
 import com.example.studyport.service.MemberService;
 import jakarta.servlet.http.HttpSession;
@@ -32,6 +34,7 @@ public class MainController {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @GetMapping("/")
     public String main(Principal principal, Model model) {
@@ -51,6 +54,40 @@ public class MainController {
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
         model.addAttribute("isLoggedIn", isLoggedIn);
+
+        // ======== 내 스터디 데이터 조회 (로그인한 사용자만) ========
+        List<StudyDTO> myLeadingStudies = new java.util.ArrayList<>(); // 방장/리더인 스터디
+        List<StudyDTO> myParticipatingStudies = new java.util.ArrayList<>(); // 참여 중인 스터디
+
+        if (isLoggedIn) {
+            Members loginMember = memberRepository.findByEmail(email);
+            if (loginMember != null) {
+                // 방장/리더인 스터디 조회 (현재 사용자가 members로 지정된 스터디)
+                List<Study> leadingStudies = studyRepository.findByMembers_IdOrderByIdDesc(loginMember.getId());
+                myLeadingStudies = leadingStudies.stream()
+                        .map(study -> modelMapper.map(study, StudyDTO.class))
+                        .collect(Collectors.toList());
+
+                log.info("방장/리더 스터디 개수: {}", myLeadingStudies.size());
+                
+                // TODO: 참여 중인 스터디는 추후 StudyMember 테이블 구현 후 추가
+                // 현재는 비어있음
+
+
+                List<Study> myStudies = studyRepository.selectMyStudy(loginMember.getId());
+                myParticipatingStudies = myStudies.stream()
+                        .map(study -> modelMapper.map(study, StudyDTO.class))
+                        .collect(Collectors.toList());
+                log.info("어케찍힘?");
+                log.info(myParticipatingStudies.size());
+                log.info(myParticipatingStudies);
+
+                log.info("참여 중인 스터디 개수: {}", myParticipatingStudies.size());
+            }
+        }
+
+        model.addAttribute("myLeadingStudies", myLeadingStudies);
+        model.addAttribute("myParticipatingStudies", myParticipatingStudies);
 
         // 최신 스터디 10개 조회 (공개 스터디만)
         List<Study> studyList = studyRepository.findTop10ByOrderByIdDesc();

@@ -212,6 +212,24 @@
                 </div>
                 
                 <div th:unless="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="participants-list">
+                    <!-- 스터디장 표시 -->
+                    <div th:if="${study.membersDTO != null}" class="participant-card approved leader">
+                        <div class="participant-info">
+                            <div class="participant-avatar leader">
+                                <span>👑</span>
+                            </div>
+                            <div class="participant-details">
+                                <h5 class="participant-name" th:text="${study.membersDTO.name}">스터디장 이름</h5>
+                                <p class="participant-email" th:text="${study.membersDTO.email}">스터디장 이메일</p>
+                                <p class="participant-date">스터디 개설자</p>
+                            </div>
+                        </div>
+                        <div class="member-status">
+                            <span class="status-badge leader-badge">👑 스터디장</span>
+                        </div>
+                    </div>
+
+                    <!-- 일반 멤버 표시 -->
                     <div th:each="member : ${approvedParticipants}" class="participant-card approved">
                         <div class="participant-info">
                             <div class="participant-avatar approved">
@@ -678,13 +696,20 @@
     justify-content: flex-end;
 }
 
-.status-badge {
-    background: linear-gradient(135deg, #10b981, #059669);
+.participant-card.approved.leader {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 158, 11, 0.05));
+    border: 2px solid #f59e0b;
+}
+
+.participant-avatar.leader {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    font-size: 1.5rem;
+}
+
+.status-badge.leader-badge {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
     color: white;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
 }
 
 @media (max-width: 768px) {

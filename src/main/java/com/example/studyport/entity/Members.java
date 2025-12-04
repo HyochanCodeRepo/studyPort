@@ -1,8 +1,8 @@
 package com.example.studyport.entity;
 
-
 import com.example.studyport.constant.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.util.HashSet;
@@ -23,6 +23,7 @@ public class Members {
 
     private String name;
     @Column(unique = true)
+    @Email(message = "유효한 이메일 형식이 아닙니다")
     private String email;
 
     private String phone;

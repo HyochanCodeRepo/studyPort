@@ -65,8 +65,28 @@ public class MemberController {
 
     @PostMapping("/signup")
     public String signupPost(MembersDTO membersDTO, @RequestParam String categoryIds) {
-        log.info(membersDTO);
-        log.info("선택된 카테고리 IDs: " + categoryIds);
+        log.info("회원가입 요청 - 이메일: {}", membersDTO.getEmail());
+        
+        // 입력값 검증
+        if (membersDTO.getName() == null || membersDTO.getName().trim().isEmpty()) {
+            log.warn("회원가입 실패: 이름이 입력되지 않음");
+            return "redirect:/members/signup?error=name_required";
+        }
+        
+        if (membersDTO.getName().length() > 50) {
+            log.warn("회원가입 실패: 이름이 50자를 초과함");
+            return "redirect:/members/signup?error=name_too_long";
+        }
+        
+        if (membersDTO.getPassword() == null || membersDTO.getPassword().trim().isEmpty()) {
+            log.warn("회원가입 실패: 비밀번호가 입력되지 않음");
+            return "redirect:/members/signup?error=password_required";
+        }
+        
+        if (membersDTO.getPassword().length() < 8) {
+            log.warn("회원가입 실패: 비밀번호가 8자 미만");
+            return "redirect:/members/signup?error=password_too_short";
+        }
 
         // 쉼표로 구분된 카테고리 ID 문자열을 List<Long>으로 변환
         if (categoryIds != null && !categoryIds.trim().isEmpty()) {
@@ -83,16 +103,22 @@ public class MemberController {
 
                 membersDTO.setCategoryIds(categoryIdList);
             } catch (NumberFormatException e) {
-                log.error("카테고리 ID 파싱 오류: " + categoryIds, e);
+                log.warn("회원가입 실패: 카테고리 ID 파싱 오류");
+                return "redirect:/members/signup?error=invalid_category";
             }
         }
 
         // 회원가입 처리
-        Members createdMember = memberService.create(membersDTO);
-        log.info("회원가입 성공: " + createdMember.getEmail());
+        try {
+            Members createdMember = memberService.create(membersDTO);
+            log.info("회원가입 성공: {}", createdMember.getEmail());
+        } catch (Exception e) {
+            log.warn("회원가입 실패: {}", e.getMessage());
+            return "redirect:/members/signup?error=signup_failed";
+        }
 
         // Spring Security 자동 로그인은 별도 구현 필요
-        return "redirect:/members/login";
+        return "redirect:/members/login?success=signup";
     }
 
     // GET /members/logout은 Spring Security가 자동으로 처리합니다
@@ -160,6 +186,20 @@ public class MemberController {
             if (newName == null || newName.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "이름은 필수 입력 항목입니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // 이름 길이 검증 (DB: VARCHAR(255), 실무: 50자 제한)
+            if (newName.length() > 50) {
+                response.put("success", false);
+                response.put("message", "이름은 50자 이내여야 합니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // 주소 길이 검증 (NULL 허용)
+            if (newAddress != null && newAddress.length() > 255) {
+                response.put("success", false);
+                response.put("message", "주소는 255자 이내여야 합니다.");
                 return ResponseEntity.badRequest().body(response);
             }
             

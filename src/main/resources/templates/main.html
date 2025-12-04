@@ -128,91 +128,128 @@
             </div>
         </section>
 
-        <!-- Filter Bar with Dropdowns -->
-<!--        <section class="filter-bar fade-in">-->
-<!--            <div class="filter-title">-->
-<!--                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">-->
-<!--                    <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>-->
-<!--                </svg>-->
-<!--                필터-->
-<!--            </div>-->
+        <!-- ========== 내 스터디 섹션 ========== -->
+        <section th:if="${isLoggedIn}" class="my-studies-section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                    </svg>
+                    내 스터디
+                </h2>
+            </div>
 
-<!--            <div class="filter-controls">-->
-<!--                &lt;!&ndash; 카테고리 필터 &ndash;&gt;-->
-<!--                <div class="filter-dropdown-container">-->
-<!--                    <label class="filter-label">카테고리</label>-->
-<!--                    <div class="filter-dropdown" data-filter="topic">-->
-<!--                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('topic')">-->
-<!--                            <span class="dropdown-text">전체</span>-->
-<!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
-<!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
-<!--                            </svg>-->
-<!--                        </div>-->
-<!--                        <div class="dropdown-menu" id="dropdown-topic">-->
-<!--                            <div class="dropdown-item active" data-value="all" onclick="selectFilter('topic', 'all', '전체')">전체</div>-->
-<!--                            <div th:each="topic : ${topicList}" class="dropdown-item" th:data-value="${topic}" th:onclick="'selectFilter(\'topic\', \'' + ${topic} + '\', \'' + ${topic} + '\')'" th:text="${topic}">카테고리</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
+            <!-- 탭 (카드형) -->
+            <div class="tab-container">
+                <button class="tab-btn tab-btn-leading active" onclick="switchMyStudyTab(event, 'leading')">
+                    📚 방장/리더
+                </button>
+                <button class="tab-btn tab-btn-participating" onclick="switchMyStudyTab(event, 'participating')">
+                    👥 참여 중
+                </button>
+            </div>
 
-<!--                &lt;!&ndash; 지역 필터 &ndash;&gt;-->
-<!--                <div class="filter-dropdown-container">-->
-<!--                    <label class="filter-label">지역</label>-->
-<!--                    <div class="filter-dropdown" data-filter="location">-->
-<!--                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('location')">-->
-<!--                            <span class="dropdown-text">전체</span>-->
-<!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
-<!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
-<!--                            </svg>-->
-<!--                        </div>-->
-<!--                        <div class="dropdown-menu" id="dropdown-location">-->
-<!--                            <div class="dropdown-item active" data-value="all" onclick="selectFilter('location', 'all', '전체')">전체</div>-->
-<!--                            &lt;!&ndash; 컨트롤러에서 locationList 추가 필요 &ndash;&gt;-->
-<!--                            <div th:each="location : ${locationList}" class="dropdown-item" th:data-value="${location}" th:onclick="'selectFilter(\'location\', \'' + ${location} + '\', \'' + ${location} + '\')'" th:text="${location}">지역</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
+            <!-- 탭 1: 방장/리더 -->
+            <div id="leading" class="my-study-content active">
+                <div th:if="${!#lists.isEmpty(myLeadingStudies)}" class="study-grid-my">
+                    <div th:each="study : ${myLeadingStudies}" class="my-study-card">
+                        <div class="my-study-header">
+                            <h3 class="my-study-title" th:text="${study.name}">스터디 제목</h3>
+                            <span class="my-study-role leader">방장</span>
+                        </div>
+                        <div class="my-study-meta">
+                            <div class="my-meta-item">
+                                <svg class="my-meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span th:if="${study.location}" th:text="${study.location}">지역</span>
+                                <span th:unless="${study.location}">지역 미설정</span>
+                            </div>
+                            <div class="my-meta-item">
+                                <svg class="my-meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span th:if="${study.frequency}" th:text="${study.frequency}">모임빈도</span>
+                                <span th:unless="${study.frequency}">빈도 미설정</span>
+                            </div>
+                            <div class="my-meta-item">
+                                <svg class="my-meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span th:text="${study.capacity != null} ? '정원: ' + ${study.capacity} + '명' : '정원 미설정'">정원</span>
+                            </div>
+                        </div>
+                        <div class="my-study-actions">
+                            <a th:href="@{/study/manage}" class="my-action-btn">관리하기</a>
+                            <button class="my-action-btn danger">삭제</button>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(myLeadingStudies)}" class="my-empty-state">
+                    <svg class="my-empty-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                    </svg>
+                    <h3 class="my-empty-title">운영 중인 스터디가 없습니다</h3>
+                    <p class="my-empty-text">새로운 스터디를 만들어 함께할 멤버를 모집해보세요!</p>
+                </div>
+            </div>
 
-<!--                &lt;!&ndash; 난이도 필터 &ndash;&gt;-->
-<!--                <div class="filter-dropdown-container">-->
-<!--                    <label class="filter-label">난이도</label>-->
-<!--                    <div class="filter-dropdown" data-filter="level">-->
-<!--                        <div class="dropdown-toggle" onclick="toggleFilterDropdown('level')">-->
-<!--                            <span class="dropdown-text">전체</span>-->
-<!--                            <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">-->
-<!--                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>-->
-<!--                            </svg>-->
-<!--                        </div>-->
-<!--                        <div class="dropdown-menu" id="dropdown-level">-->
-<!--                            <div class="dropdown-item active" data-value="all" onclick="selectFilter('level', 'all', '전체')">전체</div>-->
-<!--                            <div class="dropdown-item" data-value="BEGINNER" onclick="selectFilter('level', 'BEGINNER', '초급')">초급</div>-->
-<!--                            <div class="dropdown-item" data-value="INTERMEDIATE" onclick="selectFilter('level', 'INTERMEDIATE', '중급')">중급</div>-->
-<!--                            <div class="dropdown-item" data-value="ADVANCED" onclick="selectFilter('level', 'ADVANCED', '고급')">고급</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
+            <!-- 탭 2: 참여 중 -->
+            <div id="participating" class="my-study-content">
+                <div th:if="${!#lists.isEmpty(myParticipatingStudies)}" class="study-grid-my">
+                    <div th:each="study : ${myParticipatingStudies}" class="my-study-card">
+                        <div class="my-study-header">
+                            <h3 class="my-study-title" th:text="${study.name}">스터디 제목</h3>
+                            <span class="my-study-role member">멤버</span>
+                        </div>
+                        <div class="my-study-meta">
+                            <div class="my-meta-item">
+                                <svg class="my-meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span th:if="${study.location}" th:text="${study.location}">지역</span>
+                                <span th:unless="${study.location}">지역 미설정</span>
+                            </div>
+                            <div class="my-meta-item">
+                                <svg class="my-meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span th:if="${study.frequency}" th:text="${study.frequency}">모임빈도</span>
+                                <span th:unless="${study.frequency}">빈도 미설정</span>
+                            </div>
+                            <div class="my-meta-item">
+                                <svg class="my-meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span th:text="${study.capacity != null} ? '정원: ' + ${study.capacity} + '명' : '정원 미설정'">정원</span>
+                            </div>
+                        </div>
+                        <div class="my-study-actions">
+                            <a th:href="@{/study/read/{id}(id=${study.id})}" class="my-action-btn">상세보기</a>
+                            <button class="my-action-btn danger">탈퇴</button>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(myParticipatingStudies)}" class="my-empty-state">
+                    <svg class="my-empty-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="my-empty-title">참여 중인 스터디가 없습니다</h3>
+                    <p class="my-empty-text">관심 있는 스터디를 찾아 참여해보세요!</p>
+                </div>
+            </div>
+        </section>
 
-<!--                &lt;!&ndash; 필터 초기화 버튼 &ndash;&gt;-->
-<!--                <button class="filter-reset-btn" onclick="resetAllFilters()">-->
-<!--                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">-->
-<!--                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>-->
-<!--                    </svg>-->
-<!--                    초기화-->
-<!--                </button>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; 활성 필터 표시 &ndash;&gt;-->
-<!--            <div class="active-filters" id="active-filters" style="display: none;">-->
-<!--                <span class="active-filters-label">활성 필터:</span>-->
-<!--                <div class="active-filter-tags" id="active-filter-tags"></div>-->
-<!--            </div>-->
-<!--        </section>-->
+        <!-- 스터디 찾기 섹션 구분선 -->
+        <div th:if="${isLoggedIn}" class="section-divider">
+            <span class="divider-text">스터디 찾기</span>
+        </div>
 
         <!-- Study Cards에 데이터 속성 추가 -->
         <section id="study-list" class="study-grid">
             <div th:each="study : ${studies}"
                  class="study-card fade-in"
-                 th:data-topic="${study.topic}"
+                 th:data-topic="${study.topic}"d
                  th:data-location="${study.location}"
                  th:data-level="${study.levelTag}"
                  th:data-status="${study.isPrivate ? 'private' : 'recruiting'}">

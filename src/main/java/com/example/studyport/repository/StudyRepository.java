@@ -25,4 +25,11 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
            "LOWER(s.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(s.location) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Study> searchByKeyword(@Param("keyword") String keyword);
+
+    // 사용자가 방장/리더인 스터디 조회 (ID 내림차순)
+    List<Study> findByMembers_IdOrderByIdDesc(Long memberId);
+
+    @Query("select sp.study from StudyParticipant sp where sp.member.id = :memberId and sp.status = 'APPROVED'")
+    List<Study> selectMyStudy(@Param("memberId") Long memberId);
+
 }

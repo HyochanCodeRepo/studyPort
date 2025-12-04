@@ -466,3 +466,25 @@ document.addEventListener('DOMContentLoaded', function() {
         searchBtn.addEventListener('click', searchStudies);
     }
 });
+
+// ========================================
+// 내 스터디 탭 전환 함수
+// ========================================
+function switchMyStudyTab(event, tabName) {
+    // 모든 탭 버튼 비활성화
+    const tabButtons = document.querySelectorAll('.tab-container .tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+
+    // 모든 탭 콘텐츠 숨기기
+    const tabContents = document.querySelectorAll('.my-study-content');
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // 클릭한 버튼 활성화
+    event.target.classList.add('active');
+
+    // 해당 탭 콘텐츠 표시
+    const tabContent = document.getElementById(tabName);
+    if (tabContent) {
+        tabContent.classList.add('active');
+    }
+}

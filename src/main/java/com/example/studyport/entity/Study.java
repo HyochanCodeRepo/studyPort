@@ -44,8 +44,12 @@ public class Study {
     
     private String goal; // 학습목표
 
-    @OneToMany(mappedBy = "study", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "study", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Image> imageList;
+    
+    // StudyParticipant 관계 추가 (스터디 삭제 시 참여자도 함께 삭제)
+    @OneToMany(mappedBy = "study", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<StudyParticipant> participants;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
