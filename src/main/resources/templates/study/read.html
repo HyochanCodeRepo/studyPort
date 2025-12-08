@@ -108,8 +108,14 @@
         <div class="tabs-content">
             <!-- 1번 탭: 스터디 메인 -->
             <div id="main" class="tab-content active">
+                <div class="main-header-section" th:if="${isLoggedIn}">
+                    <button class="btn-create-meeting" onclick="openCreateMeetingModal()">
+                        <span>📅</span> 모임 만들기
+                    </button>
+                </div>
                 <div class="tab-empty">
-                    <p>스터디 메인 탭 (썸네일 + 모임 + 투표 + 달력)</p>
+                    <p th:if="${isLoggedIn}">✨ 모임을 만들어 팀원들과 함께하세요!</p>
+                    <p th:unless="${isLoggedIn}">✨ 스터디의 모임 일정을 확인해보세요</p>
                 </div>
             </div>
 
@@ -326,6 +332,84 @@
     </main>
 </div>
 
+<!-- Create Meeting Modal -->
+<div id="createMeetingModal" class="modal-meeting" style="display: none;">
+    <div class="modal-content-meeting">
+        <div class="modal-header-meeting">
+            <h3>📅 모임 만들기</h3>
+            <button class="close-btn-meeting" onclick="closeCreateMeetingModal()">&times;</button>
+        </div>
+        <div class="modal-body-meeting">
+            <form id="createMeetingForm">
+                <!-- 모임 제목 -->
+                <div class="form-group-meeting">
+                    <input type="hidden" id="studyIdHidden" th:value="${study.id}" name="studyId">
+                    <label class="form-label-meeting">모임 제목 <span class="required">*</span></label>
+                    <input type="text" id="meetingTitle" name="title" class="form-input-meeting" 
+                           placeholder="예: Spring Boot 스터디 1차 모임" maxlength="100" required>
+                    <span class="form-help-meeting">100자 이내</span>
+                </div>
+
+                <!-- 모임 날짜 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 날짜 <span class="required">*</span></label>
+                    <input type="datetime-local" id="meetingDate" name="date" class="form-input-meeting" required>
+                    <span class="form-help-meeting">모임을 진행할 날짜와 시간을 선택해주세요</span>
+                </div>
+
+                <!-- 모임 유형 (온라인/오프라인) -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 유형 <span class="required">*</span></label>
+                    <div class="radio-group-meeting">
+                        <label class="radio-label-meeting">
+                            <input type="radio" name="meetingType" value="ONLINE" required>
+                            <span>🌐 온라인</span>
+                        </label>
+                        <label class="radio-label-meeting">
+                            <input type="radio" name="meetingType" value="OFFLINE" required>
+                            <span>📍 오프라인</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 장소/링크 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">장소/링크 <span class="required">*</span></label>
+                    <input type="text" id="meetingLocation" name="location" class="form-input-meeting" 
+                           placeholder="온라인: 줌 링크 | 오프라인: 만날 장소" maxlength="255" required>
+                    <span class="form-help-meeting">온라인이면 줌/디스코드 링크, 오프라인이면 카페/장소명</span>
+                </div>
+
+                <!-- 최대 인원 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">최대 인원 <span class="required">*</span></label>
+                    <div class="input-with-unit-meeting">
+                        <input type="number" id="meetingCapacity" name="capacity" class="form-input-meeting" 
+                               min="2" max="100" placeholder="10" required>
+                        <span class="unit-meeting">명</span>
+                    </div>
+                    <span class="form-help-meeting">2명 이상 100명 이하</span>
+                </div>
+
+                <!-- 모임 설명 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 설명</label>
+                    <textarea id="meetingDescription" name="description" class="form-textarea-meeting" 
+                              placeholder="이번 모임에서 다룰 주제, 준비물, 특별한 안내사항 등을 입력해주세요"
+                              maxlength="500" rows="4"></textarea>
+                    <div class="char-count-meeting">
+                        <span id="descCharCount">0</span>/500
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer-meeting">
+            <button type="button" class="modal-cancel-btn-meeting" onclick="closeCreateMeetingModal()">취소</button>
+            <button type="button" class="modal-submit-btn-meeting" onclick="submitCreateMeeting()">모임 만들기</button>
+        </div>
+    </div>
+</div>
+
 <!-- Join Modal -->
 <div id="joinModal" class="modal" style="display: none;">
     <div class="modal-content">
@@ -428,6 +512,38 @@
     }
 }
 
+.main-header-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.btn-create-meeting {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-create-meeting:hover {
+    background: linear-gradient(135deg, #5b21b6, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-create-meeting:active {
+    transform: translateY(0);
+}
+
 .tab-empty {
     display: flex;
     align-items: center;
@@ -498,7 +614,244 @@
     font-weight: 600;
 }
 
-/* Modal Styles */
+/* ============= Create Meeting Modal Styles ============= */
+.modal-meeting {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+.modal-content-meeting {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+    border-radius: 20px;
+    max-width: 550px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin: auto;
+}
+
+.modal-header-meeting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1.5rem 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(255, 255, 255, 0.92));
+}
+
+.modal-header-meeting h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.close-btn-meeting {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn-meeting:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+
+.modal-body-meeting {
+    padding: 2rem;
+    max-height: calc(90vh - 140px);
+    overflow-y: auto;
+}
+
+.form-group-meeting {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label-meeting {
+    color: #1e293b;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.required {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.form-input-meeting,
+.form-textarea-meeting {
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: white;
+    color: #1e293b;
+    transition: all 0.3s ease;
+}
+
+.form-input-meeting:focus,
+.form-textarea-meeting:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-input-meeting::placeholder,
+.form-textarea-meeting::placeholder {
+    color: #94a3b8;
+}
+
+.form-textarea-meeting {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-help-meeting {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 0.4rem;
+}
+
+.radio-group-meeting {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.radio-label-meeting {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 10px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.radio-label-meeting input[type="radio"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #6366f1;
+}
+
+.radio-label-meeting:hover {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.radio-label-meeting input[type="radio"]:checked + span {
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.input-with-unit-meeting {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.input-with-unit-meeting .form-input-meeting {
+    flex: 1;
+}
+
+.unit-meeting {
+    color: #64748b;
+    font-weight: 500;
+    min-width: 30px;
+}
+
+.char-count-meeting {
+    text-align: right;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+}
+
+.modal-footer-meeting {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem 2rem 2rem 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    justify-content: flex-end;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.95));
+}
+
+.modal-cancel-btn-meeting,
+.modal-submit-btn-meeting {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-width: 120px;
+}
+
+.modal-cancel-btn-meeting {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.modal-cancel-btn-meeting:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.modal-submit-btn-meeting {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.modal-submit-btn-meeting:hover {
+    background: linear-gradient(135deg, #5b21b6, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.modal-submit-btn-meeting:active {
+    transform: translateY(0);
+}
+
+/* ============= Join Modal Styles (기존) ============= */
 .modal {
     position: fixed;
     top: 0;
@@ -526,7 +879,7 @@
 
 .modal-header {
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -606,7 +959,8 @@
     justify-content: flex-end;
 }
 
-.modal-cancel-btn, .modal-submit-btn {
+.modal-cancel-btn,
+.modal-submit-btn {
     padding: 10px 20px;
     border-radius: 10px;
     font-size: 0.9rem;
@@ -643,19 +997,29 @@
         flex-direction: column;
     }
     
-    .modal-content {
+    .modal-content,
+    .modal-content-meeting {
         width: 95%;
     }
     
-    .modal-header, .modal-body, .modal-footer {
+    .modal-header, 
+    .modal-body, 
+    .modal-footer,
+    .modal-header-meeting,
+    .modal-body-meeting,
+    .modal-footer-meeting {
         padding: 1rem 1.5rem;
     }
     
-    .modal-footer {
+    .modal-footer,
+    .modal-footer-meeting {
         flex-direction: column;
     }
     
-    .modal-cancel-btn, .modal-submit-btn {
+    .modal-cancel-btn,
+    .modal-submit-btn,
+    .modal-cancel-btn-meeting,
+    .modal-submit-btn-meeting {
         width: 100%;
     }
 
@@ -670,6 +1034,15 @@
 
     .tab-label {
         display: none;
+    }
+
+    .main-header-section {
+        margin-bottom: 1rem;
+    }
+
+    .btn-create-meeting {
+        width: 100%;
+        justify-content: center;
     }
 }
 
@@ -782,68 +1155,6 @@
     color: #64748b;
 }
 
-.participant-message {
-    background: #f8fafc;
-    padding: 1rem;
-    border-radius: 8px;
-    border-left: 3px solid #3b82f6;
-    margin-bottom: 1rem;
-}
-
-.message-label {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #374151;
-}
-
-.message-text {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: #374151;
-}
-
-.participant-actions {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.action-btn {
-    flex: 1;
-    padding: 0.6rem 1rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.approve-btn {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-}
-
-.approve-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-}
-
-.reject-btn {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-}
-
-.reject-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-}
-
 .member-status {
     display: flex;
     justify-content: flex-end;
@@ -872,10 +1183,6 @@
         gap: 0.75rem;
     }
     
-    .participant-actions {
-        flex-direction: column;
-    }
-    
     .participants-title {
         flex-direction: column;
         align-items: flex-start;
@@ -885,10 +1192,12 @@
 </style>
 
 <script>
+const studyId = [[${study.id}]];
+const isStudyAuthor = [[${isStudyAuthor}]];
+
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const mainContainer = document.querySelector('.main-container');
-
     sidebar.classList.toggle('collapsed');
     mainContainer.classList.toggle('sidebar-collapsed');
 }
@@ -897,25 +1206,123 @@ function toggleSidebar() {
 function showTab(tabName, event) {
     event.preventDefault();
     
-    // 모든 탭 컨텐츠 숨기기
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
     
-    // 모든 탭 버튼 비활성화
     document.querySelectorAll('.tab-button').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // 선택된 탭 보이기
     document.getElementById(tabName).classList.add('active');
-    
-    // 선택된 버튼 활성화
     event.target.closest('.tab-button').classList.add('active');
 }
 
+// 모임 만들기 모달
+function openCreateMeetingModal() {
+    document.getElementById('createMeetingModal').style.display = 'flex';
+}
+
+function closeCreateMeetingModal() {
+    document.getElementById('createMeetingModal').style.display = 'none';
+    document.getElementById('createMeetingForm').reset();
+    document.getElementById('descCharCount').textContent = '0';
+}
+
+// 모임 설명 글자 수 카운터
+document.addEventListener('DOMContentLoaded', function() {
+    const descTextarea = document.getElementById('meetingDescription');
+    const descCharCount = document.getElementById('descCharCount');
+    
+    if (descTextarea && descCharCount) {
+        descTextarea.addEventListener('input', function() {
+            descCharCount.textContent = this.value.length;
+        });
+    }
+
+    // 스터디 참여 모달 글자 수 카운터
+    const joinTextarea = document.getElementById('introMessage');
+    const joinCharCount = document.getElementById('charCount');
+    
+    if (joinTextarea && joinCharCount) {
+        joinTextarea.addEventListener('input', function() {
+            joinCharCount.textContent = this.value.length;
+        });
+    }
+});
+
+// 모임 생성 제출
+function submitCreateMeeting() {
+    const form = document.getElementById('createMeetingForm');
+    
+    // 유효성 검사
+    if (!form.checkValidity()) {
+        alert('모든 필수 항목을 입력해주세요.');
+        return;
+    }
+
+    const title = document.getElementById('meetingTitle').value.trim();
+    const date = document.getElementById('meetingDate').value;
+    const meetingType = document.querySelector('input[name="meetingType"]:checked').value;
+    const location = document.getElementById('meetingLocation').value.trim();
+    const capacity = document.getElementById('meetingCapacity').value;
+    const description = document.getElementById('meetingDescription').value.trim();
+
+    // 추가 유효성 검사
+    if (title.length === 0) {
+        alert('모임 제목을 입력해주세요.');
+        return;
+    }
+
+    if (location.length === 0) {
+        alert('장소/링크를 입력해주세요.');
+        return;
+    }
+
+    if (capacity < 2 || capacity > 100) {
+        alert('최대 인원은 2명 이상 100명 이하여야 합니다.');
+        return;
+    }
+
+    // API 요청
+    const meetingData = {
+        title: title,
+        date: date,
+        meetingType: meetingType,
+        location: location,
+        capacity: parseInt(capacity),
+        description: description || null
+    };
+
+    fetch(`/study/${studyId}/meeting`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify(meetingData)
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('모임 생성 실패');
+        }
+    })
+    .then(data => {
+        alert('모임이 성공적으로 생성되었습니다!');
+        closeCreateMeetingModal();
+        // 모임 리스트 새로고침 (나중에 구현)
+        // loadMeetings();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('모임 생성 중 오류가 발생했습니다: ' + error.message);
+    });
+}
+
+// 스터디 참여
 function joinStudy() {
-    // 로그인 체크
     const isLoggedIn = [[${isLoggedIn}]];
     if (!isLoggedIn) {
         alert('로그인이 필요한 서비스입니다.');
@@ -923,7 +1330,6 @@ function joinStudy() {
         return;
     }
     
-    // 팝업 열기
     document.getElementById('joinModal').style.display = 'block';
 }
 
@@ -933,18 +1339,6 @@ function closeJoinModal() {
     document.getElementById('charCount').textContent = '0';
 }
 
-// 글자 수 카운터
-document.addEventListener('DOMContentLoaded', function() {
-    const textarea = document.getElementById('introMessage');
-    const charCount = document.getElementById('charCount');
-    
-    if (textarea && charCount) {
-        textarea.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
-        });
-    }
-});
-
 function submitJoinRequest() {
     const message = document.getElementById('introMessage').value.trim();
     
@@ -953,9 +1347,6 @@ function submitJoinRequest() {
         return;
     }
     
-    const studyId = [[${study.id}]];
-    
-    // 폼 생성 및 제출
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '/study/join';

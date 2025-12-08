@@ -1,20 +1,21 @@
 package com.example.studyport.controller;
 
+import com.example.studyport.dto.MeetingDTO;
 import com.example.studyport.dto.MembersDTO;
 import com.example.studyport.dto.StudyDTO;
-import com.example.studyport.entity.Category;
-import com.example.studyport.entity.Members;
-import com.example.studyport.entity.Study;
-import com.example.studyport.entity.StudyParticipant;
+import com.example.studyport.entity.*;
 import com.example.studyport.repository.CategoryRepository;
 import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.repository.StudyParticipantRepository;
 import com.example.studyport.repository.StudyRepository;
+import com.example.studyport.service.MeetingService;
 import com.example.studyport.service.MemberService;
 import com.example.studyport.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +40,7 @@ public class StudyController {
     private final ModelMapper modelMapper;
     private final MemberService memberService;
     private final StudyParticipantRepository studyParticipantRepository;
+    private final MeetingService meetingService;
 
     @GetMapping("/create")
     public String create(Model model, Principal principal) {
@@ -112,7 +115,7 @@ public class StudyController {
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             // 스터디명 길이 검증
             if (studyDTO.getName().length() > 100) {
                 model.addAttribute("errorMessage", "스터디명은 100자 이내여야 합니다.");
@@ -134,7 +137,7 @@ public class StudyController {
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             // 스터디 소개 길이 검증
             if (studyDTO.getDescription().length() > 1000) {
                 model.addAttribute("errorMessage", "스터디 소개는 1000자 이내여야 합니다.");
@@ -149,7 +152,7 @@ public class StudyController {
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             // 최대 인원 유효성 검증
             try {
                 int capacity = Integer.parseInt(studyDTO.getCapacity());
@@ -173,7 +176,7 @@ public class StudyController {
                 model.addAttribute("categories", categories);
                 return "study/create";
             }
-            
+
             // 비밀번호 길이 검증
             if (Boolean.TRUE.equals(studyDTO.getIsPrivate()) && studyDTO.getPassword().length() > 20) {
                 model.addAttribute("errorMessage", "비밀번호는 20자 이내여야 합니다.");
@@ -847,7 +850,7 @@ public class StudyController {
                 redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 멤버가 아닙니다.");
                 return "redirect:/study/admin/read/" + studyId;
             }
-            
+
             // 스터디장이 자신을 강퇴하는 것 방지
             if (participant.getStudy().getMembers().getId().equals(participant.getMember().getId())) {
                 log.warn("스터디장이 자신을 강퇴하려고 시도: studyId={}, memberId={}", studyId, memberId);
@@ -875,5 +878,46 @@ public class StudyController {
         }
 
         return "redirect:/study/admin/read/" + studyId;
+    }
+
+    @PostMapping("/{studyId}/meeting")
+    public ResponseEntity<?> createMeeting(@PathVariable Long studyId, @RequestBody MeetingDTO request, Authentication authentication) {
+
+        log.info("==========================================");
+        log.info("모임 생성 요청");
+        log.info(request.toString());
+        log.info("studyId={}, request={}", studyId, request);
+
+        try {
+            // authentication.getName() ← 올바른 메서드 호출
+            String email = authentication.getName();
+            Members member = memberRepository.findByEmail(email);
+
+            if (member == null) {
+                log.error("사용자를 찾을 수 없습니다: {}", email);
+                return ResponseEntity.status(400).body(Map.of(
+                        "success", false,
+                        "message", "사용자 정보를 찾을 수 없습니다."
+                ));
+            }
+
+            Meeting meeting = meetingService.create(studyId, request, member);
+            
+            log.info("==========================================");
+            log.info("모임 생성 성공: meetingId={}, title={}", meeting.getId(), meeting.getTitle());
+            log.info("==========================================");
+            
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "id", meeting.getId(),
+                    "message", "모임이 생성되었습니다."
+            ));
+        } catch (Exception e) {
+            log.error("모임 생성 중 오류 발생", e);
+            return ResponseEntity.status(400).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
     }
 }
