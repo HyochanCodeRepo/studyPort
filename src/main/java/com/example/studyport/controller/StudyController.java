@@ -58,7 +58,9 @@ public class StudyController {
                 model.addAttribute("email", email);
             }
         } else {
-            model.addAttribute("isLoggedIn", false);
+            return "redirect:/members/login";
+//            model.addAttribute("isLoggedIn", false);
+
         }
 
         return "study/create";

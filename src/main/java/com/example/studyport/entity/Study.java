@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"participants", "imageList"})
 @NoArgsConstructor
 public class Study {
     @Id

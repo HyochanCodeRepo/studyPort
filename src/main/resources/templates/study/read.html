@@ -67,202 +67,260 @@
                     <span class="category-icon">📚</span>
                     <span th:text="${category.name}">카테고리명</span>
                 </a>
-
             </li>
-
         </ul>
     </aside>
 
     <!-- Study Detail -->
     <main class="create-container fade-in">
         <h2 class="create-title" th:text="${study.name}">스터디 이름</h2>
-        <p class="create-subtitle">스터디 정보를 확인해보세요</p>
+        <p class="create-subtitle">스터디를 둘러보세요</p>
 
-        <div class="study-detail-container">
-            <!-- 공개/비공개 상태 표시 -->
-            <div class="form-group">
-                <label class="form-label">스터디 공개 설정</label>
-                <div class="info-display">
-                    <span th:if="${study.isPrivate}" class="status-badge private">🔒 비공개 스터디</span>
-                    <span th:unless="${study.isPrivate}" class="status-badge public">🌍 공개 스터디</span>
+        <!-- Tab Navigation -->
+        <div class="tabs-navigation">
+            <button class="tab-button active" onclick="showTab('main', event)">
+                <span class="tab-icon">✨</span>
+                <span class="tab-label">스터디 메인</span>
+            </button>
+            <button class="tab-button" onclick="showTab('intro', event)">
+                <span class="tab-icon">📋</span>
+                <span class="tab-label">스터디 소개</span>
+            </button>
+            <button class="tab-button" onclick="showTab('curriculum', event)">
+                <span class="tab-icon">📚</span>
+                <span class="tab-label">학습 커리큘럼</span>
+            </button>
+            <button class="tab-button" onclick="showTab('board', event)">
+                <span class="tab-icon">💬</span>
+                <span class="tab-label">게시판</span>
+            </button>
+            <button class="tab-button" onclick="showTab('resource', event)">
+                <span class="tab-icon">📁</span>
+                <span class="tab-label">자료실</span>
+            </button>
+            <button class="tab-button" onclick="showTab('member', event)">
+                <span class="tab-icon">👥</span>
+                <span class="tab-label">멤버</span>
+            </button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="tabs-content">
+            <!-- 1번 탭: 스터디 메인 -->
+            <div id="main" class="tab-content active">
+                <div class="tab-empty">
+                    <p>스터디 메인 탭 (썸네일 + 모임 + 투표 + 달력)</p>
                 </div>
             </div>
 
-            <!-- 기본 정보 섹션 -->
-            <div class="section-divider">
-                <div class="section-title">기본 정보</div>
-            </div>
-
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label class="form-label">스터디명</label>
-                    <div class="info-display" th:text="${study.name ?: '정보 없음'}">스터디 이름</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">카테고리</label>
-                    <div class="info-display" th:text="${study.topic ?: '정보 없음'}">카테고리</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">지역</label>
-                <div class="info-display" th:text="${study.location ?: '지역 미설정'}">지역</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">스터디 소개</label>
-                <div class="info-display description" th:text="${study.description}">스터디 소개</div>
-            </div>
-
-            <!-- 모임 설정 섹션 -->
-            <div class="section-divider">
-                <div class="section-title">모임 설정</div>
-            </div>
-
-            <div class="form-row-3">
-                <div class="form-group">
-                    <label class="form-label">최대 인원</label>
-                    <div class="info-display" th:text="${study.capacity + '명'}">인원</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">난이도</label>
-                    <div class="info-display">
-                        <span th:switch="${study.levelTag}">
-                            <span th:case="'BEGINNER'">Beginner</span>
-                            <span th:case="'INTERMEDIATE'">Intermediate</span>
-                            <span th:case="'ADVANCED'">Advanced</span>
-                            <span th:case="*">-</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">진행 방식</label>
-                    <div class="info-display">
-                        <span th:switch="${study.studyType}">
-                            <span th:case="'offline'">오프라인</span>
-                            <span th:case="'online'">온라인</span>
-                            <span th:case="'hybrid'">온/오프라인 병행</span>
-                            <span th:case="*">-</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label class="form-label">스터디 기간</label>
-                    <div class="info-display">
-                        <span th:if="${study.duration != null and study.duration != ''}" th:text="${study.duration + '주'}">기간</span>
-                        <span th:unless="${study.duration != null and study.duration != ''}">기간 미정</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">모임 빈도</label>
-                    <div class="info-display">
-                        <span th:switch="${study.frequency}">
-                            <span th:case="'weekly1'">주 1회</span>
-                            <span th:case="'weekly2'">주 2회</span>
-                            <span th:case="'weekly3'">주 3회</span>
-                            <span th:case="'daily'">매일</span>
-                            <span th:case="*">-</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group" th:if="${study.goal != null and study.goal != ''}">
-                <label class="form-label">학습 목표</label>
-                <div class="info-display description" th:text="${study.goal}">학습 목표</div>
-            </div>
-
-            <!-- 스터디장 정보 -->
-            <div class="section-divider">
-                <div class="section-title">스터디장 정보</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">스터디장</label>
-                <div class="info-display" th:text="${study.membersDTO != null ? study.membersDTO.name : '정보 없음'}">스터디장 이름</div>
-            </div>
-
-            <!-- 참여 버튼 (스터디장이 아닌 경우에만) -->
-            <div th:unless="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
-                <button type="button" class="submit-btn" onclick="joinStudy()">
-                    <span>스터디 참여하기</span>
-                </button>
-                <button type="button" class="cancel-btn" onclick="history.back()">
-                    목록으로 돌아가기
-                </button>
-            </div>
-
-            <!-- 스터디 멤버 섹션 (모든 사용자가 볼 수 있음) -->
-            <div class="section-divider">
-                <div class="section-title">스터디 멤버</div>
-            </div>
-
-            <div class="participants-section">
-                <h4 class="participants-title">
-                    <span class="status-icon approved">✅</span>
-                    활성 멤버
-                    <span class="participants-count" th:text="${approvedParticipants != null ? #lists.size(approvedParticipants) : 0}">0</span>
-                </h4>
-                
-                <div th:if="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="empty-participants">
-                    <p>아직 참여 중인 멤버가 없습니다.</p>
-                </div>
-                
-                <div th:unless="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="participants-list">
-                    <!-- 스터디장 표시 -->
-                    <div th:if="${study.membersDTO != null}" class="participant-card approved leader">
-                        <div class="participant-info">
-                            <div class="participant-avatar leader">
-                                <span>👑</span>
-                            </div>
-                            <div class="participant-details">
-                                <h5 class="participant-name" th:text="${study.membersDTO.name}">스터디장 이름</h5>
-                                <p class="participant-email" th:text="${study.membersDTO.email}">스터디장 이메일</p>
-                                <p class="participant-date">스터디 개설자</p>
-                            </div>
-                        </div>
-                        <div class="member-status">
-                            <span class="status-badge leader-badge">👑 스터디장</span>
+            <!-- 2번 탭: 스터디 소개 -->
+            <div id="intro" class="tab-content">
+                <div class="study-detail-container">
+                    <!-- 공개/비공개 상태 표시 -->
+                    <div class="form-group">
+                        <label class="form-label">스터디 공개 설정</label>
+                        <div class="info-display">
+                            <span th:if="${study.isPrivate}" class="status-badge private">🔒 비공개 스터디</span>
+                            <span th:unless="${study.isPrivate}" class="status-badge public">🌍 공개 스터디</span>
                         </div>
                     </div>
 
-                    <!-- 일반 멤버 표시 -->
-                    <div th:each="member : ${approvedParticipants}" class="participant-card approved">
-                        <div class="participant-info">
-                            <div class="participant-avatar approved">
-                                <span th:text="${#strings.substring(member.member.name, 0, 1)}">A</span>
-                            </div>
-                            <div class="participant-details">
-                                <h5 class="participant-name" th:text="${member.member.name}">멤버 이름</h5>
-                                <p class="participant-email" th:text="${member.member.email}">멤버 이메일</p>
-                                <p class="participant-date" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')} + ' 참여'">참여 일시</p>
+                    <!-- 기본 정보 섹션 -->
+                    <div class="section-divider">
+                        <div class="section-title">기본 정보</div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">스터디명</label>
+                            <div class="info-display" th:text="${study.name ?: '정보 없음'}">스터디 이름</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">카테고리</label>
+                            <div class="info-display" th:text="${study.topic ?: '정보 없음'}">카테고리</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">지역</label>
+                        <div class="info-display" th:text="${study.location ?: '지역 미설정'}">지역</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">스터디 소개</label>
+                        <div class="info-display description" th:text="${study.description}">스터디 소개</div>
+                    </div>
+
+                    <!-- 모임 설정 섹션 -->
+                    <div class="section-divider">
+                        <div class="section-title">모임 설정</div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label class="form-label">최대 인원</label>
+                            <div class="info-display" th:text="${study.capacity + '명'}">인원</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">난이도</label>
+                            <div class="info-display">
+                                <span th:switch="${study.levelTag}">
+                                    <span th:case="'BEGINNER'">Beginner</span>
+                                    <span th:case="'INTERMEDIATE'">Intermediate</span>
+                                    <span th:case="'ADVANCED'">Advanced</span>
+                                    <span th:case="*">-</span>
+                                </span>
                             </div>
                         </div>
-                        <div class="member-status">
-                            <span class="status-badge">활성 멤버</span>
+                        <div class="form-group">
+                            <label class="form-label">진행 방식</label>
+                            <div class="info-display">
+                                <span th:switch="${study.studyType}">
+                                    <span th:case="'offline'">오프라인</span>
+                                    <span th:case="'online'">온라인</span>
+                                    <span th:case="'hybrid'">온/오프라인 병행</span>
+                                    <span th:case="*">-</span>
+                                </span>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">스터디 기간</label>
+                            <div class="info-display">
+                                <span th:if="${study.duration != null and study.duration != ''}" th:text="${study.duration + '주'}">기간</span>
+                                <span th:unless="${study.duration != null and study.duration != ''}">기간 미정</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">모임 빈도</label>
+                            <div class="info-display">
+                                <span th:switch="${study.frequency}">
+                                    <span th:case="'weekly1'">주 1회</span>
+                                    <span th:case="'weekly2'">주 2회</span>
+                                    <span th:case="'weekly3'">주 3회</span>
+                                    <span th:case="'daily'">매일</span>
+                                    <span th:case="*">-</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" th:if="${study.goal != null and study.goal != ''}">
+                        <label class="form-label">학습 목표</label>
+                        <div class="info-display description" th:text="${study.goal}">학습 목표</div>
+                    </div>
+
+                    <!-- 스터디장 정보 -->
+                    <div class="section-divider">
+                        <div class="section-title">스터디장 정보</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">스터디장</label>
+                        <div class="info-display" th:text="${study.membersDTO != null ? study.membersDTO.name : '정보 없음'}">스터디장 이름</div>
+                    </div>
+
+                    <!-- 참여 버튼 (스터디장이 아닌 경우에만) -->
+                    <div th:unless="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
+                        <button type="button" class="submit-btn" onclick="joinStudy()">
+                            <span>스터디 참여하기</span>
+                        </button>
+                        <button type="button" class="cancel-btn" onclick="history.back()">
+                            목록으로 돌아가기
+                        </button>
+                    </div>
+
+                    <!-- 스터디장 전용 버튼 -->
+                    <div th:if="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
+                        <a th:href="@{/study/manage/{id}(id=${study.id})}" class="submit-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                            <span>스터디 관리하기</span>
+                        </a>
+                        <button type="button" class="cancel-btn" onclick="history.back()">
+                            목록으로 돌아가기
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 스터디장 전용 관리 버튼 -->
-            <div th:if="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
-                <a th:href="@{/study/manage/{id}(id=${study.id})}" class="submit-btn" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-                    <span>스터디 관리하기</span>
-                </a>
-                <button type="button" class="cancel-btn" onclick="history.back()">
-                    목록으로 돌아가기
-                </button>
+            <!-- 3번 탭: 학습 커리큘럼 -->
+            <div id="curriculum" class="tab-content">
+                <div class="tab-empty">
+                    <p>학습 커리큘럼 탭</p>
+                </div>
             </div>
 
-            <!-- 일반 사용자 버튼 -->
-            <div th:unless="${isStudyAuthor}" class="form-row-2" style="margin-top: 2rem;">
-                <button type="button" class="cancel-btn" onclick="history.back()">
-                    목록으로 돌아가기
-                </button>
+            <!-- 4번 탭: 게시판 -->
+            <div id="board" class="tab-content">
+                <div class="tab-empty">
+                    <p>게시판 탭</p>
+                </div>
+            </div>
+
+            <!-- 5번 탭: 자료실 -->
+            <div id="resource" class="tab-content">
+                <div class="tab-empty">
+                    <p>자료실 탭</p>
+                </div>
+            </div>
+
+            <!-- 6번 탭: 멤버 -->
+            <div id="member" class="tab-content">
+                <div class="study-detail-container">
+                    <!-- 스터디 멤버 섹션 (모든 사용자가 볼 수 있음) -->
+                    <div class="section-divider">
+                        <div class="section-title">스터디 멤버</div>
+                    </div>
+
+                    <div class="participants-section">
+                        <h4 class="participants-title">
+                            <span class="status-icon approved">✅</span>
+                            활성 멤버
+                            <span class="participants-count" th:text="${approvedParticipants != null ? #lists.size(approvedParticipants) : 0}">0</span>
+                        </h4>
+                        
+                        <div th:if="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="empty-participants">
+                            <p>아직 참여 중인 멤버가 없습니다.</p>
+                        </div>
+                        
+                        <div th:unless="${approvedParticipants == null or #lists.isEmpty(approvedParticipants)}" class="participants-list">
+                            <!-- 스터디장 표시 -->
+                            <div th:if="${study.membersDTO != null}" class="participant-card approved leader">
+                                <div class="participant-info">
+                                    <div class="participant-avatar leader">
+                                        <span>👑</span>
+                                    </div>
+                                    <div class="participant-details">
+                                        <h5 class="participant-name" th:text="${study.membersDTO.name}">스터디장 이름</h5>
+                                        <p class="participant-email" th:text="${study.membersDTO.email}">스터디장 이메일</p>
+                                        <p class="participant-date">스터디 개설자</p>
+                                    </div>
+                                </div>
+                                <div class="member-status">
+                                    <span class="status-badge leader-badge">👑 스터디장</span>
+                                </div>
+                            </div>
+
+                            <!-- 일반 멤버 표시 -->
+                            <div th:each="member : ${approvedParticipants}" class="participant-card approved">
+                                <div class="participant-info">
+                                    <div class="participant-avatar approved">
+                                        <span th:text="${#strings.substring(member.member.name, 0, 1)}">A</span>
+                                    </div>
+                                    <div class="participant-details">
+                                        <h5 class="participant-name" th:text="${member.member.name}">멤버 이름</h5>
+                                        <p class="participant-email" th:text="${member.member.email}">멤버 이메일</p>
+                                        <p class="participant-date" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')} + ' 참여'">참여 일시</p>
+                                    </div>
+                                </div>
+                                <div class="member-status">
+                                    <span class="status-badge">활성 멤버</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -301,6 +359,88 @@
 </button>
 
 <style>
+/* 탭 네비게이션 스타일 */
+.tabs-navigation {
+    display: flex;
+    gap: 0.5rem;
+    margin: 2rem 0 1.5rem 0;
+    flex-wrap: wrap;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0;
+}
+
+.tab-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+}
+
+.tab-button:hover {
+    color: #e2e8f0;
+}
+
+.tab-button.active {
+    color: #60a5fa;
+    border-bottom-color: #60a5fa;
+}
+
+.tab-icon {
+    font-size: 1.1rem;
+}
+
+.tab-label {
+    display: inline;
+}
+
+/* 탭 컨텐츠 스타일 */
+.tabs-content {
+    width: 100%;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
 .study-detail-container {
     max-width: 800px;
     margin: 0 auto;
@@ -517,6 +657,19 @@
     
     .modal-cancel-btn, .modal-submit-btn {
         width: 100%;
+    }
+
+    .tabs-navigation {
+        gap: 0.25rem;
+    }
+
+    .tab-button {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+
+    .tab-label {
+        display: none;
     }
 }
 
@@ -738,6 +891,27 @@ function toggleSidebar() {
 
     sidebar.classList.toggle('collapsed');
     mainContainer.classList.toggle('sidebar-collapsed');
+}
+
+// 탭 전환 함수
+function showTab(tabName, event) {
+    event.preventDefault();
+    
+    // 모든 탭 컨텐츠 숨기기
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 선택된 탭 보이기
+    document.getElementById(tabName).classList.add('active');
+    
+    // 선택된 버튼 활성화
+    event.target.closest('.tab-button').classList.add('active');
 }
 
 function joinStudy() {
