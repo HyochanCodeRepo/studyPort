@@ -113,9 +113,16 @@
                         <span>📅</span> 모임 만들기
                     </button>
                 </div>
-                <div class="tab-empty">
-                    <p th:if="${isLoggedIn}">✨ 모임을 만들어 팀원들과 함께하세요!</p>
-                    <p th:unless="${isLoggedIn}">✨ 스터디의 모임 일정을 확인해보세요</p>
+                
+                <!-- 로딩 상태 -->
+                <div id="meetingsLoading" class="meetings-loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>모임 목록을 불러오는 중...</p>
+                </div>
+                
+                <!-- 모임 리스트 컨테이너 -->
+                <div id="meetingsContainer" class="meetings-container">
+                    <!-- AJAX로 fragment 렌더링 되는 부분 -->
                 </div>
             </div>
 
@@ -410,6 +417,86 @@
     </div>
 </div>
 
+<!-- Edit Meeting Modal -->
+<div id="editMeetingModal" class="modal-meeting" style="display: none;">
+    <div class="modal-content-meeting">
+        <div class="modal-header-meeting">
+            <h3>✏️ 모임 수정</h3>
+            <button class="close-btn-meeting" onclick="closeEditMeetingModal()">&times;</button>
+        </div>
+        <div class="modal-body-meeting">
+            <form id="editMeetingForm">
+                <input type="hidden" id="editMeetingId">
+                
+                <!-- 모임 제목 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 제목 <span class="required">*</span></label>
+                    <input type="text" id="editMeetingTitle" name="title" class="form-input-meeting" 
+                           placeholder="예: Spring Boot 스터디 1차 모임" maxlength="100" required>
+                    <span class="form-help-meeting">100자 이내</span>
+                </div>
+
+                <!-- 모임 날짜 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 날짜 <span class="required">*</span></label>
+                    <input type="datetime-local" id="editMeetingDate" name="date" class="form-input-meeting" required>
+                    <span class="form-help-meeting">모임을 진행할 날짜와 시간을 선택해주세요</span>
+                </div>
+
+                <!-- 모임 유형 (온라인/오프라인) -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 유형 <span class="required">*</span></label>
+                    <div class="radio-group-meeting">
+                        <label class="radio-label-meeting">
+                            <input type="radio" name="editMeetingType" value="ONLINE" required>
+                            <span>🌐 온라인</span>
+                        </label>
+                        <label class="radio-label-meeting">
+                            <input type="radio" name="editMeetingType" value="OFFLINE" required>
+                            <span>📍 오프라인</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 장소/링크 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">장소/링크 <span class="required">*</span></label>
+                    <input type="text" id="editMeetingLocation" name="location" class="form-input-meeting" 
+                           placeholder="온라인: 줌 링크 | 오프라인: 만날 장소" maxlength="255" required>
+                    <span class="form-help-meeting">온라인이면 줌/디스코드 링크, 오프라인이면 카페/장소명</span>
+                </div>
+
+                <!-- 최대 인원 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">최대 인원 <span class="required">*</span></label>
+                    <div class="input-with-unit-meeting">
+                        <input type="number" id="editMeetingCapacity" name="capacity" class="form-input-meeting" 
+                               min="2" max="100" placeholder="10" required>
+                        <span class="unit-meeting">명</span>
+                    </div>
+                    <span class="form-help-meeting">2명 이상 100명 이하</span>
+                </div>
+
+                <!-- 모임 설명 -->
+                <div class="form-group-meeting">
+                    <label class="form-label-meeting">모임 설명</label>
+                    <textarea id="editMeetingDescription" name="description" class="form-textarea-meeting" 
+                              placeholder="이번 모임에서 다룰 주제, 준비물, 특별한 안내사항 등을 입력해주세요"
+                              maxlength="500" rows="4"></textarea>
+                    <div class="char-count-meeting">
+                        <span id="editDescCharCount">0</span>/500
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer-meeting">
+            <button type="button" class="modal-cancel-btn-meeting" onclick="closeEditMeetingModal()">취소</button>
+            <button type="button" class="modal-delete-btn-meeting" onclick="deleteMeeting()">삭제</button>
+            <button type="button" class="modal-submit-btn-meeting" onclick="submitEditMeeting()">수정 완료</button>
+        </div>
+    </div>
+</div>
+
 <!-- Join Modal -->
 <div id="joinModal" class="modal" style="display: none;">
     <div class="modal-content">
@@ -542,6 +629,34 @@
 
 .btn-create-meeting:active {
     transform: translateY(0);
+}
+
+/* 로딩 상태 */
+.meetings-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+}
+
+.spinner {
+    border: 4px solid rgba(99, 102, 241, 0.2);
+    border-top: 4px solid #6366f1;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.meetings-container {
+    min-height: 200px;
 }
 
 .tab-empty {
@@ -813,7 +928,8 @@
 }
 
 .modal-cancel-btn-meeting,
-.modal-submit-btn-meeting {
+.modal-submit-btn-meeting,
+.modal-delete-btn-meeting {
     padding: 12px 24px;
     border-radius: 10px;
     font-size: 0.95rem;
@@ -833,6 +949,22 @@
 .modal-cancel-btn-meeting:hover {
     background: #e2e8f0;
     color: #334155;
+}
+
+.modal-delete-btn-meeting {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.modal-delete-btn-meeting:hover {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.modal-delete-btn-meeting:active {
+    transform: translateY(0);
 }
 
 .modal-submit-btn-meeting {
@@ -1194,6 +1326,8 @@
 <script>
 const studyId = [[${study.id}]];
 const isStudyAuthor = [[${isStudyAuthor}]];
+const currentUserId = [[${isLoggedIn ? currentUserId : 'null'}]];  // ← 추가
+const currentUserEmail = '[[${email}]]';  // ← 추가
 
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
@@ -1216,6 +1350,45 @@ function showTab(tabName, event) {
     
     document.getElementById(tabName).classList.add('active');
     event.target.closest('.tab-button').classList.add('active');
+    
+    // 메인 탭 클릭 시 모임 목록 로드
+    if (tabName === 'main') {
+        loadMeetings();
+    }
+}
+
+// 모임 목록 로드 함수
+function loadMeetings() {
+    const container = document.getElementById('meetingsContainer');
+    const loading = document.getElementById('meetingsLoading');
+    
+    console.log("모임 목록 로드 시작: studyId=" + studyId);
+    
+    // 로딩 표시
+    loading.style.display = 'flex';
+    
+    fetch(`/study/${studyId}/meetings`)
+        .then(response => {
+            console.log("응답 상태: " + response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            console.log("Fragment 받음, 렌더링 중...");
+            // Fragment 렌더링
+            container.innerHTML = html;
+            loading.style.display = 'none';
+            
+            // 버튼 리스너 등록
+            registerMeetingButtonListeners();
+        })
+        .catch(error => {
+            console.error('모임 목록 로드 에러:', error);
+            container.innerHTML = '<p style="color: red; text-align: center; padding: 2rem;">모임 목록을 불러올 수 없습니다.</p>';
+            loading.style.display = 'none';
+        });
 }
 
 // 모임 만들기 모달
@@ -1229,14 +1402,184 @@ function closeCreateMeetingModal() {
     document.getElementById('descCharCount').textContent = '0';
 }
 
+// 날짜를 ISO 형식(yyyy-MM-ddTHH:mm)으로 변환
+function formatDateToISO(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// 수정 모달 열기
+function openEditMeetingModal(meetingId, capacity, meetingType, title, date, location, description) {
+    console.log("수정 모달 열기:", {meetingId, title, date, meetingType, location, capacity, description});
+    
+    // 날짜를 ISO 형식으로 변환
+    const isoDate = formatDateToISO(date);
+    
+    document.getElementById('editMeetingId').value = meetingId;
+    document.getElementById('editMeetingTitle').value = title;
+    document.getElementById('editMeetingDate').value = isoDate;
+    document.getElementById('editMeetingLocation').value = location;
+    document.getElementById('editMeetingCapacity').value = capacity;
+    document.getElementById('editMeetingDescription').value = description || '';
+    
+    // 라디오 버튼 선택
+    document.querySelector(`input[name="editMeetingType"][value="${meetingType}"]`).checked = true;
+    
+    // 글자 수 업데이트
+    document.getElementById('editDescCharCount').textContent = (description || '').length;
+    
+    document.getElementById('editMeetingModal').style.display = 'flex';
+}
+
+// 수정 모달 닫기
+function closeEditMeetingModal() {
+    document.getElementById('editMeetingModal').style.display = 'none';
+    document.getElementById('editMeetingForm').reset();
+    document.getElementById('editDescCharCount').textContent = '0';
+}
+
+// 모임 삭제
+function deleteMeeting() {
+    const meetingId = document.getElementById('editMeetingId').value;
+    const title = document.getElementById('editMeetingTitle').value;
+    
+    // 삭제 확인
+    if (!confirm(`"${title}" 모임을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) {
+        return;
+    }
+    
+    console.log("모임 삭제 요청:", meetingId);
+    
+    fetch(`/study/${studyId}/meeting/${meetingId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || ''
+        }
+    })
+    .then(response => {
+        console.log("삭제 응답 상태:", response.status);
+        if (response.ok) {
+            return response.json();
+        } else if (response.status === 403) {
+            throw new Error('자신이 만든 모임만 삭제할 수 있습니다.');
+        } else {
+            throw new Error('모임 삭제 실패');
+        }
+    })
+    .then(data => {
+        alert('🗑️ 모임이 삭제되었습니다!');
+        closeEditMeetingModal();
+        // 모임 리스트 새로고침
+        loadMeetings();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('모임 삭제 중 오류가 발생했습니다: ' + error.message);
+    });
+}
+
+// 모임 수정 제출
+function submitEditMeeting() {
+    const form = document.getElementById('editMeetingForm');
+    
+    // 유효성 검사
+    if (!form.checkValidity()) {
+        alert('모든 필수 항목을 입력해주세요.');
+        return;
+    }
+
+    const meetingId = document.getElementById('editMeetingId').value;
+    const title = document.getElementById('editMeetingTitle').value.trim();
+    const date = document.getElementById('editMeetingDate').value;
+    const meetingType = document.querySelector('input[name="editMeetingType"]:checked').value;
+    const location = document.getElementById('editMeetingLocation').value.trim();
+    const capacity = document.getElementById('editMeetingCapacity').value;
+    const description = document.getElementById('editMeetingDescription').value.trim();
+
+    // 추가 유효성 검사
+    if (title.length === 0) {
+        alert('모임 제목을 입력해주세요.');
+        return;
+    }
+
+    if (location.length === 0) {
+        alert('장소/링크를 입력해주세요.');
+        return;
+    }
+
+    if (capacity < 2 || capacity > 100) {
+        alert('최대 인원은 2명 이상 100명 이하여야 합니다.');
+        return;
+    }
+
+    // API 요청
+    const meetingData = {
+        title: title,
+        date: date,
+        meetingType: meetingType,
+        location: location,
+        capacity: parseInt(capacity),
+        description: description || null
+    };
+
+    console.log("수정 API 요청:", {meetingId, meetingData});
+
+    fetch(`/study/${studyId}/meeting/${meetingId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify(meetingData)
+    })
+    .then(response => {
+        console.log("응답 상태:", response.status);
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('모임 수정 실패');
+        }
+    })
+    .then(data => {
+        alert('✅ 모임 정보가 수정되었습니다!');
+        closeEditMeetingModal();
+        // 모임 리스트 새로고침
+        loadMeetings();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('모임 수정 중 오류가 발생했습니다: ' + error.message);
+    });
+}
+
 // 모임 설명 글자 수 카운터
 document.addEventListener('DOMContentLoaded', function() {
+    // 페이지 로드 시 바로 모임 목록 로드 (메인 탭이 기본 선택이므로)
+    loadMeetings();
+    
+    // 생성 모달 글자 수 카운터
     const descTextarea = document.getElementById('meetingDescription');
     const descCharCount = document.getElementById('descCharCount');
     
     if (descTextarea && descCharCount) {
         descTextarea.addEventListener('input', function() {
             descCharCount.textContent = this.value.length;
+        });
+    }
+
+    // 수정 모달 글자 수 카운터
+    const editDescTextarea = document.getElementById('editMeetingDescription');
+    const editDescCharCount = document.getElementById('editDescCharCount');
+    
+    if (editDescTextarea && editDescCharCount) {
+        editDescTextarea.addEventListener('input', function() {
+            editDescCharCount.textContent = this.value.length;
         });
     }
 
@@ -1250,6 +1593,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// 모임 목록 로드 후 버튼 클릭 이벤트 등록
+function registerMeetingButtonListeners() {
+    // 수정 버튼 클릭 이벤트
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const meetingId = this.getAttribute('data-meeting-id');
+            const title = this.getAttribute('data-title');
+            const date = this.getAttribute('data-date');
+            const location = this.getAttribute('data-location');
+            const capacity = this.getAttribute('data-capacity');
+            const type = this.getAttribute('data-type');
+            const description = this.getAttribute('data-description');
+            
+            openEditMeetingModal(meetingId, capacity, type, title, date, location, description);
+        });
+    });
+}
 
 // 모임 생성 제출
 function submitCreateMeeting() {
