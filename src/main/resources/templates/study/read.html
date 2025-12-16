@@ -30,10 +30,35 @@
 
         <nav class="nav-links">
             <div th:if="${isLoggedIn}" class="user-info">
-                <span class="welcome-message">
-                    <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
-                </span>
-                <a href="/members/logout" class="nav-btn logout-btn">로그아웃</a>
+                <div class="user-dropdown">
+                    <span class="welcome-message" onclick="toggleDropdown()">
+                        <span th:text="${userName != null ? userName : email}">사용자명</span>님 환영합니다!
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="/members/profile" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                            </svg>
+                            내정보 변경
+                        </a>
+                        <a href="/study/manage" class="dropdown-item">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                            </svg>
+                            내 스터디 관리
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a href="/members/logout" class="dropdown-item logout">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            로그아웃
+                        </a>
+                    </div>
+                </div>
             </div>
             <div th:unless="${isLoggedIn}" class="auth-links">
                 <a href="/members/login" class="nav-btn login-btn">로그인</a>
@@ -348,23 +373,17 @@
         </div>
         <div class="modal-body-meeting">
             <form id="createMeetingForm">
-                <!-- 모임 제목 -->
                 <div class="form-group-meeting">
                     <input type="hidden" id="studyIdHidden" th:value="${study.id}" name="studyId">
                     <label class="form-label-meeting">모임 제목 <span class="required">*</span></label>
-                    <input type="text" id="meetingTitle" name="title" class="form-input-meeting" 
-                           placeholder="예: Spring Boot 스터디 1차 모임" maxlength="100" required>
+                    <input type="text" id="meetingTitle" name="title" class="form-input-meeting" placeholder="예: Spring Boot 스터디 1차 모임" maxlength="100" required>
                     <span class="form-help-meeting">100자 이내</span>
                 </div>
-
-                <!-- 모임 날짜 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 날짜 <span class="required">*</span></label>
                     <input type="datetime-local" id="meetingDate" name="date" class="form-input-meeting" required>
                     <span class="form-help-meeting">모임을 진행할 날짜와 시간을 선택해주세요</span>
                 </div>
-
-                <!-- 모임 유형 (온라인/오프라인) -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 유형 <span class="required">*</span></label>
                     <div class="radio-group-meeting">
@@ -378,32 +397,22 @@
                         </label>
                     </div>
                 </div>
-
-                <!-- 장소/링크 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">장소/링크 <span class="required">*</span></label>
-                    <input type="text" id="meetingLocation" name="location" class="form-input-meeting" 
-                           placeholder="온라인: 줌 링크 | 오프라인: 만날 장소" maxlength="255" required>
+                    <input type="text" id="meetingLocation" name="location" class="form-input-meeting" placeholder="온라인: 줌 링크 | 오프라인: 만날 장소" maxlength="255" required>
                     <span class="form-help-meeting">온라인이면 줌/디스코드 링크, 오프라인이면 카페/장소명</span>
                 </div>
-
-                <!-- 최대 인원 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">최대 인원 <span class="required">*</span></label>
                     <div class="input-with-unit-meeting">
-                        <input type="number" id="meetingCapacity" name="capacity" class="form-input-meeting" 
-                               min="2" max="100" placeholder="10" required>
+                        <input type="number" id="meetingCapacity" name="capacity" class="form-input-meeting" min="2" max="100" placeholder="10" required>
                         <span class="unit-meeting">명</span>
                     </div>
                     <span class="form-help-meeting">2명 이상 100명 이하</span>
                 </div>
-
-                <!-- 모임 설명 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 설명</label>
-                    <textarea id="meetingDescription" name="description" class="form-textarea-meeting" 
-                              placeholder="이번 모임에서 다룰 주제, 준비물, 특별한 안내사항 등을 입력해주세요"
-                              maxlength="500" rows="4"></textarea>
+                    <textarea id="meetingDescription" name="description" class="form-textarea-meeting" placeholder="이번 모임에서 다룰 주제, 준비물, 특별한 안내사항 등을 입력해주세요" maxlength="500" rows="4"></textarea>
                     <div class="char-count-meeting">
                         <span id="descCharCount">0</span>/500
                     </div>
@@ -427,23 +436,16 @@
         <div class="modal-body-meeting">
             <form id="editMeetingForm">
                 <input type="hidden" id="editMeetingId">
-                
-                <!-- 모임 제목 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 제목 <span class="required">*</span></label>
-                    <input type="text" id="editMeetingTitle" name="title" class="form-input-meeting" 
-                           placeholder="예: Spring Boot 스터디 1차 모임" maxlength="100" required>
+                    <input type="text" id="editMeetingTitle" name="title" class="form-input-meeting" placeholder="예: Spring Boot 스터디 1차 모임" maxlength="100" required>
                     <span class="form-help-meeting">100자 이내</span>
                 </div>
-
-                <!-- 모임 날짜 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 날짜 <span class="required">*</span></label>
                     <input type="datetime-local" id="editMeetingDate" name="date" class="form-input-meeting" required>
                     <span class="form-help-meeting">모임을 진행할 날짜와 시간을 선택해주세요</span>
                 </div>
-
-                <!-- 모임 유형 (온라인/오프라인) -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 유형 <span class="required">*</span></label>
                     <div class="radio-group-meeting">
@@ -457,32 +459,22 @@
                         </label>
                     </div>
                 </div>
-
-                <!-- 장소/링크 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">장소/링크 <span class="required">*</span></label>
-                    <input type="text" id="editMeetingLocation" name="location" class="form-input-meeting" 
-                           placeholder="온라인: 줌 링크 | 오프라인: 만날 장소" maxlength="255" required>
+                    <input type="text" id="editMeetingLocation" name="location" class="form-input-meeting" placeholder="온라인: 줌 링크 | 오프라인: 만날 장소" maxlength="255" required>
                     <span class="form-help-meeting">온라인이면 줌/디스코드 링크, 오프라인이면 카페/장소명</span>
                 </div>
-
-                <!-- 최대 인원 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">최대 인원 <span class="required">*</span></label>
                     <div class="input-with-unit-meeting">
-                        <input type="number" id="editMeetingCapacity" name="capacity" class="form-input-meeting" 
-                               min="2" max="100" placeholder="10" required>
+                        <input type="number" id="editMeetingCapacity" name="capacity" class="form-input-meeting" min="2" max="100" placeholder="10" required>
                         <span class="unit-meeting">명</span>
                     </div>
                     <span class="form-help-meeting">2명 이상 100명 이하</span>
                 </div>
-
-                <!-- 모임 설명 -->
                 <div class="form-group-meeting">
                     <label class="form-label-meeting">모임 설명</label>
-                    <textarea id="editMeetingDescription" name="description" class="form-textarea-meeting" 
-                              placeholder="이번 모임에서 다룰 주제, 준비물, 특별한 안내사항 등을 입력해주세요"
-                              maxlength="500" rows="4"></textarea>
+                    <textarea id="editMeetingDescription" name="description" class="form-textarea-meeting" placeholder="이번 모임에서 다룰 주제, 준비물, 특별한 안내사항 등을 입력해주세요" maxlength="500" rows="4"></textarea>
                     <div class="char-count-meeting">
                         <span id="editDescCharCount">0</span>/500
                     </div>
@@ -506,11 +498,7 @@
         </div>
         <div class="modal-body">
             <p class="modal-description">스터디장에게 보낼 자기소개를 작성해주세요.</p>
-            <textarea 
-                id="introMessage" 
-                placeholder="안녕하세요! 저는... (최소 10자 이상)"
-                maxlength="500"
-                rows="6"></textarea>
+            <textarea id="introMessage" placeholder="안녕하세요! 저는... (최소 10자 이상)" maxlength="500" rows="6"></textarea>
             <div class="char-count">
                 <span id="charCount">0</span>/500
             </div>
@@ -522,7 +510,7 @@
     </div>
 </div>
 
-<!-- Sidebar Toggle Button (for collapsed state) -->
+<!-- Sidebar Toggle Button -->
 <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
     <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
@@ -530,858 +518,193 @@
 </button>
 
 <style>
-/* 탭 네비게이션 스타일 */
-.tabs-navigation {
-    display: flex;
-    gap: 0.5rem;
-    margin: 2rem 0 1.5rem 0;
-    flex-wrap: wrap;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0;
-}
-
-.tab-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 12px 20px;
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    white-space: nowrap;
-}
-
-.tab-button:hover {
-    color: #e2e8f0;
-}
-
-.tab-button.active {
-    color: #60a5fa;
-    border-bottom-color: #60a5fa;
-}
-
-.tab-icon {
-    font-size: 1.1rem;
-}
-
-.tab-label {
-    display: inline;
-}
-
-/* 탭 컨텐츠 스타일 */
-.tabs-content {
-    width: 100%;
-}
-
-.tab-content {
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.main-header-section {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
-}
-
-.btn-create-meeting {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-}
-
-.btn-create-meeting:hover {
-    background: linear-gradient(135deg, #5b21b6, #7c3aed);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-}
-
-.btn-create-meeting:active {
-    transform: translateY(0);
-}
-
-/* 로딩 상태 */
-.meetings-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    gap: 1rem;
-}
-
-.spinner {
-    border: 4px solid rgba(99, 102, 241, 0.2);
-    border-top: 4px solid #6366f1;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.meetings-container {
-    min-height: 200px;
-}
-
-.tab-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    border: 2px dashed rgba(255, 255, 255, 0.1);
-    color: #94a3b8;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.study-detail-container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.info-display {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: #333333;
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 24px;
-    display: flex;
-    align-items: center;
-}
-
-.info-display.description {
-    min-height: 60px;
-    align-items: flex-start;
-    padding-top: 16px;
-    white-space: pre-wrap;
-}
-
-.status-badge {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.status-badge.private {
-    background: linear-gradient(135deg, #ff6b6b, #ff8787);
-    color: white;
-}
-
-.status-badge.public {
-    background: linear-gradient(135deg, #51cf66, #69db7c);
-    color: white;
-}
-
-.section-divider {
-    margin: 2rem 0 1.5rem 0;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.5rem;
-}
-
-.section-title {
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-/* ============= Create Meeting Modal Styles ============= */
-.modal-meeting {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 1100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-    overflow-y: auto;
-}
-
-.modal-content-meeting {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
-    border-radius: 20px;
-    max-width: 550px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    margin: auto;
-}
-
-.modal-header-meeting {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2rem 2rem 1.5rem 2rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(255, 255, 255, 0.92));
-}
-
-.modal-header-meeting h3 {
-    margin: 0;
-    color: #1e293b;
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.close-btn-meeting {
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    color: #999;
-    cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
-
-.close-btn-meeting:hover {
-    background: rgba(99, 102, 241, 0.1);
-    color: #6366f1;
-}
-
-.modal-body-meeting {
-    padding: 2rem;
-    max-height: calc(90vh - 140px);
-    overflow-y: auto;
-}
-
-.form-group-meeting {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-label-meeting {
-    color: #1e293b;
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.required {
-    color: #ef4444;
-    font-weight: 700;
-}
-
-.form-input-meeting,
-.form-textarea-meeting {
-    padding: 12px 14px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-family: inherit;
-    background: white;
-    color: #1e293b;
-    transition: all 0.3s ease;
-}
-
-.form-input-meeting:focus,
-.form-textarea-meeting:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.form-input-meeting::placeholder,
-.form-textarea-meeting::placeholder {
-    color: #94a3b8;
-}
-
-.form-textarea-meeting {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.form-help-meeting {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    margin-top: 0.4rem;
-}
-
-.radio-group-meeting {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.radio-label-meeting {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    padding: 10px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    user-select: none;
-}
-
-.radio-label-meeting input[type="radio"] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-    accent-color: #6366f1;
-}
-
-.radio-label-meeting:hover {
-    border-color: #6366f1;
-    background: rgba(99, 102, 241, 0.05);
-}
-
-.radio-label-meeting input[type="radio"]:checked + span {
-    color: #6366f1;
-    font-weight: 600;
-}
-
-.input-with-unit-meeting {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.input-with-unit-meeting .form-input-meeting {
-    flex: 1;
-}
-
-.unit-meeting {
-    color: #64748b;
-    font-weight: 500;
-    min-width: 30px;
-}
-
-.char-count-meeting {
-    text-align: right;
-    color: #94a3b8;
-    font-size: 0.8rem;
-    margin-top: 0.4rem;
-}
-
-.modal-footer-meeting {
-    display: flex;
-    gap: 1rem;
-    padding: 1.5rem 2rem 2rem 2rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    justify-content: flex-end;
-    position: sticky;
-    bottom: 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.95));
-}
-
-.modal-cancel-btn-meeting,
-.modal-submit-btn-meeting,
-.modal-delete-btn-meeting {
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    min-width: 120px;
-}
-
-.modal-cancel-btn-meeting {
-    background: #f1f5f9;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
-}
-
-.modal-cancel-btn-meeting:hover {
-    background: #e2e8f0;
-    color: #334155;
-}
-
-.modal-delete-btn-meeting {
-    background: linear-gradient(135deg, #ef4444, #f87171);
-    color: white;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-}
-
-.modal-delete-btn-meeting:hover {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-}
-
-.modal-delete-btn-meeting:active {
-    transform: translateY(0);
-}
-
-.modal-submit-btn-meeting {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-}
-
-.modal-submit-btn-meeting:hover {
-    background: linear-gradient(135deg, #5b21b6, #7c3aed);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-}
-
-.modal-submit-btn-meeting:active {
-    transform: translateY(0);
-}
-
-/* ============= Join Modal Styles (기존) ============= */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
-    border-radius: 20px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: #333;
-    font-size: 1.25rem;
-    font-weight: 600;
-    flex: 1;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #999;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: #333;
-}
-
-.modal-body {
-    padding: 2rem;
-}
-
-.modal-description {
-    color: #666;
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
-}
-
-.modal-body textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 12px 16px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.5;
-    resize: vertical;
-    font-family: inherit;
-    background: white;
-    transition: border-color 0.2s ease;
-}
-
-.modal-body textarea:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-.char-count {
-    text-align: right;
-    color: #999;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-}
-
-.modal-footer {
-    display: flex;
-    gap: 1rem;
-    padding: 1.5rem 2rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    justify-content: flex-end;
-}
-
-.modal-cancel-btn,
-.modal-submit-btn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-}
-
-.modal-cancel-btn {
-    background: #f8f9fa;
-    color: #666;
-    border: 1px solid #e9ecef;
-}
-
-.modal-cancel-btn:hover {
-    background: #e9ecef;
-    color: #333;
-}
-
-.modal-submit-btn {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-}
-
-.modal-submit-btn:hover {
-    background: linear-gradient(135deg, #5b21b6, #7c3aed);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-}
-
+.user-dropdown { position: relative; display: inline-block; }
+.welcome-message { color: #374151; font-weight: 500; font-size: 0.9rem; background: rgba(59, 130, 246, 0.1); padding: 0.5rem 1rem; border-radius: 50px; border: 1px solid rgba(59, 130, 246, 0.2); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease; }
+.welcome-message:hover { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3); }
+.dropdown-arrow { width: 16px; height: 16px; transition: transform 0.3s ease; }
+.welcome-message.active .dropdown-arrow { transform: rotate(180deg); }
+.dropdown-menu { position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); border: 1px solid rgba(0, 0, 0, 0.1); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 1000; }
+.dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.dropdown-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: #374151; text-decoration: none; font-size: 0.9rem; transition: background-color 0.2s ease; }
+.dropdown-item:hover { background-color: #f8fafc; }
+.dropdown-item.logout { color: #ef4444; }
+.dropdown-item.logout:hover { background-color: #fef2f2; }
+.dropdown-divider { margin: 0.5rem 0; border: none; border-top: 1px solid #e5e7eb; }
+.tabs-navigation { display: flex; gap: 0.5rem; margin: 2rem 0 1.5rem 0; flex-wrap: wrap; border-bottom: 2px solid rgba(255, 255, 255, 0.1); padding-bottom: 0; }
+.tab-button { display: flex; align-items: center; gap: 0.5rem; padding: 12px 20px; background: transparent; border: none; color: #94a3b8; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; }
+.tab-button:hover { color: #e2e8f0; }
+.tab-button.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+.tab-icon { font-size: 1.1rem; }
+.tab-label { display: inline; }
+.tabs-content { width: 100%; }
+.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.main-header-section { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+.btn-create-meeting { display: flex; align-items: center; gap: 0.5rem; padding: 12px 24px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+.btn-create-meeting:hover { background: linear-gradient(135deg, #5b21b6, #7c3aed); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+.btn-create-meeting:active { transform: translateY(0); }
+.meetings-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; gap: 1rem; }
+.spinner { border: 4px solid rgba(99, 102, 241, 0.2); border-top: 4px solid #6366f1; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.meetings-container { min-height: 200px; }
+.tab-empty { display: flex; align-items: center; justify-content: center; min-height: 400px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 2px dashed rgba(255, 255, 255, 0.1); color: #94a3b8; font-size: 1.1rem; font-weight: 500; }
+.study-detail-container { max-width: 800px; margin: 0 auto; }
+.info-display { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 12px 16px; color: #333333; font-size: 14px; line-height: 1.5; min-height: 24px; display: flex; align-items: center; }
+.info-display.description { min-height: 60px; align-items: flex-start; padding-top: 16px; white-space: pre-wrap; }
+.status-badge { padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; }
+.status-badge.private { background: linear-gradient(135deg, #ff6b6b, #ff8787); color: white; }
+.status-badge.public { background: linear-gradient(135deg, #51cf66, #69db7c); color: white; }
+.section-divider { margin: 2rem 0 1.5rem 0; border-bottom: 2px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem; }
+.section-title { color: #ffffff; font-size: 18px; font-weight: 600; }
+.modal-meeting { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1100; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); overflow-y: auto; }
+.modal-content-meeting { background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)); border-radius: 20px; max-width: 550px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); margin: auto; }
+.modal-header-meeting { display: flex; justify-content: space-between; align-items: center; padding: 2rem 2rem 1.5rem 2rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); position: sticky; top: 0; background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(255, 255, 255, 0.92)); }
+.modal-header-meeting h3 { margin: 0; color: #1e293b; font-size: 1.5rem; font-weight: 700; }
+.close-btn-meeting { background: none; border: none; font-size: 1.8rem; color: #999; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease; }
+.close-btn-meeting:hover { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.modal-body-meeting { padding: 2rem; max-height: calc(90vh - 140px); overflow-y: auto; }
+.form-group-meeting { margin-bottom: 1.5rem; display: flex; flex-direction: column; }
+.form-label-meeting { color: #1e293b; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem; }
+.required { color: #ef4444; font-weight: 700; }
+.form-input-meeting, .form-textarea-meeting { padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; font-family: inherit; background: white; color: #1e293b; transition: all 0.3s ease; }
+.form-input-meeting:focus, .form-textarea-meeting:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+.form-input-meeting::placeholder, .form-textarea-meeting::placeholder { color: #94a3b8; }
+.form-textarea-meeting { resize: vertical; min-height: 100px; }
+.form-help-meeting { font-size: 0.8rem; color: #94a3b8; margin-top: 0.4rem; }
+.radio-group-meeting { display: flex; gap: 1rem; flex-wrap: wrap; }
+.radio-label-meeting { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; transition: all 0.3s ease; user-select: none; }
+.radio-label-meeting input[type="radio"] { cursor: pointer; width: 18px; height: 18px; accent-color: #6366f1; }
+.radio-label-meeting:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.05); }
+.radio-label-meeting input[type="radio"]:checked + span { color: #6366f1; font-weight: 600; }
+.input-with-unit-meeting { display: flex; gap: 0.5rem; align-items: center; }
+.input-with-unit-meeting .form-input-meeting { flex: 1; }
+.unit-meeting { color: #64748b; font-weight: 500; min-width: 30px; }
+.char-count-meeting { text-align: right; color: #94a3b8; font-size: 0.8rem; margin-top: 0.4rem; }
+.modal-footer-meeting { display: flex; gap: 1rem; padding: 1.5rem 2rem 2rem 2rem; border-top: 1px solid rgba(0, 0, 0, 0.1); justify-content: flex-end; position: sticky; bottom: 0; background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.95)); }
+.modal-cancel-btn-meeting, .modal-submit-btn-meeting, .modal-delete-btn-meeting { padding: 12px 24px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; min-width: 120px; }
+.modal-cancel-btn-meeting { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+.modal-cancel-btn-meeting:hover { background: #e2e8f0; color: #334155; }
+.modal-delete-btn-meeting { background: linear-gradient(135deg, #ef4444, #f87171); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+.modal-delete-btn-meeting:hover { background: linear-gradient(135deg, #dc2626, #ef4444); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+.modal-delete-btn-meeting:active { transform: translateY(0); }
+.modal-submit-btn-meeting { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+.modal-submit-btn-meeting:hover { background: linear-gradient(135deg, #5b21b6, #7c3aed); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+.modal-submit-btn-meeting:active { transform: translateY(0); }
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+.modal-content { background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)); border-radius: 20px; max-width: 500px; width: 90%; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.3); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+.modal-header h3 { margin: 0; color: #333; font-size: 1.25rem; font-weight: 600; flex: 1; }
+.close-btn { background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease; }
+.close-btn:hover { background: rgba(0, 0, 0, 0.1); color: #333; }
+.modal-body { padding: 2rem; }
+.modal-description { color: #666; margin-bottom: 1rem; font-size: 0.95rem; }
+.modal-body textarea { width: 100%; min-height: 120px; padding: 12px 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; line-height: 1.5; resize: vertical; font-family: inherit; background: white; transition: border-color 0.2s ease; }
+.modal-body textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+.char-count { text-align: right; color: #999; font-size: 0.85rem; margin-top: 0.5rem; }
+.modal-footer { display: flex; gap: 1rem; padding: 1.5rem 2rem; border-top: 1px solid rgba(0, 0, 0, 0.1); justify-content: flex-end; }
+.modal-cancel-btn, .modal-submit-btn { padding: 10px 20px; border-radius: 10px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; border: none; }
+.modal-cancel-btn { background: #f8f9fa; color: #666; border: 1px solid #e9ecef; }
+.modal-cancel-btn:hover { background: #e9ecef; color: #333; }
+.modal-submit-btn { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+.modal-submit-btn:hover { background: linear-gradient(135deg, #5b21b6, #7c3aed); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3); }
 @media (max-width: 768px) {
-    .form-row-2, .form-row-3 {
-        flex-direction: column;
-    }
-    
-    .modal-content,
-    .modal-content-meeting {
-        width: 95%;
-    }
-    
-    .modal-header, 
-    .modal-body, 
-    .modal-footer,
-    .modal-header-meeting,
-    .modal-body-meeting,
-    .modal-footer-meeting {
-        padding: 1rem 1.5rem;
-    }
-    
-    .modal-footer,
-    .modal-footer-meeting {
-        flex-direction: column;
-    }
-    
-    .modal-cancel-btn,
-    .modal-submit-btn,
-    .modal-cancel-btn-meeting,
-    .modal-submit-btn-meeting {
-        width: 100%;
-    }
-
-    .tabs-navigation {
-        gap: 0.25rem;
-    }
-
-    .tab-button {
-        padding: 10px 15px;
-        font-size: 0.85rem;
-    }
-
-    .tab-label {
-        display: none;
-    }
-
-    .main-header-section {
-        margin-bottom: 1rem;
-    }
-
-    .btn-create-meeting {
-        width: 100%;
-        justify-content: center;
-    }
+    .form-row-2, .form-row-3 { flex-direction: column; }
+    .modal-content, .modal-content-meeting { width: 95%; }
+    .modal-header, .modal-body, .modal-footer, .modal-header-meeting, .modal-body-meeting, .modal-footer-meeting { padding: 1rem 1.5rem; }
+    .modal-footer, .modal-footer-meeting { flex-direction: column; }
+    .modal-cancel-btn, .modal-submit-btn, .modal-cancel-btn-meeting, .modal-submit-btn-meeting { width: 100%; }
+    .tabs-navigation { gap: 0.25rem; }
+    .tab-button { padding: 10px 15px; font-size: 0.85rem; }
+    .tab-label { display: none; }
+    .main-header-section { margin-bottom: 1rem; }
+    .btn-create-meeting { width: 100%; justify-content: center; }
 }
-
-/* Participants Management Styles */
-.participants-section {
-    margin: 1.5rem 0;
-}
-
-.participants-title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    color: #1e293b;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.status-icon {
-    font-size: 1.2rem;
-}
-
-.status-icon.pending {
-    filter: hue-rotate(30deg);
-}
-
-.status-icon.approved {
-    filter: hue-rotate(90deg);
-}
-
-.participants-count {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 12px;
-    min-width: 20px;
-    text-align: center;
-}
-
-.empty-participants {
-    text-align: center;
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #64748b;
-}
-
-.participants-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.participant-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 1.5rem;
-    border: 1px solid rgba(148, 163, 184, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-.participant-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-}
-
-.participant-card.approved {
-    border-left: 4px solid #10b981;
-}
-
-.participant-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.participant-avatar {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #f59e0b, #f97316);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.participant-avatar.approved {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.participant-details h5 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.participant-details p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #64748b;
-}
-
-.member-status {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.participant-card.approved.leader {
-    border-left: 4px solid #f59e0b;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 158, 11, 0.05));
-    border: 2px solid #f59e0b;
-}
-
-.participant-avatar.leader {
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    font-size: 1.5rem;
-}
-
-.status-badge.leader-badge {
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    color: white;
-}
-
+.participants-section { margin: 1.5rem 0; }
+.participants-title { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; color: #1e293b; font-size: 1.1rem; font-weight: 600; }
+.status-icon { font-size: 1.2rem; }
+.status-icon.pending { filter: hue-rotate(30deg); }
+.status-icon.approved { filter: hue-rotate(90deg); }
+.participants-count { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-size: 0.85rem; font-weight: 600; padding: 3px 8px; border-radius: 12px; min-width: 20px; text-align: center; }
+.empty-participants { text-align: center; padding: 2rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); color: #64748b; }
+.participants-list { display: flex; flex-direction: column; gap: 1rem; }
+.participant-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(148, 163, 184, 0.1); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
+.participant-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); }
+.participant-card.approved { border-left: 4px solid #10b981; }
+.participant-info { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.participant-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.1rem; }
+.participant-avatar.approved { background: linear-gradient(135deg, #10b981, #059669); }
+.participant-details h5 { margin: 0 0 0.25rem 0; font-size: 1rem; font-weight: 600; color: #1e293b; }
+.participant-details p { margin: 0; font-size: 0.85rem; color: #64748b; }
+.member-status { display: flex; justify-content: flex-end; }
+.participant-card.approved.leader { border-left: 4px solid #f59e0b; background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 158, 11, 0.05)); border: 2px solid #f59e0b; }
+.participant-avatar.leader { background: linear-gradient(135deg, #f59e0b, #fbbf24); font-size: 1.5rem; }
+.status-badge.leader-badge { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
 @media (max-width: 768px) {
-    .participant-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-    
-    .participants-title {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
+    .participant-info { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .participants-title { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 }
 </style>
 
 <script>
 const studyId = [[${study.id}]];
 const isStudyAuthor = [[${isStudyAuthor}]];
-const currentUserId = [[${isLoggedIn ? currentUserId : 'null'}]];  // ← 추가
-const currentUserEmail = '[[${email}]]';  // ← 추가
+const currentUserId = [[${isLoggedIn ? currentUserId : 'null'}]];
+const currentUserEmail = '[[${email}]]';
 
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const mainContainer = document.querySelector('.main-container');
+    const toggleBtn = document.querySelector('.sidebar-toggle-btn');
     sidebar.classList.toggle('collapsed');
     mainContainer.classList.toggle('sidebar-collapsed');
+    if (mainContainer.classList.contains('sidebar-collapsed')) {
+        toggleBtn.style.display = 'flex';
+    } else {
+        toggleBtn.style.display = 'none';
+    }
 }
 
-// 탭 전환 함수
+function toggleDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const welcomeMessage = document.querySelector('.welcome-message');
+    dropdown.classList.toggle('show');
+    welcomeMessage.classList.toggle('active');
+}
+
+document.addEventListener('click', function(event) {
+    const userDropdown = document.getElementById('userDropdown');
+    const welcomeMessage = document.querySelector('.welcome-message');
+    if (userDropdown && !event.target.closest('.user-dropdown')) {
+        userDropdown.classList.remove('show');
+        welcomeMessage.classList.remove('active');
+    }
+});
+
 function showTab(tabName, event) {
     event.preventDefault();
-    
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
     document.getElementById(tabName).classList.add('active');
     event.target.closest('.tab-button').classList.add('active');
-    
-    // 메인 탭 클릭 시 모임 목록 로드
     if (tabName === 'main') {
         loadMeetings();
     }
 }
 
-// 모임 목록 로드 함수
 function loadMeetings() {
     const container = document.getElementById('meetingsContainer');
     const loading = document.getElementById('meetingsLoading');
-    
-    console.log("모임 목록 로드 시작: studyId=" + studyId);
-    
-    // 로딩 표시
     loading.style.display = 'flex';
     
     fetch(`/study/${studyId}/meetings`)
         .then(response => {
-            console.log("응답 상태: " + response.status);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.text();
         })
         .then(html => {
-            console.log("Fragment 받음, 렌더링 중...");
-            // Fragment 렌더링
             container.innerHTML = html;
             loading.style.display = 'none';
-            
-            // 버튼 리스너 등록
             registerMeetingButtonListeners();
         })
         .catch(error => {
@@ -1391,7 +714,6 @@ function loadMeetings() {
         });
 }
 
-// 모임 만들기 모달
 function openCreateMeetingModal() {
     document.getElementById('createMeetingModal').style.display = 'flex';
 }
@@ -1402,7 +724,6 @@ function closeCreateMeetingModal() {
     document.getElementById('descCharCount').textContent = '0';
 }
 
-// 날짜를 ISO 형식(yyyy-MM-ddTHH:mm)으로 변환
 function formatDateToISO(dateString) {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -1413,47 +734,29 @@ function formatDateToISO(dateString) {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-// 수정 모달 열기
 function openEditMeetingModal(meetingId, capacity, meetingType, title, date, location, description) {
-    console.log("수정 모달 열기:", {meetingId, title, date, meetingType, location, capacity, description});
-    
-    // 날짜를 ISO 형식으로 변환
     const isoDate = formatDateToISO(date);
-    
     document.getElementById('editMeetingId').value = meetingId;
     document.getElementById('editMeetingTitle').value = title;
     document.getElementById('editMeetingDate').value = isoDate;
     document.getElementById('editMeetingLocation').value = location;
     document.getElementById('editMeetingCapacity').value = capacity;
     document.getElementById('editMeetingDescription').value = description || '';
-    
-    // 라디오 버튼 선택
     document.querySelector(`input[name="editMeetingType"][value="${meetingType}"]`).checked = true;
-    
-    // 글자 수 업데이트
     document.getElementById('editDescCharCount').textContent = (description || '').length;
-    
     document.getElementById('editMeetingModal').style.display = 'flex';
 }
 
-// 수정 모달 닫기
 function closeEditMeetingModal() {
     document.getElementById('editMeetingModal').style.display = 'none';
     document.getElementById('editMeetingForm').reset();
     document.getElementById('editDescCharCount').textContent = '0';
 }
 
-// 모임 삭제
 function deleteMeeting() {
     const meetingId = document.getElementById('editMeetingId').value;
     const title = document.getElementById('editMeetingTitle').value;
-    
-    // 삭제 확인
-    if (!confirm(`"${title}" 모임을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) {
-        return;
-    }
-    
-    console.log("모임 삭제 요청:", meetingId);
+    if (!confirm(`"${title}" 모임을 정말 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.`)) return;
     
     fetch(`/study/${studyId}/meeting/${meetingId}`, {
         method: 'DELETE',
@@ -1463,19 +766,13 @@ function deleteMeeting() {
         }
     })
     .then(response => {
-        console.log("삭제 응답 상태:", response.status);
-        if (response.ok) {
-            return response.json();
-        } else if (response.status === 403) {
-            throw new Error('자신이 만든 모임만 삭제할 수 있습니다.');
-        } else {
-            throw new Error('모임 삭제 실패');
-        }
+        if (response.ok) return response.json();
+        else if (response.status === 403) throw new Error('자신이 만든 모임만 삭제할 수 있습니다.');
+        else throw new Error('모임 삭제 실패');
     })
     .then(data => {
         alert('🗑️ 모임이 삭제되었습니다!');
         closeEditMeetingModal();
-        // 모임 리스트 새로고침
         loadMeetings();
     })
     .catch(error => {
@@ -1484,11 +781,8 @@ function deleteMeeting() {
     });
 }
 
-// 모임 수정 제출
 function submitEditMeeting() {
     const form = document.getElementById('editMeetingForm');
-    
-    // 유효성 검사
     if (!form.checkValidity()) {
         alert('모든 필수 항목을 입력해주세요.');
         return;
@@ -1502,23 +796,11 @@ function submitEditMeeting() {
     const capacity = document.getElementById('editMeetingCapacity').value;
     const description = document.getElementById('editMeetingDescription').value.trim();
 
-    // 추가 유효성 검사
-    if (title.length === 0) {
-        alert('모임 제목을 입력해주세요.');
+    if (title.length === 0 || location.length === 0 || capacity < 2 || capacity > 100) {
+        alert('입력값을 확인해주세요.');
         return;
     }
 
-    if (location.length === 0) {
-        alert('장소/링크를 입력해주세요.');
-        return;
-    }
-
-    if (capacity < 2 || capacity > 100) {
-        alert('최대 인원은 2명 이상 100명 이하여야 합니다.');
-        return;
-    }
-
-    // API 요청
     const meetingData = {
         title: title,
         date: date,
@@ -1528,8 +810,6 @@ function submitEditMeeting() {
         description: description || null
     };
 
-    console.log("수정 API 요청:", {meetingId, meetingData});
-
     fetch(`/study/${studyId}/meeting/${meetingId}`, {
         method: 'PUT',
         headers: {
@@ -1538,18 +818,10 @@ function submitEditMeeting() {
         },
         body: JSON.stringify(meetingData)
     })
-    .then(response => {
-        console.log("응답 상태:", response.status);
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('모임 수정 실패');
-        }
-    })
+    .then(response => response.ok ? response.json() : Promise.reject('모임 수정 실패'))
     .then(data => {
         alert('✅ 모임 정보가 수정되었습니다!');
         closeEditMeetingModal();
-        // 모임 리스트 새로고침
         loadMeetings();
     })
     .catch(error => {
@@ -1558,65 +830,8 @@ function submitEditMeeting() {
     });
 }
 
-// 모임 설명 글자 수 카운터
-document.addEventListener('DOMContentLoaded', function() {
-    // 페이지 로드 시 바로 모임 목록 로드 (메인 탭이 기본 선택이므로)
-    loadMeetings();
-    
-    // 생성 모달 글자 수 카운터
-    const descTextarea = document.getElementById('meetingDescription');
-    const descCharCount = document.getElementById('descCharCount');
-    
-    if (descTextarea && descCharCount) {
-        descTextarea.addEventListener('input', function() {
-            descCharCount.textContent = this.value.length;
-        });
-    }
-
-    // 수정 모달 글자 수 카운터
-    const editDescTextarea = document.getElementById('editMeetingDescription');
-    const editDescCharCount = document.getElementById('editDescCharCount');
-    
-    if (editDescTextarea && editDescCharCount) {
-        editDescTextarea.addEventListener('input', function() {
-            editDescCharCount.textContent = this.value.length;
-        });
-    }
-
-    // 스터디 참여 모달 글자 수 카운터
-    const joinTextarea = document.getElementById('introMessage');
-    const joinCharCount = document.getElementById('charCount');
-    
-    if (joinTextarea && joinCharCount) {
-        joinTextarea.addEventListener('input', function() {
-            joinCharCount.textContent = this.value.length;
-        });
-    }
-});
-
-// 모임 목록 로드 후 버튼 클릭 이벤트 등록
-function registerMeetingButtonListeners() {
-    // 수정 버튼 클릭 이벤트
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const meetingId = this.getAttribute('data-meeting-id');
-            const title = this.getAttribute('data-title');
-            const date = this.getAttribute('data-date');
-            const location = this.getAttribute('data-location');
-            const capacity = this.getAttribute('data-capacity');
-            const type = this.getAttribute('data-type');
-            const description = this.getAttribute('data-description');
-            
-            openEditMeetingModal(meetingId, capacity, type, title, date, location, description);
-        });
-    });
-}
-
-// 모임 생성 제출
 function submitCreateMeeting() {
     const form = document.getElementById('createMeetingForm');
-    
-    // 유효성 검사
     if (!form.checkValidity()) {
         alert('모든 필수 항목을 입력해주세요.');
         return;
@@ -1629,23 +844,11 @@ function submitCreateMeeting() {
     const capacity = document.getElementById('meetingCapacity').value;
     const description = document.getElementById('meetingDescription').value.trim();
 
-    // 추가 유효성 검사
-    if (title.length === 0) {
-        alert('모임 제목을 입력해주세요.');
+    if (title.length === 0 || location.length === 0 || capacity < 2 || capacity > 100) {
+        alert('입력값을 확인해주세요.');
         return;
     }
 
-    if (location.length === 0) {
-        alert('장소/링크를 입력해주세요.');
-        return;
-    }
-
-    if (capacity < 2 || capacity > 100) {
-        alert('최대 인원은 2명 이상 100명 이하여야 합니다.');
-        return;
-    }
-
-    // API 요청
     const meetingData = {
         title: title,
         date: date,
@@ -1663,34 +866,128 @@ function submitCreateMeeting() {
         },
         body: JSON.stringify(meetingData)
     })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('모임 생성 실패');
-        }
-    })
+    .then(response => response.ok ? response.json() : Promise.reject('모임 생성 실패'))
     .then(data => {
-        alert('모임이 성공적으로 생성되었습니다!');
+        alert('✅ 모임이 성공적으로 생성되었습니다!');
         closeCreateMeetingModal();
-        // 모임 리스트 새로고침 (나중에 구현)
-        // loadMeetings();
+        loadMeetings();
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('모임 생성 중 오류가 발생했습니다: ' + error.message);
+        alert('❌ 모임 생성 중 오류가 발생했습니다: ' + error.message);
     });
 }
 
-// 스터디 참여
-function joinStudy() {
-    const isLoggedIn = [[${isLoggedIn}]];
-    if (!isLoggedIn) {
-        alert('로그인이 필요한 서비스입니다.');
+function attendMeeting(button, event) {
+    event.preventDefault();
+    if (!currentUserId || currentUserId === 'null') {
+        alert('로그인이 필요합니다.');
         window.location.href = '/members/login';
         return;
     }
     
+    const meetingId = button.getAttribute('data-meeting-id');
+    const studyId = button.getAttribute('data-study-id');
+    button.classList.add('loading');
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = '처리중...';
+    
+    fetch(`/study/${studyId}/meeting/${meetingId}/attend`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || ''
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message);
+            loadMeetings();
+        } else {
+            alert('❌ ' + data.message);
+            button.classList.remove('loading');
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ 처리 중 오류가 발생했습니다.');
+        button.classList.remove('loading');
+        button.disabled = false;
+        button.textContent = originalText;
+    });
+}
+
+function cancelAttendance(button, event) {
+    event.preventDefault();
+    if (!currentUserId || currentUserId === 'null') {
+        alert('로그인이 필요합니다.');
+        window.location.href = '/members/login';
+        return;
+    }
+    
+    if (!confirm('정말 참석을 취소하시겠습니까?')) return;
+    
+    const meetingId = button.getAttribute('data-meeting-id');
+    const studyId = button.getAttribute('data-study-id');
+    button.classList.add('loading');
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = '처리중...';
+    
+    fetch(`/study/${studyId}/meeting/${meetingId}/attend`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || ''
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message);
+            loadMeetings();
+        } else {
+            alert('❌ ' + data.message);
+            button.classList.remove('loading');
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ 처리 중 오류가 발생했습니다.');
+        button.classList.remove('loading');
+        button.disabled = false;
+        button.textContent = originalText;
+    });
+}
+
+function registerMeetingButtonListeners() {
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            openEditMeetingModal(
+                this.getAttribute('data-meeting-id'),
+                this.getAttribute('data-capacity'),
+                this.getAttribute('data-type'),
+                this.getAttribute('data-title'),
+                this.getAttribute('data-date'),
+                this.getAttribute('data-location'),
+                this.getAttribute('data-description')
+            );
+        });
+    });
+}
+
+function joinStudy() {
+    if (![[${isLoggedIn}]]) {
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href = '/members/login';
+        return;
+    }
     document.getElementById('joinModal').style.display = 'block';
 }
 
@@ -1702,7 +999,6 @@ function closeJoinModal() {
 
 function submitJoinRequest() {
     const message = document.getElementById('introMessage').value.trim();
-    
     if (message.length < 10) {
         alert('자기소개는 10자 이상 작성해주세요.');
         return;
@@ -1727,6 +1023,34 @@ function submitJoinRequest() {
     document.body.appendChild(form);
     form.submit();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadMeetings();
+    
+    const descTextarea = document.getElementById('meetingDescription');
+    const descCharCount = document.getElementById('descCharCount');
+    if (descTextarea && descCharCount) {
+        descTextarea.addEventListener('input', function() {
+            descCharCount.textContent = this.value.length;
+        });
+    }
+
+    const editDescTextarea = document.getElementById('editMeetingDescription');
+    const editDescCharCount = document.getElementById('editDescCharCount');
+    if (editDescTextarea && editDescCharCount) {
+        editDescTextarea.addEventListener('input', function() {
+            editDescCharCount.textContent = this.value.length;
+        });
+    }
+
+    const joinTextarea = document.getElementById('introMessage');
+    const joinCharCount = document.getElementById('charCount');
+    if (joinTextarea && joinCharCount) {
+        joinTextarea.addEventListener('input', function() {
+            joinCharCount.textContent = this.value.length;
+        });
+    }
+});
 </script>
 
 </body>

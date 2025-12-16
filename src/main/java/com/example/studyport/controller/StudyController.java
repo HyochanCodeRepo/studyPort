@@ -10,6 +10,7 @@ import com.example.studyport.repository.CategoryRepository;
 import com.example.studyport.repository.MemberRepository;
 import com.example.studyport.repository.StudyParticipantRepository;
 import com.example.studyport.repository.StudyRepository;
+import com.example.studyport.repository.MeetingRepository;
 import com.example.studyport.service.MemberService;
 import com.example.studyport.service.StudyService;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,8 @@ public class StudyController {
     private final ModelMapper modelMapper;
     private final MemberService memberService;
     private final StudyParticipantRepository studyParticipantRepository;
+    private final MeetingRepository meetingRepository;
+    private final com.example.studyport.repository.MeetingVoterRepository meetingVoterRepository;
 
     @GetMapping("/create")
     public String create(Model model, Principal principal) {
@@ -280,11 +283,16 @@ public class StudyController {
         String email = "";
         String userName = "";
         boolean isLoggedIn = false;
+        Long currentUserId = null;
 
         if (principal != null) {
             email = principal.getName();
             userName = memberService.getUserNameByEmail(email);
             isLoggedIn = true;
+            Members currentUser = memberRepository.findByEmail(email);
+            if (currentUser != null) {
+                currentUserId = currentUser.getId();
+            }
         }
 
         // 현재 로그인한 사용자가 스터디장인지 확인
@@ -316,6 +324,7 @@ public class StudyController {
         model.addAttribute("email", email);
         model.addAttribute("userName", userName);
         model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("study", studyDTO);
         model.addAttribute("isStudyAuthor", isStudyAuthor);
         model.addAttribute("pendingParticipants", pendingParticipants);
@@ -323,6 +332,184 @@ public class StudyController {
         model.addAttribute("categories", categories);
 
         return "study/read";
+    }
+
+    /**
+     * 모임 목록 조회 (Fragment)
+     */
+    @GetMapping("/{studyId}/meetings")
+    public String getMeetings(@PathVariable Long studyId, Model model, Principal principal) {
+        log.info("모임 목록 조회: studyId={}", studyId);
+
+        Long currentUserId = null;
+        if (principal != null) {
+            Members currentUser = memberRepository.findByEmail(principal.getName());
+            if (currentUser != null) {
+                currentUserId = currentUser.getId();
+            }
+        }
+
+        // 스터디의 모임 목록 조회 (enabled=true인 것들만)
+        List<com.example.studyport.entity.Meeting> meetings = meetingRepository.findByStudyIdAndEnabledOrderByDateAsc(studyId, true);
+
+        // 내 모임을 우선으로 정렬
+        if (currentUserId != null) {
+            final Long finalCurrentUserId = currentUserId;
+            meetings.sort((m1, m2) -> {
+                boolean isM1Mine = m1.getCreatedBy().getId().equals(finalCurrentUserId);
+                boolean isM2Mine = m2.getCreatedBy().getId().equals(finalCurrentUserId);
+                if (isM1Mine && !isM2Mine) return -1;
+                if (!isM1Mine && isM2Mine) return 1;
+                return m1.getDate().compareTo(m2.getDate());
+            });
+        }
+
+        // 각 모임에 내가 참석했는지 여부 추가
+        final Long finalCurrentUserId = currentUserId;
+        java.util.Map<Long, Boolean> attendanceMap = new java.util.HashMap<>();
+        for (com.example.studyport.entity.Meeting meeting : meetings) {
+            boolean isAttended = false;
+            if (finalCurrentUserId != null) {
+                isAttended = meetingVoterRepository.findByMeetingIdAndMemberId(meeting.getId(), finalCurrentUserId).isPresent();
+            }
+            attendanceMap.put(meeting.getId(), isAttended);
+        }
+
+        model.addAttribute("studyId", studyId);
+        model.addAttribute("currentUserId", currentUserId);
+        model.addAttribute("meetings", meetings);
+        model.addAttribute("attendanceMap", attendanceMap);
+
+        return "study/fragments/meetings-fragment";
+    }
+
+    /**
+     * 모임 생성
+     */
+    @PostMapping("/{studyId}/meeting")
+    @ResponseBody
+    public com.example.studyport.dto.MeetingDTO createMeeting(
+            @PathVariable Long studyId,
+            @RequestBody com.example.studyport.dto.MeetingDTO meetingDTO,
+            Principal principal) {
+
+        log.info("모임 생성 요청: studyId={}, title={}", studyId, meetingDTO.getTitle());
+
+        if (principal == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        Members creator = memberRepository.findByEmail(principal.getName());
+        if (creator == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
+
+        com.example.studyport.entity.Meeting meeting = new com.example.studyport.entity.Meeting();
+        meeting.setTitle(meetingDTO.getTitle());
+        meeting.setDate(meetingDTO.getDate());
+        meeting.setMeetingType(com.example.studyport.entity.Meeting.MeetingType.valueOf(meetingDTO.getMeetingType()));
+        meeting.setLocation(meetingDTO.getLocation());
+        meeting.setCapacity(meetingDTO.getCapacity());
+        meeting.setDescription(meetingDTO.getDescription());
+        meeting.setStudy(study);
+        meeting.setCreatedBy(creator);
+        meeting.setEnabled(true);
+        meeting.setStatus(com.example.studyport.entity.Meeting.MeetingStatus.RECRUITING); // ← 추가!
+
+        com.example.studyport.entity.Meeting savedMeeting = meetingRepository.save(meeting);
+
+        log.info("모임 생성 완료: meetingId={}", savedMeeting.getId());
+
+        return modelMapper.map(savedMeeting, com.example.studyport.dto.MeetingDTO.class);
+    }
+
+    /**
+     * 모임 수정
+     */
+    @PutMapping("/{studyId}/meeting/{meetingId}")
+    @ResponseBody
+    public com.example.studyport.dto.MeetingDTO updateMeeting(
+            @PathVariable Long studyId,
+            @PathVariable Long meetingId,
+            @RequestBody com.example.studyport.dto.MeetingDTO meetingDTO,
+            Principal principal) {
+
+        log.info("모임 수정 요청: studyId={}, meetingId={}", studyId, meetingId);
+
+        if (principal == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        Members currentUser = memberRepository.findByEmail(principal.getName());
+        if (currentUser == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        com.example.studyport.entity.Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new IllegalArgumentException("모임을 찾을 수 없습니다."));
+
+        // 권한 검증: 모임을 만든 사용자만 수정 가능
+        if (!meeting.getCreatedBy().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("자신이 만든 모임만 수정할 수 있습니다.");
+        }
+
+        meeting.setTitle(meetingDTO.getTitle());
+        meeting.setDate(meetingDTO.getDate());
+        meeting.setMeetingType(com.example.studyport.entity.Meeting.MeetingType.valueOf(meetingDTO.getMeetingType()));
+        meeting.setLocation(meetingDTO.getLocation());
+        meeting.setCapacity(meetingDTO.getCapacity());
+        meeting.setDescription(meetingDTO.getDescription());
+
+        com.example.studyport.entity.Meeting updatedMeeting = meetingRepository.save(meeting);
+
+        log.info("모임 수정 완료: meetingId={}", meetingId);
+
+        return modelMapper.map(updatedMeeting, com.example.studyport.dto.MeetingDTO.class);
+    }
+
+    /**
+     * 모임 삭제
+     */
+    @DeleteMapping("/{studyId}/meeting/{meetingId}")
+    @ResponseBody
+    public java.util.Map<String, Object> deleteMeeting(
+            @PathVariable Long studyId,
+            @PathVariable Long meetingId,
+            Principal principal) {
+
+        log.info("모임 삭제 요청: studyId={}, meetingId={}", studyId, meetingId);
+
+        if (principal == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        Members currentUser = memberRepository.findByEmail(principal.getName());
+        if (currentUser == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        com.example.studyport.entity.Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new IllegalArgumentException("모임을 찾을 수 없습니다."));
+
+        // 권한 검증: 모임을 만든 사용자만 삭제 가능
+        if (!meeting.getCreatedBy().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("자신이 만든 모임만 삭제할 수 있습니다.");
+        }
+
+        // Soft delete
+        meeting.setEnabled(false);
+        meetingRepository.save(meeting);
+
+        log.info("모임 삭제 완료: meetingId={}", meetingId);
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("success", true);
+        response.put("message", "모임이 삭제되었습니다.");
+
+        return response;
     }
 
     @GetMapping("/manage")
@@ -545,15 +732,14 @@ public class StudyController {
     }
 
     /**
-     * 스터디장 전용 스터디 상세 관리 페이지
+     * 스터디장이 관리 페이지 접근 시 read 페이지로 리다이렉트
      */
     @GetMapping("/manage/{id}")
-    public String manageStudyDetail(@PathVariable Long id, Principal principal, Model model, RedirectAttributes redirectAttributes) {
-        log.info("스터디장 전용 관리 상세페이지 진입: studyId={}", id);
+    public String manageStudyDetail(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
+        log.info("스터디장 관리 페이지 접근 → read 페이지로 리다이렉트: studyId={}", id);
 
         // 로그인 체크
         if (principal == null) {
-            log.info("로그인되지 않은 사용자의 스터디 관리 페이지 접근 시도");
             return "redirect:/members/login";
         }
 
@@ -561,7 +747,6 @@ public class StudyController {
         Members currentUser = memberRepository.findByEmail(email);
 
         if (currentUser == null) {
-            log.error("사용자를 찾을 수 없습니다: {}", email);
             return "redirect:/members/login";
         }
 
@@ -576,120 +761,26 @@ public class StudyController {
         // 권한 체크: 스터디장인지 확인
         if (!study.getMembers().getId().equals(currentUser.getId())) {
             log.warn("스터디장이 아닌 사용자의 관리 페이지 접근 시도: userId={}, studyId={}", currentUser.getId(), id);
-            redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 관리 권한이 없습니다.");
             return "redirect:/study/read/" + id;
         }
 
-        log.info("조회된 Study 데이터: {}", study);
-
-        StudyDTO studyDTO = modelMapper.map(study, StudyDTO.class);
-
-        // MembersDTO 수동 설정 (null 안전 처리)
-        if (study.getMembers() != null) {
-            MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
-            studyDTO.setMembersDTO(membersDTO);
-            log.info("매핑된 MembersDTO 데이터: {}", membersDTO);
-        } else {
-            // 스터디장 정보가 없는 경우 기본값 처리
-            log.warn("스터디 {}에 스터디장 정보가 없습니다", study.getId());
-            MembersDTO defaultMemberDTO = new MembersDTO();
-            defaultMemberDTO.setName(study.getLeader() != null ? study.getLeader() : "알 수 없음");
-            defaultMemberDTO.setEmail("");
-            studyDTO.setMembersDTO(defaultMemberDTO);
-        }
-
-        // 승인 대기 중인 참여자
-        List<StudyParticipant> pendingParticipants = studyParticipantRepository.findByStudyIdAndStatus(
-                study.getId(), StudyParticipant.ParticipantStatus.PENDING);
-
-        // 승인된 참여자
-        List<StudyParticipant> approvedParticipants = studyParticipantRepository.findByStudyIdAndStatus(
-                study.getId(), StudyParticipant.ParticipantStatus.APPROVED);
-
-        // 헤더 표시용 사용자 정보 추가
-        String userName = memberService.getUserNameByEmail(email);
-
-        model.addAttribute("email", email);
-        model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", true);
-        model.addAttribute("study", studyDTO);
-        model.addAttribute("isStudyAuthor", true); // 스터디장만 접근 가능하므로 true
-        model.addAttribute("pendingParticipants", pendingParticipants);
-        model.addAttribute("approvedParticipants", approvedParticipants);
-
-        log.info("스터디장 관리 페이지 데이터 로드 완료: pendingCount={}, approvedCount={}",
-                pendingParticipants.size(), approvedParticipants.size());
-
-        return "study/manage-detail";
+        // 스터디장일 경우 read 페이지로 리다이렉트 (최신 UI)
+        return "redirect:/study/read/" + id;
     }
 
     /**
-     * 스터디장 전용 스터디 상세 조회 페이지 (관리자 전용)
+     * 구식 admin/read 엔드포인트를 read로 리다이렉트
      */
     @GetMapping("/admin/read/{id}")
-    public String adminRead(@PathVariable Long id, Model model, Principal principal) {
-        log.info("스터디장 전용 상세 페이지 진입: {}", id);
-
+    public String adminRead(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
+        log.info("구식 admin/read 접근 → read 페이지로 리다이렉트: studyId={}", id);
+        
         // 로그인 체크
         if (principal == null) {
-            log.info("로그인되지 않은 사용자의 스터디 상세 페이지 접근 시도");
             return "redirect:/members/login";
         }
 
-        Study study = studyRepository.findById(id).orElse(null);
-        if (study == null) {
-            log.error("스터디를 찾을 수 없습니다: {}", id);
-            return "redirect:/";
-        }
-
-        // 현재 로그인한 사용자가 스터디장인지 확인
-        Members currentUser = memberRepository.findByEmail(principal.getName());
-        if (currentUser == null || !study.getMembers().getId().equals(currentUser.getId())) {
-            log.warn("스터디장이 아닌 사용자의 admin/read 접근 시도: {}", principal.getName());
-            return "redirect:/study/read/" + id;
-        }
-
-        log.info("조회된 Study 데이터: {}", study);
-
-        StudyDTO studyDTO = modelMapper.map(study, StudyDTO.class);
-
-        log.info("매핑된 StudyDTO 데이터: {}", studyDTO);
-
-        // MembersDTO 수동 설정 (null 안전 처리)
-        if (study.getMembers() != null) {
-            MembersDTO membersDTO = modelMapper.map(study.getMembers(), MembersDTO.class);
-            studyDTO.setMembersDTO(membersDTO);
-            log.info("매핑된 MembersDTO 데이터: {}", membersDTO);
-        } else {
-            // 스터디장 정보가 없는 경우 기본값 처리
-            log.warn("스터디 {}에 스터디장 정보가 없습니다", study.getId());
-            MembersDTO defaultMemberDTO = new MembersDTO();
-            defaultMemberDTO.setName(study.getLeader() != null ? study.getLeader() : "알 수 없음");
-            defaultMemberDTO.setEmail("");
-            studyDTO.setMembersDTO(defaultMemberDTO);
-        }
-
-        // 로그인한 사용자 정보 추가
-        String email = principal.getName();
-        String userName = memberService.getUserNameByEmail(email);
-
-        // 승인 대기 중인 참여자 (스터디장만 볼 수 있음)
-        List<StudyParticipant> pendingParticipants = studyParticipantRepository.findByStudyIdAndStatus(
-                study.getId(), StudyParticipant.ParticipantStatus.PENDING);
-
-        // 승인된 참여자
-        List<StudyParticipant> approvedParticipants = studyParticipantRepository.findByStudyIdAndStatus(
-                study.getId(), StudyParticipant.ParticipantStatus.APPROVED);
-
-        model.addAttribute("email", email);
-        model.addAttribute("userName", userName);
-        model.addAttribute("isLoggedIn", true);
-        model.addAttribute("study", studyDTO);
-        model.addAttribute("isStudyAuthor", true); // 스터디장만 접근 가능하므로 true
-        model.addAttribute("pendingParticipants", pendingParticipants);
-        model.addAttribute("approvedParticipants", approvedParticipants);
-
-        return "study/admin-read";
+        return "redirect:/study/read/" + id;
     }
 
     /**
@@ -722,7 +813,7 @@ public class StudyController {
             if (currentUser == null) {
                 log.error("사용자를 찾을 수 없습니다: {}", email);
                 redirectAttributes.addFlashAttribute("errorMessage", "사용자 정보를 찾을 수 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 스터디 조회
@@ -737,7 +828,7 @@ public class StudyController {
             if (!study.getMembers().getId().equals(currentUser.getId())) {
                 log.warn("스터디장이 아닌 사용자의 역할 변경 시도: userId={}, studyId={}", currentUser.getId(), studyId);
                 redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 관리 권한이 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // StudyParticipant 조회
@@ -745,7 +836,7 @@ public class StudyController {
             if (participant == null) {
                 log.error("참여자를 찾을 수 없습니다: participantId={}", memberId);
                 redirectAttributes.addFlashAttribute("errorMessage", "멤버를 찾을 수 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 참여자가 해당 스터디의 멤버인지 확인
@@ -753,7 +844,7 @@ public class StudyController {
                 log.warn("다른 스터디의 멤버 역할 변경 시도: studyId={}, participantStudyId={}",
                         studyId, participant.getStudy().getId());
                 redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 멤버가 아닙니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 역할 변경
@@ -783,7 +874,7 @@ public class StudyController {
             redirectAttributes.addFlashAttribute("errorMessage", "역할 변경 중 오류가 발생했습니다. 다시 시도해주세요.");
         }
 
-        return "redirect:/study/admin/read/" + studyId;
+        return "redirect:/study/read/" + studyId;
     }
 
     /**
@@ -815,7 +906,7 @@ public class StudyController {
             if (currentUser == null) {
                 log.error("사용자를 찾을 수 없습니다: {}", email);
                 redirectAttributes.addFlashAttribute("errorMessage", "사용자 정보를 찾을 수 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 스터디 조회
@@ -830,7 +921,7 @@ public class StudyController {
             if (!study.getMembers().getId().equals(currentUser.getId())) {
                 log.warn("스터디장이 아닌 사용자의 강퇴 시도: userId={}, studyId={}", currentUser.getId(), studyId);
                 redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 관리 권한이 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // StudyParticipant 조회
@@ -838,7 +929,7 @@ public class StudyController {
             if (participant == null) {
                 log.error("참여자를 찾을 수 없습니다: participantId={}", memberId);
                 redirectAttributes.addFlashAttribute("errorMessage", "멤버를 찾을 수 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 참여자가 해당 스터디의 멤버인지 확인
@@ -846,14 +937,14 @@ public class StudyController {
                 log.warn("다른 스터디의 멤버 강퇴 시도: studyId={}, participantStudyId={}",
                         studyId, participant.getStudy().getId());
                 redirectAttributes.addFlashAttribute("errorMessage", "해당 스터디의 멤버가 아닙니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 스터디장이 자신을 강퇴하는 것 방지
             if (participant.getStudy().getMembers().getId().equals(participant.getMember().getId())) {
                 log.warn("스터디장이 자신을 강퇴하려고 시도: studyId={}, memberId={}", studyId, memberId);
                 redirectAttributes.addFlashAttribute("errorMessage", "스터디장은 강퇴할 수 없습니다.");
-                return "redirect:/study/admin/read/" + studyId;
+                return "redirect:/study/read/" + studyId;
             }
 
             // 멤버 강퇴 (삭제)
@@ -875,6 +966,152 @@ public class StudyController {
             redirectAttributes.addFlashAttribute("errorMessage", "강퇴 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
         }
 
-        return "redirect:/study/admin/read/" + studyId;
+        return "redirect:/study/read/" + studyId;
+    }
+
+    /**
+     * 모임 참석하기
+     */
+    @PostMapping("/{studyId}/meeting/{meetingId}/attend")
+    @ResponseBody
+    public java.util.Map<String, Object> attendMeeting(
+            @PathVariable Long studyId,
+            @PathVariable Long meetingId,
+            Principal principal) {
+
+        log.info("모임 참석 요청: studyId={}, meetingId={}", studyId, meetingId);
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        try {
+            // 로그인 체크
+            if (principal == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            Members currentUser = memberRepository.findByEmail(principal.getName());
+            if (currentUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 모임 조회
+            com.example.studyport.entity.Meeting meeting = meetingRepository.findById(meetingId)
+                    .orElseThrow(() -> new IllegalArgumentException("모임을 찾을 수 없습니다."));
+
+            // 본인 모임인지 확인 (본인 모임에는 참석 불가)
+            if (meeting.getCreatedBy().getId().equals(currentUser.getId())) {
+                response.put("success", false);
+                response.put("message", "자신이 만든 모임에는 참석할 수 없습니다.");
+                return response;
+            }
+
+            // 이미 참석했는지 확인
+            var existingVoter = meetingVoterRepository.findByMeetingIdAndMemberId(meetingId, currentUser.getId());
+            if (existingVoter.isPresent()) {
+                response.put("success", false);
+                response.put("message", "이미 참석한 모임입니다.");
+                return response;
+            }
+
+            // 현재 참석자 수 확인
+            Long currentAttendees = meetingVoterRepository.countByMeetingId(meetingId);
+            if (currentAttendees >= meeting.getCapacity()) {
+                response.put("success", false);
+                response.put("message", "정원이 초과되었습니다.");
+                return response;
+            }
+
+            // 참석 기록 생성
+            com.example.studyport.entity.MeetingVoter voter = new com.example.studyport.entity.MeetingVoter();
+            voter.setMeeting(meeting);
+            voter.setMember(currentUser);
+            meetingVoterRepository.save(voter);
+
+            // 업데이트된 참석자 수
+            Long updatedAttendees = meetingVoterRepository.countByMeetingId(meetingId);
+
+            log.info("모임 참석 완료: meetingId={}, memberId={}, 현재참석자수={}", meetingId, currentUser.getId(), updatedAttendees);
+
+            response.put("success", true);
+            response.put("message", "모임에 참석했습니다.");
+            response.put("currentAttendees", updatedAttendees);
+            response.put("capacity", meeting.getCapacity());
+            response.put("isFull", updatedAttendees >= meeting.getCapacity());
+
+        } catch (Exception e) {
+            log.error("모임 참석 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "참석 처리 중 오류가 발생했습니다.");
+        }
+
+        return response;
+    }
+
+    /**
+     * 모임 참석 취소
+     */
+    @DeleteMapping("/{studyId}/meeting/{meetingId}/attend")
+    @ResponseBody
+    public java.util.Map<String, Object> cancelMeeting(
+            @PathVariable Long studyId,
+            @PathVariable Long meetingId,
+            Principal principal) {
+
+        log.info("모임 참석 취소 요청: studyId={}, meetingId={}", studyId, meetingId);
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        try {
+            // 로그인 체크
+            if (principal == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            Members currentUser = memberRepository.findByEmail(principal.getName());
+            if (currentUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 모임 조회
+            com.example.studyport.entity.Meeting meeting = meetingRepository.findById(meetingId)
+                    .orElseThrow(() -> new IllegalArgumentException("모임을 찾을 수 없습니다."));
+
+            // 참석 기록 조회
+            var voter = meetingVoterRepository.findByMeetingIdAndMemberId(meetingId, currentUser.getId());
+            if (voter.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "참석하지 않은 모임입니다.");
+                return response;
+            }
+
+            // 참석 취소
+            meetingVoterRepository.delete(voter.get());
+
+            // 업데이트된 참석자 수
+            Long updatedAttendees = meetingVoterRepository.countByMeetingId(meetingId);
+
+            log.info("모임 참석 취소 완료: meetingId={}, memberId={}, 현재참석자수={}", meetingId, currentUser.getId(), updatedAttendees);
+
+            response.put("success", true);
+            response.put("message", "모임 참석을 취소했습니다.");
+            response.put("currentAttendees", updatedAttendees);
+            response.put("capacity", meeting.getCapacity());
+            response.put("isFull", updatedAttendees >= meeting.getCapacity());
+
+        } catch (Exception e) {
+            log.error("모임 참석 취소 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "취소 처리 중 오류가 발생했습니다.");
+        }
+
+        return response;
     }
 }

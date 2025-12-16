@@ -265,9 +265,17 @@ function resetAllFilters() {
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const mainContainer = document.querySelector('.main-container');
+    const toggleBtn = document.querySelector('.sidebar-toggle-btn');
 
     sidebar.classList.toggle('collapsed');
     mainContainer.classList.toggle('sidebar-collapsed');
+    
+    // 버튼 표시/숨김 처리
+    if (mainContainer.classList.contains('sidebar-collapsed')) {
+        toggleBtn.style.display = 'flex';
+    } else {
+        toggleBtn.style.display = 'none';
+    }
 }
 
 

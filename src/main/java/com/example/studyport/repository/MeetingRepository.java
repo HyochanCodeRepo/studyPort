@@ -13,4 +13,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 
     // study_id로 조회해서 enabled인 것만
     List<Meeting> findByStudy_IdAndEnabled(Long studyId, Boolean enabled, Sort sort);
+
+    // study_id와 enabled로 조회 (날짜 오름차순)
+    List<Meeting> findByStudyIdAndEnabledOrderByDateAsc(Long studyId, Boolean enabled);
 }
