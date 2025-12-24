@@ -298,10 +298,18 @@ public class StudyController {
         // 현재 로그인한 사용자가 스터디장인지 확인
         Members currentUser = null;
         boolean isStudyAuthor = false;
+        boolean isParticipant = false; // 스터디 참가자인지 확인
+        
         if (principal != null) {
             currentUser = memberRepository.findByEmail(principal.getName());
             if (currentUser != null && study.getMembers() != null) {
                 isStudyAuthor = study.getMembers().getId().equals(currentUser.getId());
+                
+                // 스터디 참가자인지 확인 (APPROVED 상태인지)
+                var participant = studyParticipantRepository.findByStudyIdAndMemberId(
+                    study.getId(), currentUser.getId());
+                isParticipant = participant.isPresent() && 
+                    participant.get().getStatus() == StudyParticipant.ParticipantStatus.APPROVED;
             }
         }
 
@@ -327,6 +335,7 @@ public class StudyController {
         model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("study", studyDTO);
         model.addAttribute("isStudyAuthor", isStudyAuthor);
+        model.addAttribute("isParticipant", isParticipant); // 참가자 여부 추가
         model.addAttribute("pendingParticipants", pendingParticipants);
         model.addAttribute("approvedParticipants", approvedParticipants);
         model.addAttribute("categories", categories);
