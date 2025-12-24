@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<!-- 스터디 메인 탭에 들어갈 모임 리스트 Fragment -->
+<div th:fragment="meetings-list">
+    <div class="meetings-container">
+        <!-- 내가 만든 모임 섹션 -->
+        <div th:if="${meetings != null and !meetings.isEmpty()}" class="my-meetings-section">
+            <h3 class="section-header">⭐ 내가 만든 모임</h3>
+            
+            <div class="meetings-list">
+                <!-- 내가 만든 모임 필터링 -->
+                <div th:each="meeting : ${meetings}" 
+                     th:if="${meeting.createdBy.id == currentUserId}"
+                     class="meeting-card my-meeting" 
+                     th:classappend="${meeting.enabled ? '' : 'disabled'}">
+                    
+                    <!-- 상태 표시 -->
+                    <div class="meeting-status-badge">
+                        <span th:switch="${meeting.status}">
+                            <span th:case="'RECRUITING'" class="badge recruiting">모집중</span>
+                            <span th:case="'CLOSED'" class="badge closed">마감</span>
+                            <span th:case="'DONE'" class="badge done">완료</span>
+                        </span>
+                    </div>
+                    
+                    <!-- 모임 정보 -->
+                    <div class="meeting-content">
+                        <h4 class="meeting-title" th:text="${meeting.title}">모임 제목</h4>
+                        
+                        <!-- 날짜 -->
+                        <div class="meeting-info">
+                            <span class="info-icon">🕐</span>
+                            <span class="info-text" th:text="${#temporals.format(meeting.date, 'yyyy-MM-dd HH:mm')}">2025-01-01 14:00</span>
+                        </div>
+                        
+                        <!-- 장소 -->
+                        <div class="meeting-info">
+                            <span class="info-icon" th:text="${meeting.meetingType.name() == 'OFFLINE' ? '📍' : '💻'}"></span>
+                            <span class="info-text" th:text="${meeting.location}">장소 또는 링크</span>
+                        </div>
+                        
+                        <!-- 참석자 수 -->
+                        <div class="meeting-info">
+                            <span class="info-icon">👥</span>
+                            <span class="info-text" th:text="${#lists.size(meeting.voters)} + '/' + ${meeting.capacity}">3/10</span>
+                        </div>
+                        
+                        <!-- 설명 -->
+                        <div class="meeting-description" th:if="${meeting.description != null and meeting.description != ''}">
+                            <p th:text="${meeting.description}">모임 설명</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 참석자 아바타 -->
+                    <div class="meeting-voters">
+                        <div th:each="voter : ${meeting.voters}" class="voter-avatar">
+                            <span th:text="${#strings.substring(voter.member.name, 0, 1)}">A</span>
+                        </div>
+                        <span class="voters-count" th:if="${#lists.size(meeting.voters) > 0}">
+                            <span th:text="${#lists.size(meeting.voters)}">3</span>명 참석
+                        </span>
+                    </div>
+                    
+                    <!-- 액션 버튼 (수정) -->
+                    <div class="meeting-action">
+                        <button class="btn-edit edit-btn"
+                                th:data-meeting-id="${meeting.id}"
+                                th:data-title="${meeting.title}"
+                                th:data-date="${meeting.date}"
+                                th:data-location="${meeting.location}"
+                                th:data-capacity="${meeting.capacity}"
+                                th:data-type="${meeting.meetingType.name()}"
+                                th:data-description="${meeting.description != null ? meeting.description : ''}"
+                                title="모임 수정">
+                            ✏️ 수정
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 구분선 -->
+            <div class="section-divider"></div>
+        </div>
+        
+        <!-- 다른 모임 섹션 -->
+        <div th:if="${meetings != null and !meetings.isEmpty()}" class="other-meetings-section">
+            <h3 class="section-header">📅 다른 모임들</h3>
+            
+            <div class="meetings-list">
+                <!-- 다른 사람이 만든 모임 -->
+                <div th:each="meeting : ${meetings}" 
+                     th:if="${meeting.createdBy.id != currentUserId}"
+                     class="meeting-card" 
+                     th:classappend="${meeting.enabled ? '' : 'disabled'}">
+                    
+                    <!-- 상태 표시 -->
+                    <div class="meeting-status-badge">
+                        <span th:switch="${meeting.status}">
+                            <span th:case="'RECRUITING'" class="badge recruiting">모집중</span>
+                            <span th:case="'CLOSED'" class="badge closed">마감</span>
+                            <span th:case="'DONE'" class="badge done">완료</span>
+                        </span>
+                    </div>
+                    
+                    <!-- 모임 정보 -->
+                    <div class="meeting-content">
+                        <h4 class="meeting-title" th:text="${meeting.title}">모임 제목</h4>
+                        
+                        <!-- 날짜 -->
+                        <div class="meeting-info">
+                            <span class="info-icon">🕐</span>
+                            <span class="info-text" th:text="${#temporals.format(meeting.date, 'yyyy-MM-dd HH:mm')}">2025-01-01 14:00</span>
+                        </div>
+                        
+                        <!-- 장소 -->
+                        <div class="meeting-info">
+                            <span class="info-icon" th:text="${meeting.meetingType.name() == 'OFFLINE' ? '📍' : '💻'}"></span>
+                            <span class="info-text" th:text="${meeting.location}">장소 또는 링크</span>
+                        </div>
+                        
+                        <!-- 참석자 수 -->
+                        <div class="meeting-info">
+                            <span class="info-icon">👥</span>
+                            <span class="info-text" th:text="${#lists.size(meeting.voters)} + '/' + ${meeting.capacity}">3/10</span>
+                        </div>
+                        
+                        <!-- 설명 -->
+                        <div class="meeting-description" th:if="${meeting.description != null and meeting.description != ''}">
+                            <p th:text="${meeting.description}">모임 설명</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 참석자 아바타 -->
+                    <div class="meeting-voters">
+                        <div th:each="voter : ${meeting.voters}" class="voter-avatar">
+                            <span th:text="${#strings.substring(voter.member.name, 0, 1)}">A</span>
+                        </div>
+                        <span class="voters-count" th:if="${#lists.size(meeting.voters) > 0}">
+                            <span th:text="${#lists.size(meeting.voters)}">3</span>명 참석
+                        </span>
+                    </div>
+                    
+                    <!-- 참석 버튼 & 취소 버튼 -->
+                    <div class="meeting-action">
+                        <!-- 정원 초과 상태 (아직 참석하지 않은 경우) -->
+                        <button th:if="${#lists.size(meeting.voters) >= meeting.capacity and !attendanceMap[meeting.id]}" 
+                                class="btn-full" 
+                                disabled>
+                            정원초과
+                        </button>
+                        
+                        <!-- 취소하기 버튼 (이미 참석한 경우) -->
+                        <button th:if="${attendanceMap[meeting.id]}" 
+                                class="btn-cancel" 
+                                th:data-meeting-id="${meeting.id}"
+                                th:data-study-id="${meeting.study.id}"
+                                onclick="cancelAttendance(this, event)">
+                            취소하기
+                        </button>
+                        
+                        <!-- 참석하기 버튼 (아직 참석하지 않은 경우) -->
+                        <button th:if="${#lists.size(meeting.voters) < meeting.capacity and !attendanceMap[meeting.id]}" 
+                                class="btn-attend" 
+                                th:data-meeting-id="${meeting.id}"
+                                th:data-study-id="${meeting.study.id}"
+                                onclick="attendMeeting(this, event)">
+                            참석하기
+                        </button>
+                        
+                        <!-- 모집 마감/완료 상태 -->
+                        <button th:if="${meeting.status.name() != 'RECRUITING'}" 
+                                class="btn-disabled" 
+                                disabled>
+                            <span th:switch="${meeting.status.name()}">
+                                <span th:case="'CLOSED'">마감됨</span>
+                                <span th:case="'DONE'">완료됨</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 모임이 없을 때 -->
+        <div th:if="${meetings == null or #lists.isEmpty(meetings)}" class="empty-meetings">
+            <p>등록된 모임이 없습니다.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.meetings-container {
+    margin-top: 2rem;
+}
+
+.meetings-container h3 {
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid rgba(99, 102, 241, 0.3);
+}
+
+.my-meetings-section h3::before {
+    content: "🔒";
+    font-size: 1.5rem;
+}
+
+.other-meetings-section h3::before {
+    content: "🌍";
+    font-size: 1.5rem;
+}
+
+.section-divider {
+    height: 2px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent, rgba(255, 255, 255, 0.1));
+    margin: 3rem 0;
+}
+
+.empty-meetings {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: #94a3b8;
+}
+
+.meetings-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.meeting-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.meeting-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.meeting-card.disabled {
+    opacity: 0.6;
+    background: rgba(200, 200, 200, 0.9);
+}
+
+.meeting-status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+}
+
+.badge.recruiting {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.badge.closed {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.badge.done {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.meeting-content {
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.meeting-title {
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.3;
+    min-height: 2.6em;
+}
+
+.meeting-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.info-icon {
+    font-size: 1rem;
+    min-width: 1rem;
+}
+
+.info-text {
+    flex: 1;
+    word-break: break-word;
+}
+
+.meeting-description {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 3px solid #60a5fa;
+}
+
+.meeting-description p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.meeting-voters {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.voter-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: 2px solid white;
+    flex-shrink: 0;
+}
+
+.voters-count {
+    color: #475569;
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+}
+
+.meeting-action {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.btn-join {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-join:hover {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-join:active {
+    transform: translateY(0);
+}
+
+.btn-attend {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-attend:hover {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-attend:active {
+    transform: translateY(0);
+}
+
+.btn-attend.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-cancel:active {
+    transform: translateY(0);
+}
+
+.btn-cancel.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-full {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: #fecaca;
+    color: #991b1b;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: not-allowed;
+    font-size: 0.9rem;
+}
+
+.btn-edit {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #5a67d8, #6b3fa0);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-edit:active {
+    transform: translateY(0);
+}
+
+.btn-disabled {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: #e2e8f0;
+    color: #94a3b8;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: not-allowed;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+    .meetings-list {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .meetings-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .meeting-card {
+        padding: 1rem;
+    }
+    
+    .meeting-title {
+        font-size: 1rem;
+    }
+    
+    .voter-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .meetings-list {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+</body>
+</html>

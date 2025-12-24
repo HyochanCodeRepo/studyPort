@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 스터디 / 참여 스터디 섹션 프로토타입</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ==================== 내 스터디 섹션 ==================== */
+        .my-studies-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title svg {
+            width: 28px;
+            height: 28px;
+            color: #3b82f6;
+        }
+
+        /* ==================== 탭 스타일 ==================== */
+        .tab-container {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px dotted #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #3b82f6;
+        }
+
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        /* ==================== 탭 콘텐츠 ==================== */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== 스터디 카드 그리드 ==================== */
+        .study-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .study-card {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .study-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        .study-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .study-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .study-role {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .study-role.member {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .study-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .study-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-icon {
+            width: 16px;
+            height: 16px;
+            color: #3b82f6;
+            flex-shrink: 0;
+        }
+
+        .study-card-action {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* ==================== 빈 상태 메시지 ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1.5rem;
+            color: #cbd5e1;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state-cta {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .empty-state-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ==================== 디자인 옵션 2: 라인 구분 ==================== */
+        .tab-container-v2 {
+            display: flex;
+            gap: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .tab-container-v2::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        /* ==================== 디자인 옵션 3: 카드형 탭 ==================== */
+        .tab-container-v3 {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn-v3 {
+            padding: 1rem 1.5rem;
+            background: rgba(248, 250, 252, 0.8);
+            border: 2px solid #e2e8f0;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .tab-btn-v3:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+            color: #3b82f6;
+        }
+
+        .tab-btn-v3.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* ==================== 반응형 ==================== */
+        @media (max-width: 768px) {
+            .my-studies-section {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            .study-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-container-v3 {
+                gap: 0.5rem;
+            }
+
+            .tab-btn-v3 {
+                padding: 0.75rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ==================== 옵션 1: 점선 구분 ==================== -->
+        <div class="my-studies-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                    </svg>
+                    내 스터디
+                </h2>
+            </div>
+
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab(event, 'leading')">
+                    📚 방장/리더 (2)
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'participating')">
+                    👥 참여 중 (3)
+                </button>
+            </div>
+
+            <!-- 탭 1: 방장/리더 -->
+            <div id="leading" class="tab-content active">
+                <div class="study-grid">
+                    <!-- 카드 1 -->
+                    <div class="study-card">
+                        <div class="study-card-header">
+                            <h3 class="study-card-title">Java 마스터 스터디</h3>
+                            <span class="study-role">방장</span>
+                        </div>
+                        <div class="study-card-meta">
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span>서울 · 온라인</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span>주 2회</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span>5/8명</span>
+                            </div>
+                        </div>
+                        <div class="study-card-action">
+                            <button class="action-btn">관리하기</button>
+                            <button class="action-btn danger">삭제</button>
+                        </div>
+                    </div>
+
+                    <!-- 카드 2 -->
+                    <div class="study-card">
+                        <div class="study-card-header">
+                            <h3 class="study-card-title">React 고급 과정</h3>
+                            <span class="study-role">리더</span>
+                        </div>
+                        <div class="study-card-meta">
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span>서울 · 오프라인</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span>주 1회</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span>8/10명</span>
+                            </div>
+                        </div>
+                        <div class="study-card-action">
+                            <button class="action-btn">관리하기</button>
+                            <button class="action-btn danger">삭제</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탭 2: 참여 중 -->
+            <div id="participating" class="tab-content">
+                <div class="study-grid">
+                    <!-- 카드 1 -->
+                    <div class="study-card">
+                        <div class="study-card-header">
+                            <h3 class="study-card-title">알고리즘 완전정복</h3>
+                            <span class="study-role member">멤버</span>
+                        </div>
+                        <div class="study-card-meta">
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span>온라인</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span>매일</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span>12/15명</span>
+                            </div>
+                        </div>
+                        <div class="study-card-action">
+                            <button class="action-btn">상세보기</button>
+                            <button class="action-btn danger">탈퇴</button>
+                        </div>
+                    </div>
+
+                    <!-- 카드 2 -->
+                    <div class="study-card">
+                        <div class="study-card-header">
+                            <h3 class="study-card-title">Spring Boot 입문</h3>
+                            <span class="study-role member">멤버</span>
+                        </div>
+                        <div class="study-card-meta">
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span>부산 · 온/오프라인</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span>주 2회</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span>6/8명</span>
+                            </div>
+                        </div>
+                        <div class="study-card-action">
+                            <button class="action-btn">상세보기</button>
+                            <button class="action-btn danger">탈퇴</button>
+                        </div>
+                    </div>
+
+                    <!-- 카드 3 -->
+                    <div class="study-card">
+                        <div class="study-card-header">
+                            <h3 class="study-card-title">데이터베이스 설계</h3>
+                            <span class="study-role member">멤버</span>
+                        </div>
+                        <div class="study-card-meta">
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path>
+                                </svg>
+                                <span>서울</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z"></path>
+                                </svg>
+                                <span>주 3회</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <span>9/12명</span>
+                            </div>
+                        </div>
+                        <div class="study-card-action">
+                            <button class="action-btn">상세보기</button>
+                            <button class="action-btn danger">탈퇴</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 옵션 2: 빈 상태 예제 ==================== -->
+        <div class="my-studies-section" style="margin-top: 3rem;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                    </svg>
+                    참여 중인 스터디
+                </h2>
+            </div>
+
+            <div class="tab-container-v3">
+                <button class="tab-btn-v3 active" onclick="switchTabV3(event, 'empty-leading')">
+                    📚 방장/리더
+                </button>
+                <button class="tab-btn-v3" onclick="switchTabV3(event, 'empty-participating')">
+                    👥 참여 중
+                </button>
+            </div>
+
+            <!-- 빈 상태: 방장/리더 -->
+            <div id="empty-leading" class="tab-content active">
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                    </svg>
+                    <h3 class="empty-state-title">운영 중인 스터디가 없습니다</h3>
+                    <p class="empty-state-text">새로운 스터디를 만들어 함께할 멤버를 모집해보세요!</p>
+                    <a href="#" class="empty-state-cta">스터디 만들기</a>
+                </div>
+            </div>
+
+            <!-- 빈 상태: 참여 중 -->
+            <div id="empty-participating" class="tab-content">
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="empty-state-title">참여 중인 스터디가 없습니다</h3>
+                    <p class="empty-state-text">관심 있는 스터디를 찾아 참여해보세요!</p>
+                    <a href="#" class="empty-state-cta">스터디 찾기</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 디자인 옵션 설명 ==================== -->
+        <div style="margin-top: 3rem; padding: 2rem; background: rgba(248, 250, 252, 0.8); border-radius: 16px; border: 1px solid #e2e8f0;">
+            <h3 style="font-weight: 600; color: #0f172a; margin-bottom: 1rem;">📋 디자인 옵션</h3>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 0.75rem; color: #64748b;">
+                    <strong>옵션 1 (현재):</strong> 점선 구분자 + 탭 형태 (클래식한 느낌)
+                </li>
+                <li style="margin-bottom: 0.75rem; color: #64748b;">
+                    <strong>옵션 2:</strong> 라인 구분자 + 탭 형태 (심플한 느낌)
+                </li>
+                <li style="margin-bottom: 0.75rem; color: #64748b;">
+                    <strong>옵션 3 (추천):</strong> 카드형 탭 + 버튼 형태 (모던한 느낌)
+                </li>
+            </ul>
+            <p style="margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
+                💡 추천: 옵션 3이 가장 현대적이고 사용자 친화적입니다!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(event, tabName) {
+            // 모든 탭 버튼 비활성화
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // 모든 탭 콘텐츠 숨기기
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // 클릭한 버튼 활성화
+            event.target.classList.add('active');
+
+            // 해당 탭 콘텐츠 표시
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function switchTabV3(event, tabName) {
+            // 모든 탭 버튼 비활성화
+            const tabButtons = document.querySelectorAll('.tab-btn-v3');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // 모든 탭 콘텐츠 숨기기
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // 클릭한 버튼 활성화
+            event.target.classList.add('active');
+
+            // 해당 탭 콘텐츠 표시
+            document.getElementById(tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>
