@@ -496,3 +496,35 @@ function switchMyStudyTab(event, tabName) {
         tabContent.classList.add('active');
     }
 }
+
+// ========================================
+// 스터디 삭제 함수
+// ========================================
+async function deleteStudy(studyId) {
+    // 삭제 확인
+    if (!confirm('정말로 이 스터디를 삭제하시겠습니까?\n삭제된 스터디는 복구할 수 없습니다.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/study/${studyId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(result.message);
+            // 페이지 새로고침
+            window.location.reload();
+        } else {
+            alert(result.message || '스터디 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('스터디 삭제 중 오류:', error);
+        alert('스터디 삭제 중 오류가 발생했습니다.');
+    }
+}

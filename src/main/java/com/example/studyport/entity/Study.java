@@ -33,6 +33,10 @@ public class Study {
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isPrivate = false;
 
+    // Soft Delete용 필드
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean enabled = true;
+
     // 추가된 필드들
     private String levelTag; // 난이도 (BEGINNER, INTERMEDIATE, ADVANCED)
     

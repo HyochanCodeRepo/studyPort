@@ -1123,4 +1123,69 @@ public class StudyController {
 
         return response;
     }
+
+    /**
+     * 스터디 삭제 (Soft Delete)
+     * DELETE /study/{studyId}
+     */
+    @DeleteMapping("/{studyId}")
+    @ResponseBody
+    public java.util.Map<String, Object> deleteStudy(
+            @PathVariable Long studyId,
+            Principal principal) {
+
+        log.info("===========================================");
+        log.info("스터디 삭제 요청: studyId={}", studyId);
+        log.info("===========================================");
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        try {
+            // 로그인 체크
+            if (principal == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            Members currentUser = memberRepository.findByEmail(principal.getName());
+            if (currentUser == null) {
+                response.put("success", false);
+                response.put("message", "사용자를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 스터디 조회
+            Study study = studyRepository.findById(studyId)
+                    .orElseThrow(() -> new IllegalArgumentException("스터디를 찾을 수 없습니다."));
+
+            // 권한 검증: 스터디장만 삭제 가능
+            if (!study.getMembers().getId().equals(currentUser.getId())) {
+                log.warn("스터디장이 아닌 사용자의 삭제 시도: userId={}, studyId={}", currentUser.getId(), studyId);
+                response.put("success", false);
+                response.put("message", "자신이 만든 스터디만 삭제할 수 있습니다.");
+                return response;
+            }
+
+            // Soft Delete: enabled = false
+            study.setEnabled(false);
+            studyRepository.save(study);
+
+            log.info("===========================================");
+            log.info("스터디 삭제 완료: studyId={}", studyId);
+            log.info("===========================================");
+
+            response.put("success", true);
+            response.put("message", "스터디가 삭제되었습니다.");
+
+        } catch (Exception e) {
+            log.error("===========================================");
+            log.error("스터디 삭제 중 오류 발생", e);
+            log.error("===========================================");
+            response.put("success", false);
+            response.put("message", "스터디 삭제 중 오류가 발생했습니다.");
+        }
+
+        return response;
+    }
 }

@@ -179,8 +179,8 @@
                             </div>
                         </div>
                         <div class="my-study-actions">
-                            <a th:href="@{/study/admin/read/{id}(id=${study.getId})}" class="my-action-btn">관리하기</a>
-                            <button class="my-action-btn danger">삭제</button>
+                            <a th:href="@{/study/admin/read/{id}(id=${study.id})}" class="my-action-btn">관리하기</a>
+                            <button class="my-action-btn danger" th:onclick="'deleteStudy(' + ${study.id} + ')'">삭제</button>
                         </div>
                     </div>
                 </div>

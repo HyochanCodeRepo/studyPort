@@ -99,6 +99,12 @@ public class MainController {
                     if (dto.getIsPrivate() == null) {
                         dto.setIsPrivate(false);
                     }
+                    // 이미지 리스트 매핑
+                    if (study.getImageList() != null && !study.getImageList().isEmpty()) {
+                        dto.setImageDTOList(study.getImageList().stream()
+                                .map(image -> modelMapper.map(image, com.example.studyport.dto.ImageDTO.class))
+                                .collect(Collectors.toList()));
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -178,6 +184,12 @@ public class MainController {
                         // isPrivate null 방지
                         if (dto.getIsPrivate() == null) {
                             dto.setIsPrivate(false);
+                        }
+                        // 이미지 리스트 매핑
+                        if (study.getImageList() != null && !study.getImageList().isEmpty()) {
+                            dto.setImageDTOList(study.getImageList().stream()
+                                    .map(image -> modelMapper.map(image, com.example.studyport.dto.ImageDTO.class))
+                                    .collect(Collectors.toList()));
                         }
                         return dto;
                     })

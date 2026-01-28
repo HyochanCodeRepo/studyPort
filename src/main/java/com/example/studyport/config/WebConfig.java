@@ -47,7 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 업로드된 이미지
+        // 업로드된 이미지 - uploadPath 변수 사용 (환경별로 자동 적용)
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath)
                 .setCachePeriod(3600);
