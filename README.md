@@ -1,482 +1,721 @@
-# 📚 StudyPort (스터디포트)
+# 📚 StudyPort
 
-> **온/오프라인 스터디 모임을 위한 종합 관리 플랫폼**  
-> 스터디 그룹 생성부터 멤버 관리, 정기 모임 일정 조율까지 한 곳에서!
+> **Spring Boot 기반 스터디 그룹 관리 플랫폼**  
+> OAuth2 소셜 로그인, 3단계 권한 시스템, 정기 모임 관리 구현
 
-<br>
+[![Java](https://img.shields.io/badge/Java_17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.5.3-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![OAuth2](https://img.shields.io/badge/OAuth2-EB5424?style=flat-square&logo=auth0&logoColor=white)](https://oauth.net/2/)
+[![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=flat-square&logo=mariadb&logoColor=white)](https://mariadb.org/)
 
-## 📖 목차
-1. [프로젝트 소개](#-프로젝트-소개)
-2. [주요 기능](#-주요-기능)
-3. [화면 구성](#-화면-구성)
-4. [기술 스택](#️-기술-스택)
-5. [프로젝트 구조](#-프로젝트-구조)
-6. [핵심 구현 사항](#-핵심-구현-사항)
-7. [트러블슈팅](#-트러블슈팅)
-8. [개발 과정 및 느낀 점](#-개발-과정-및-느낀-점)
-
-<br>
+🔗 **[배포 링크](http://52.78.152.205:8081/)** | 📧 **hyochan.lee91@gmail.com**
 
 ---
 
-## ✨ 프로젝트 소개
+## 📌 프로젝트 개요
 
-### 📌 개요
-- **프로젝트명**: StudyPort (스터디포트)
-- **개발 기간**: 2024.12 ~ 2025.01 (약 2개월)
-- **개발 인원**: 3명 (팀프로젝트) -> 1명 (개인 프로젝트)
-- **프로젝트 목적**: 
-  - 스터디 그룹의 체계적인 운영을 지원하는 웹 플랫폼 개발
-  - Spring Boot & JPA를 활용한 실무 중심 백엔드 역량 강화
-  - OAuth2 소셜 로그인, 권한 관리 등 실전 기능 구현 경험
+| 항목 | 내용 |
+|------|------|
+| **개발 기간** | 2024.12 ~ 2025.01 (2개월) |
+| **개발 인원** | 1명 (개인 프로젝트) |
+| **프로젝트 목적** | OAuth2, 권한 관리 등 인증/인가 중심 학습 |
 
-### 🎯 기획 배경
-온라인/오프라인 스터디 그룹이 증가하고 있지만, 멤버 관리와 정기 모임 일정 조율이 어려운 문제를 해결하고자 기획했습니다.
-- 스터디 그룹 생성 및 참여 신청 자동화
-- 정기 모임 일정 관리 및 참석 여부 확인 간소화
-- 스터디장/운영진/일반 멤버 권한 구분을 통한 체계적 관리
-
-<br>
-
----
-
-## ✨ 주요 기능
-
-### 👥 **1. 회원 관리**
-- **일반 회원가입 / 로그인**: Spring Security 기반 인증
-- **OAuth2 소셜 로그인**: Google, Kakao, Naver 계정 연동
-- **회원 프로필 관리**: 닉네임, 프로필 이미지 변경
-
-### 📖 **2. 스터디 그룹 관리**
-- **스터디 생성**: 
-  - 카테고리, 난이도, 진행 방식(온/오프라인), 정원 설정
-  - 공개/비공개 스터디 구분 (비공개는 비밀번호 설정)
-  - 썸네일 이미지 업로드 지원
-- **스터디 조회 및 검색**: 
-  - 카테고리별, 지역별 필터링
-  - 키워드 검색 기능
-- **스터디 참여 신청**: 
-  - 일반 회원의 참여 신청 및 메시지 전달
-  - 스터디장의 승인/거절 처리
-
-### 👨‍💼 **3. 스터디 멤버 관리 (스터디장 전용)**
-- **멤버 역할 관리**: 일반 멤버 ↔ 운영진 역할 변경
-- **멤버 강퇴**: 부적절한 멤버 제거
-- **승인 대기 목록**: 참여 신청 건수 확인 및 일괄 관리
-
-### 📅 **4. 정기 모임 관리**
-- **모임 생성**: 
-  - 제목, 일시, 장소, 정원, 온/오프라인 타입 설정
-  - 모집 상태 자동 관리 (모집 중 / 마감 / 완료)
-- **모임 CRUD**: 
-  - 생성자 본인만 수정/삭제 가능 (권한 검증)
-  - Soft Delete 방식으로 데이터 보존
-- **모임 참석 관리**: 
-  - 참석 신청 / 취소 기능
-  - 정원 초과 방지 및 실시간 참석자 수 표시
-  - 자신이 만든 모임에는 참석 불가 (중복 방지)
-
-### 🔒 **5. 권한 관리 시스템**
-- **3단계 권한 구조**: 
-  - `STUDY_LEADER` (스터디장): 전체 관리 권한
-  - `STUDY_OPERATOR` (운영진): 모임 생성 및 관리
-  - `STUDY_MEMBER` (일반 멤버): 모임 참석
-- **세밀한 권한 검증**: 
-  - 스터디 생성자만 멤버 관리 가능
-  - 모임 생성자만 해당 모임 수정/삭제 가능
-
-<br>
-
----
-
-## 📸 화면 구성
-
-### 🔐 **로그인 페이지**
-> OAuth2 소셜 로그인 (Google, Kakao, Naver)
-
-![로그인 페이지](docs/loginpage.png)
-
-<br>
-
-### 🏠 **메인 페이지**
-> 스터디 목록 조회 및 카테고리별 필터링
-
-![메인 페이지](docs/main-page1.png)
-
-<br>
-
-### 📋 **스터디 메인 페이지**
-> 스터디 정보 확인 및 모임 목록
-
-![스터디 메인](docs/study-main-page1.png)
-
-<br>
-
-### 👥 **스터디 승인 관리 (스터디장)**
-> 참여 신청 승인/거절 처리
-
-![스터디 승인 관리](docs/study-approve-members.png)
-
-<br>
-
-### 📅 **모임 관리**
-> 정기 모임 생성 및 참석 관리
-
-![모임 관리](docs/meeting-manage.png)
-
-<br>
-
-### 📅 **모임 상세 관리**
-> 모임 수정 및 참석자 확인
-
-![모임 상세 관리](docs/meeting-manage2.png)
-
-<br>
+### 🎯 **핵심 목표**
+단순 CRUD를 넘어 **OAuth2 소셜 로그인**, **세밀한 권한 시스템**, **상태 관리 패턴**을 구현한 스터디 관리 플랫폼
 
 ---
 
 ## 🛠️ 기술 스택
 
 ### **Backend**
-![Java](https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.5.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
-![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-![OAuth2](https://img.shields.io/badge/OAuth2-EB5424?style=for-the-badge&logo=auth0&logoColor=white)
+- **Language**: Java 17
+- **Framework**: Spring Boot 3.5.3, Spring Data JPA, Spring Security
+- **Authentication**: OAuth2 Client (Google, Kakao, Naver)
+- **ORM**: Hibernate, JPQL
+- **Library**: 
+  - Lombok (코드 간소화)
+  - ModelMapper (Entity ↔ DTO 변환)
+- **Build Tool**: Gradle
 
 ### **Frontend**
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?style=for-the-badge&logo=thymeleaf&logoColor=white)
-![jQuery](https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white)
+- **Template Engine**: Thymeleaf
+- **JavaScript**: ES6, jQuery (AJAX 비동기 통신)
+- **CSS**: Bootstrap
 
 ### **Database**
-![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
+- MariaDB
 
-### **Build Tool**
-![Gradle](https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white)
+---
 
-### **Version Control**
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+## ✨ 주요 기능
 
-<br>
+### 👤 **회원 & 인증**
+- OAuth2 소셜 로그인 (Google, Kakao, Naver), 일반 회원가입/로그인
+
+### 📖 **스터디 관리**
+- 스터디 CRUD (카테고리, 난이도, 온/오프라인, 공개/비공개), 참여 신청 → 승인/거절
+
+### 👥 **멤버 관리**
+- 역할 변경 (일반 멤버 ↔ 운영진), 멤버 강퇴, 승인 대기 목록
+
+### 📅 **모임 관리**
+- 모임 CRUD, 참석 신청/취소, 정원 관리, 상태 자동 변경 (모집중/마감/완료)
+
+### 🔒 **권한 시스템**
+- 3단계 권한 (STUDY_LEADER, STUDY_OPERATOR, USER), 스터디장만 멤버 관리, 모임 생성자만 수정/삭제
+
+---
+
+## 🔥 핵심 기술 구현
+
+### **1. OAuth2 소셜 로그인 (Google, Kakao, Naver)**
+
+```java
+// CustomOAuth2UserService - 소셜 로그인 처리
+@Service
+@RequiredArgsConstructor
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+    
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+        
+        // Provider 구분 (google, kakao, naver)
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        
+        // Provider별 사용자 정보 추출
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2User.getAttributes());
+        
+        // 회원 조회 or 신규 생성
+        Members member = saveOrUpdate(attributes);
+        
+        return new DefaultOAuth2User(
+            Collections.singleton(new SimpleGrantedAuthority(member.getRole().name())),
+            attributes.getAttributes(),
+            attributes.getNameAttributeKey()
+        );
+    }
+    
+    private Members saveOrUpdate(OAuthAttributes attributes) {
+        Members member = memberRepository.findByEmail(attributes.getEmail())
+                .map(entity -> entity.update(attributes.getName(), attributes.getPicture()))
+                .orElse(attributes.toEntity());
+        
+        return memberRepository.save(member);
+    }
+}
+```
+
+```java
+// OAuthAttributes - Provider별 사용자 정보 추출
+@Getter
+public class OAuthAttributes {
+    private Map<String, Object> attributes;
+    private String nameAttributeKey;
+    private String name;
+    private String email;
+    private String picture;
+    
+    public static OAuthAttributes of(String registrationId, Map<String, Object> attributes) {
+        // Google
+        if ("google".equals(registrationId)) {
+            return ofGoogle(attributes);
+        }
+        // Kakao
+        else if ("kakao".equals(registrationId)) {
+            return ofKakao(attributes);
+        }
+        // Naver
+        else if ("naver".equals(registrationId)) {
+            return ofNaver(attributes);
+        }
+        throw new IllegalArgumentException("지원하지 않는 OAuth Provider입니다: " + registrationId);
+    }
+    
+    private static OAuthAttributes ofGoogle(Map<String, Object> attributes) {
+        return OAuthAttributes.builder()
+                .name((String) attributes.get("name"))
+                .email((String) attributes.get("email"))
+                .picture((String) attributes.get("picture"))
+                .attributes(attributes)
+                .nameAttributeKey("sub")
+                .build();
+    }
+    
+    private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        
+        return OAuthAttributes.builder()
+                .name((String) profile.get("nickname"))
+                .email((String) kakaoAccount.get("email"))
+                .picture((String) profile.get("profile_image_url"))
+                .attributes(attributes)
+                .nameAttributeKey("id")
+                .build();
+    }
+    
+    private static OAuthAttributes ofNaver(Map<String, Object> attributes) {
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        
+        return OAuthAttributes.builder()
+                .name((String) response.get("name"))
+                .email((String) response.get("email"))
+                .picture((String) response.get("profile_image"))
+                .attributes(attributes)
+                .nameAttributeKey("id")
+                .build();
+    }
+}
+```
+
+**구현 포인트**:
+- **3개 Provider 통합 처리**: Google, Kakao, Naver의 서로 다른 응답 형식을 `OAuthAttributes`로 통일
+- **회원 자동 생성/업데이트**: 최초 로그인 시 자동 회원가입, 기존 회원은 정보 업데이트
+- **Provider별 nameAttributeKey 관리**: Google(sub), Kakao/Naver(id)
+
+**사용 기술**: `DefaultOAuth2UserService`, `OAuth2UserRequest`, `OAuth2User`, Provider별 JSON 파싱
+
+---
+
+### **2. 3단계 권한 시스템**
+
+```java
+// Role Enum - 스터디 내 권한 정의
+public enum Role {
+    STUDY_LEADER,    // 스터디장: 모든 권한 (멤버 관리, 역할 변경, 강퇴)
+    STUDY_OPERATOR,  // 운영진: 모임 생성 및 관리
+    USER             // 일반 멤버: 모임 참석만 가능
+}
+```
+
+```java
+// StudyParticipant Entity - 스터디 참여자 엔티티
+@Entity
+@Table(name = "study_participant")
+public class StudyParticipant {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id")
+    private Study study;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Members member;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;  // 기본값: 일반 멤버
+    
+    @Enumerated(EnumType.STRING)
+    private ParticipantStatus status = ParticipantStatus.PENDING;  // 승인 대기
+    
+    public enum ParticipantStatus {
+        PENDING,   // 승인 대기
+        APPROVED,  // 승인됨
+        REJECTED   // 거절됨
+    }
+}
+```
+
+```java
+// Controller - 권한 검증 로직
+@PostMapping("/members/{studyId}/change-role")
+public String changeMemberRole(@PathVariable Long studyId,
+                               @RequestParam Long participantId,
+                               @RequestParam String newRole,
+                               @LoginUser Members currentUser) {
+    
+    // 1. 스터디 조회
+    Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new EntityNotFoundException("스터디를 찾을 수 없습니다"));
+    
+    // 2. 스터디장 권한 검증 (스터디 생성자만 역할 변경 가능)
+    if (!study.getMembers().getId().equals(currentUser.getId())) {
+        throw new AccessDeniedException("권한이 없습니다. 스터디장만 역할을 변경할 수 있습니다.");
+    }
+    
+    // 3. 역할 변경 대상 조회
+    StudyParticipant participant = participantRepository.findById(participantId)
+            .orElseThrow(() -> new EntityNotFoundException("참여자를 찾을 수 없습니다"));
+    
+    // 4. 역할 변경
+    participant.setRole(Role.valueOf(newRole));
+    participantRepository.save(participant);
+    
+    return "redirect:/study/members/" + studyId;
+}
+```
+
+```java
+// Service - 모임 생성 권한 검증
+@Transactional
+public MeetingDTO createMeeting(Long studyId, MeetingDTO meetingDTO, Members currentUser) {
+    
+    // 1. 스터디 참여자 조회
+    StudyParticipant participant = participantRepository
+            .findByStudyIdAndMemberId(studyId, currentUser.getId())
+            .orElseThrow(() -> new AccessDeniedException("스터디 멤버가 아닙니다"));
+    
+    // 2. 권한 검증 (운영진 이상만 모임 생성 가능)
+    if (participant.getRole() != Role.STUDY_LEADER && 
+        participant.getRole() != Role.STUDY_OPERATOR) {
+        throw new AccessDeniedException("모임 생성 권한이 없습니다. 운영진 이상만 가능합니다.");
+    }
+    
+    // 3. 모임 생성 로직...
+    Meeting meeting = Meeting.builder()
+            .study(study)
+            .title(meetingDTO.getTitle())
+            .createdBy(currentUser)
+            .status(Meeting.MeetingStatus.RECRUITING)
+            .enabled(true)
+            .build();
+    
+    return modelMapper.map(meetingRepository.save(meeting), MeetingDTO.class);
+}
+```
+
+**구현 포인트**:
+- **계층적 권한 구조**: STUDY_LEADER > STUDY_OPERATOR > USER
+- **엔티티 레벨 권한 관리**: `StudyParticipant.role` 필드로 스터디별 권한 부여
+- **다중 검증**: Controller(접근 제어) + Service(비즈니스 로직 검증) 2단계 검증
+- **명확한 예외 처리**: `AccessDeniedException`으로 권한 오류 구분
+
+**사용 기술**: `@Enumerated(EnumType.STRING)`, `Role` Enum, 2단계 권한 검증
+
+---
+
+### **3. 모임 참석 관리 (정원 검증 + AJAX)**
+
+```java
+// Meeting Entity - 모임 엔티티
+@Entity
+@Table(name = "meeting")
+public class Meeting {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id")
+    private Study study;
+    
+    @Column(nullable = false)
+    private String title;
+    
+    @Column(nullable = false)
+    private LocalDateTime date;
+    
+    @Column(nullable = false)
+    private Integer capacity;  // 정원
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MeetingStatus status;  // 상태 (RECRUITING, CLOSED, DONE)
+    
+    @OneToMany(mappedBy = "meeting", cascade = CascadeType.REMOVE)
+    private List<MeetingVoter> voters = new ArrayList<>();
+    
+    public enum MeetingStatus {
+        RECRUITING,  // 모집중
+        CLOSED,      // 마감
+        DONE         // 완료
+    }
+}
+```
+
+```java
+// Controller - 모임 참석 신청 (AJAX)
+@PostMapping("/{studyId}/meeting/{meetingId}/attend")
+@ResponseBody
+public Map<String, Object> attendMeeting(@PathVariable Long studyId,
+                                         @PathVariable Long meetingId,
+                                         @LoginUser Members currentUser) {
+    
+    Map<String, Object> response = new HashMap<>();
+    
+    try {
+        // 1. 모임 조회
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new EntityNotFoundException("모임을 찾을 수 없습니다"));
+        
+        // 2. 현재 참석자 수 조회
+        Long currentAttendees = meetingVoterRepository.countByMeetingId(meetingId);
+        
+        // 3. 정원 초과 검증
+        if (currentAttendees >= meeting.getCapacity()) {
+            response.put("success", false);
+            response.put("message", "정원이 초과되었습니다.");
+            return response;
+        }
+        
+        // 4. 중복 참석 검증
+        boolean alreadyAttended = meetingVoterRepository
+                .existsByMeetingIdAndMemberId(meetingId, currentUser.getId());
+        
+        if (alreadyAttended) {
+            response.put("success", false);
+            response.put("message", "이미 참석 신청한 모임입니다.");
+            return response;
+        }
+        
+        // 5. 자기 자신이 만든 모임인지 검증
+        if (meeting.getCreatedBy().getId().equals(currentUser.getId())) {
+            response.put("success", false);
+            response.put("message", "본인이 생성한 모임에는 참석할 수 없습니다.");
+            return response;
+        }
+        
+        // 6. 참석 기록 저장
+        MeetingVoter voter = new MeetingVoter();
+        voter.setMeeting(meeting);
+        voter.setMember(currentUser);
+        meetingVoterRepository.save(voter);
+        
+        // 7. 정원 도달 시 상태 변경
+        if (currentAttendees + 1 >= meeting.getCapacity()) {
+            meeting.setStatus(Meeting.MeetingStatus.CLOSED);
+            meetingRepository.save(meeting);
+        }
+        
+        response.put("success", true);
+        response.put("message", "모임에 참석했습니다!");
+        
+    } catch (Exception e) {
+        response.put("success", false);
+        response.put("message", "참석 처리 중 오류가 발생했습니다: " + e.getMessage());
+    }
+    
+    return response;
+}
+```
+
+```javascript
+// JavaScript - AJAX 비동기 참석 신청
+function attendMeeting(meetingId, studyId) {
+    $.ajax({
+        url: `/study/${studyId}/meeting/${meetingId}/attend`,
+        type: 'POST',
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
+                location.reload();  // 참석자 수 실시간 업데이트
+            } else {
+                alert(response.message);  // 정원 초과, 중복 참석 등 에러
+            }
+        },
+        error: function(xhr) {
+            alert('참석 신청 중 오류가 발생했습니다.');
+        }
+    });
+}
+```
+
+**구현 포인트**:
+- **다단계 검증**: 정원 초과 → 중복 참석 → 본인 생성 모임 순서로 검증
+- **AJAX 비동기 처리**: 페이지 새로고침 없이 실시간 참석 처리
+- **자동 상태 변경**: 정원 도달 시 `RECRUITING` → `CLOSED` 자동 전환
+- **원자적 처리**: `@Transactional`로 조회-검증-저장을 하나의 트랜잭션으로
+
+**사용 기술**: `@ResponseBody` (JSON 응답), jQuery AJAX, `Map<String, Object>` 응답 구조
+
+---
+
+### **4. Soft Delete 패턴**
+
+```java
+// Meeting Entity - enabled 필드로 논리적 삭제
+@Entity
+public class Meeting {
+    
+    @Column(nullable = false)
+    private Boolean enabled;  // true: 활성, false: 삭제됨
+    
+    @PrePersist
+    protected void onCreate() {
+        if (this.enabled == null) {
+            this.enabled = true;  // 기본값: 활성
+        }
+    }
+}
+```
+
+```java
+// Study Entity - enabled 필드
+@Entity
+public class Study {
+    
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean enabled = true;
+    
+    // Soft Delete: 삭제 시 enabled = false로 변경
+    public void delete() {
+        this.enabled = false;
+    }
+}
+```
+
+```java
+// Repository - 활성화된 데이터만 조회
+public interface MeetingRepository extends JpaRepository<Meeting, Long> {
+    
+    // 활성화된 모임만 조회 (enabled = true)
+    @Query("SELECT m FROM Meeting m WHERE m.study.id = :studyId AND m.enabled = true")
+    List<Meeting> findByStudyIdAndEnabledTrue(@Param("studyId") Long studyId);
+    
+    // 모든 모임 조회 (삭제된 것 포함)
+    @Query("SELECT m FROM Meeting m WHERE m.study.id = :studyId")
+    List<Meeting> findAllByStudyId(@Param("studyId") Long studyId);
+}
+```
+
+```java
+// Controller - 삭제 처리 (물리적 삭제 대신 enabled = false)
+@DeleteMapping("/{studyId}/meeting/{meetingId}")
+@ResponseBody
+public Map<String, Object> deleteMeeting(@PathVariable Long studyId,
+                                         @PathVariable Long meetingId,
+                                         @LoginUser Members currentUser) {
+    
+    Map<String, Object> response = new HashMap<>();
+    
+    // 1. 모임 조회
+    Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new EntityNotFoundException("모임을 찾을 수 없습니다"));
+    
+    // 2. 권한 검증 (생성자만 삭제 가능)
+    if (!meeting.getCreatedBy().getId().equals(currentUser.getId())) {
+        response.put("success", false);
+        response.put("message", "삭제 권한이 없습니다.");
+        return response;
+    }
+    
+    // 3. Soft Delete 처리 (물리적 삭제 X)
+    meeting.setEnabled(false);
+    meetingRepository.save(meeting);
+    
+    response.put("success", true);
+    response.put("message", "모임이 삭제되었습니다.");
+    
+    return response;
+}
+```
+
+**구현 포인트**:
+- **데이터 보존**: 물리적 삭제 대신 `enabled = false`로 논리적 삭제
+- **복구 가능성**: 삭제된 데이터도 DB에 남아있어 필요 시 복구 가능
+- **이력 추적**: 삭제된 모임도 이력으로 남아 통계나 감사에 활용
+- **조회 쿼리 분리**: 일반 조회(`enabled = true`), 전체 조회(관리자용)
+
+**사용 기술**: `enabled` Boolean 필드, `@PrePersist`, JPQL `WHERE enabled = true`
+
+---
+
+### **5. 상태 관리 시스템**
+
+```java
+// Meeting.MeetingStatus - 모임 상태 관리
+public enum MeetingStatus {
+    RECRUITING,  // 모집중 - 정원 미달 시
+    CLOSED,      // 마감 - 정원 도달 시
+    DONE         // 완료 - 모임 종료 후
+}
+```
+
+```java
+// StudyParticipant.ParticipantStatus - 참여자 상태 관리
+public enum ParticipantStatus {
+    PENDING,   // 승인 대기 - 참여 신청 후 대기
+    APPROVED,  // 승인됨 - 스터디장이 승인
+    REJECTED   // 거절됨 - 스터디장이 거절
+}
+```
+
+```java
+// Service - 모임 상태 자동 변경 로직
+@Transactional
+public void updateMeetingStatus(Long meetingId) {
+    Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new EntityNotFoundException("모임을 찾을 수 없습니다"));
+    
+    // 현재 참석자 수 조회
+    Long currentAttendees = meetingVoterRepository.countByMeetingId(meetingId);
+    
+    // 1. 정원 도달 → CLOSED
+    if (currentAttendees >= meeting.getCapacity()) {
+        meeting.setStatus(MeetingStatus.CLOSED);
+    }
+    // 2. 모임 날짜 지남 → DONE
+    else if (meeting.getDate().isBefore(LocalDateTime.now())) {
+        meeting.setStatus(MeetingStatus.DONE);
+    }
+    // 3. 그 외 → RECRUITING
+    else {
+        meeting.setStatus(MeetingStatus.RECRUITING);
+    }
+    
+    meetingRepository.save(meeting);
+}
+```
+
+```java
+// Controller - 참여 신청 승인 처리
+@PostMapping("/members/{studyId}/approve")
+public String approveParticipant(@PathVariable Long studyId,
+                                 @RequestParam Long participantId,
+                                 @LoginUser Members currentUser) {
+    
+    // 1. 스터디장 권한 검증
+    Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new EntityNotFoundException("스터디를 찾을 수 없습니다"));
+    
+    if (!study.getMembers().getId().equals(currentUser.getId())) {
+        throw new AccessDeniedException("승인 권한이 없습니다.");
+    }
+    
+    // 2. 참여자 조회
+    StudyParticipant participant = participantRepository.findById(participantId)
+            .orElseThrow(() -> new EntityNotFoundException("참여자를 찾을 수 없습니다"));
+    
+    // 3. 상태 변경: PENDING → APPROVED
+    participant.setStatus(ParticipantStatus.APPROVED);
+    participantRepository.save(participant);
+    
+    return "redirect:/study/members/" + studyId + "/pending";
+}
+```
+
+**구현 포인트**:
+- **명확한 상태 정의**: Enum으로 가능한 상태 제한 (무결성 보장)
+- **자동 상태 전환**: 정원 도달, 날짜 경과 등 조건에 따라 자동 변경
+- **상태 기반 UI**: 프론트엔드에서 상태에 따라 버튼 활성화/비활성화
+- **워크플로우 관리**: PENDING → APPROVED/REJECTED, RECRUITING → CLOSED → DONE
+
+**사용 기술**: `@Enumerated(EnumType.STRING)`, Enum, 조건부 상태 전환 로직
+
+---
+
+## 🏗️ 아키텍처
+
+```
+┌─────────────┐
+│   Client    │
+│ (Thymeleaf) │
+└──────┬──────┘
+       │
+┌──────▼──────────────┐
+│   Controller        │
+│  (권한 검증)         │
+└──────┬──────────────┘
+       │
+┌──────▼──────────────┐
+│   Service           │
+│ (비즈니스 로직)      │
+└──────┬──────────────┘
+       │
+┌──────▼──────────────┐
+│   Repository        │
+│  (Spring Data JPA)  │
+└──────┬──────────────┘
+       │
+┌──────▼──────────────┐
+│   MariaDB           │
+└─────────────────────┘
+```
+
+**설계 원칙**:
+- Controller: 권한 검증 + 요청/응답 처리
+- Service: 비즈니스 로직 + 트랜잭션 관리
+- Repository: 데이터 접근
+
+---
+
+## 📊 ERD (주요 테이블)
+
+```
+Members (회원)
+  ├─ 1:N → Study (스터디 생성)
+  ├─ 1:N → StudyParticipant (스터디 참여)
+  └─ 1:N → MeetingVoter (모임 참석)
+
+Study (스터디)
+  ├─ N:1 → Members (생성자)
+  ├─ 1:N → StudyParticipant (참여자)
+  └─ 1:N → Meeting (모임)
+
+StudyParticipant (스터디 참여자)
+  ├─ N:1 → Study
+  ├─ N:1 → Members
+  └─ role (LEADER, OPERATOR, USER)
+
+Meeting (모임)
+  ├─ N:1 → Study
+  ├─ N:1 → Members (생성자)
+  └─ 1:N → MeetingVoter (참석자)
+```
+
+---
+
+## 🚀 트러블슈팅
+
+### **1. Meeting 생성 시 status 필드 null 오류**
+**문제**: `@Column(nullable = false)` 설정했지만 초기값 미설정으로 DB 제약조건 위반  
+**해결**: `meeting.setStatus(MeetingStatus.RECRUITING)` 명시적 기본값 설정
+
+### **2. OAuth2 Provider별 응답 형식 차이**
+**문제**: Google, Kakao, Naver의 JSON 구조가 달라 파싱 실패  
+**해결**: `OAuthAttributes` 클래스로 Provider별 분기 처리 (`ofGoogle()`, `ofKakao()`, `ofNaver()`)
+
+### **3. 모임 참석 동시성 문제 (정원 초과)**
+**문제**: 동시 요청 시 정원 검증 통과 후 저장되어 정원 초과 발생  
+**해결**: `@Transactional` + `synchronized` 메서드로 동시성 제어
+
+---
+
+## 💡 개발 과정에서 배운 점
+
+### **기술적 성장**
+- OAuth2의 복잡한 인증 플로우 이해 및 구현
+- Provider별 응답 형식 차이를 추상화하는 설계 경험
+- Enum 기반 상태 관리 패턴 학습
+- Soft Delete를 통한 데이터 보존 전략
+
+### **설계적 성장**
+- 엔티티 레벨에서의 권한 관리 (StudyParticipant.role)
+- Controller-Service 2단계 권한 검증 패턴
+- 상태 기반 워크플로우 설계 (PENDING → APPROVED → ...)
 
 ---
 
 ## 📂 프로젝트 구조
 
 ```
-studyPort/
-├── src/
-│   ├── main/
-│   │   ├── java/com/example/studyport/
-│   │   │   ├── config/              # Spring Security, OAuth2 설정
-│   │   │   ├── constant/            # Role, Status 등 상수 정의
-│   │   │   ├── controller/          # MVC 컨트롤러
-│   │   │   ├── dto/                 # 데이터 전송 객체
-│   │   │   ├── entity/              # JPA 엔티티
-│   │   │   │   ├── Study.java       # 스터디 엔티티
-│   │   │   │   ├── Meeting.java     # 모임 엔티티
-│   │   │   │   ├── Members.java     # 회원 엔티티
-│   │   │   │   ├── StudyParticipant.java  # 스터디 참여자 엔티티
-│   │   │   │   └── MeetingVoter.java      # 모임 참석자 엔티티
-│   │   │   ├── repository/          # Spring Data JPA 리포지토리
-│   │   │   ├── service/             # 비즈니스 로직
-│   │   │   └── exception/           # 커스텀 예외
-│   │   └── resources/
-│   │       ├── templates/           # Thymeleaf 템플릿
-│   │       │   ├── study/           # 스터디 관련 페이지
-│   │       │   ├── members/         # 회원 관련 페이지
-│   │       │   └── fragments/       # 공통 컴포넌트
-│   │       ├── static/              # CSS, JS, 이미지
-│   │       └── application.properties
-│   └── test/                        # 테스트 코드
-└── build.gradle
+src/main/java/com/example/studyport/
+├── config/          # Security, OAuth2 설정
+├── constant/        # Enum (Role)
+├── controller/      # MVC 컨트롤러
+├── dto/             # DTO (OAuthAttributes 포함)
+├── entity/          # JPA 엔티티
+├── repository/      # Spring Data JPA
+└── service/         # 비즈니스 로직
 ```
-
-<br>
 
 ---
 
-## 🔥 핵심 구현 사항
+## 🔗 Links
 
-### 1️⃣ **Spring Data JPA를 활용한 엔티티 설계**
-
-#### 📌 **주요 엔티티 관계**
-```java
-// Study (스터디) 1:N StudyParticipant (참여자)
-@OneToMany(mappedBy = "study", cascade = CascadeType.REMOVE)
-private List<StudyParticipant> participants;
-
-// Meeting (모임) 1:N MeetingVoter (참석자)
-@OneToMany(mappedBy = "meeting", cascade = CascadeType.REMOVE)
-private List<MeetingVoter> voters;
-```
-
-#### 📌 **연관관계 설정의 핵심**
-- `CascadeType.REMOVE`: 스터디 삭제 시 참여자, 모임 데이터 자동 삭제
-- `FetchType.LAZY`: N+1 문제 방지를 위한 지연 로딩
-- `@JoinColumn`: 외래 키 명시적 관리
-
-<br>
-
-### 2️⃣ **Spring Security & OAuth2 소셜 로그인**
-
-#### 📌 **다중 OAuth2 Provider 설정**
-```properties
-# application-oauth.properties
-# Google
-spring.security.oauth2.client.registration.google.client-id=your-client-id
-spring.security.oauth2.client.registration.google.client-secret=your-secret
-spring.security.oauth2.client.registration.google.scope=profile,email
-
-# Kakao
-spring.security.oauth2.client.registration.kakao.client-id=your-client-id
-...
-```
-
-#### 📌 **커스텀 OAuth2UserService 구현**
-```java
-@Service
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        // 소셜 로그인 정보 추출 및 회원 자동 생성/업데이트
-        // Google, Kakao, Naver 각각의 응답 형식 처리
-    }
-}
-```
-
-<br>
-
-### 3️⃣ **AJAX 기반 비동기 통신**
-
-#### 📌 **모임 참석 신청 (정원 초과 실시간 검증)**
-```javascript
-// static/js/main.js
-function attendMeeting(meetingId) {
-    $.ajax({
-        url: `/study/${studyId}/meeting/${meetingId}/attend`,
-        type: 'POST',
-        success: function(response) {
-            if (response.success) {
-                alert('모임에 참석했습니다!');
-                location.reload(); // 참석자 수 실시간 업데이트
-            } else {
-                alert(response.message); // 정원 초과 등 에러 메시지
-            }
-        }
-    });
-}
-```
-
-#### 📌 **백엔드 정원 검증 로직**
-```java
-@PostMapping("/{studyId}/meeting/{meetingId}/attend")
-@ResponseBody
-public Map<String, Object> attendMeeting(...) {
-    Long currentAttendees = meetingVoterRepository.countByMeetingId(meetingId);
-    if (currentAttendees >= meeting.getCapacity()) {
-        response.put("success", false);
-        response.put("message", "정원이 초과되었습니다.");
-        return response;
-    }
-    // 참석 기록 저장...
-}
-```
-
-<br>
-
-### 4️⃣ **권한 기반 접근 제어 (RBAC)**
-
-#### 📌 **3단계 권한 시스템**
-```java
-public enum Role {
-    STUDY_LEADER,    // 스터디장: 전체 관리 권한
-    STUDY_OPERATOR,  // 운영진: 모임 생성 및 관리
-    STUDY_MEMBER     // 일반 멤버: 모임 참석만 가능
-}
-```
-
-#### 📌 **Controller 레벨 권한 검증**
-```java
-@PostMapping("/members/{studyId}/change-role")
-public String changeMemberRole(...) {
-    // 스터디장인지 확인
-    if (!study.getMembers().getId().equals(currentUser.getId())) {
-        redirectAttributes.addFlashAttribute("errorMessage", "권한이 없습니다.");
-        return "redirect:/study/read/" + studyId;
-    }
-    // 역할 변경 로직...
-}
-```
-
-<br>
-
-### 5️⃣ **Soft Delete 패턴 적용**
-
-#### 📌 **물리적 삭제 대신 논리적 삭제**
-```java
-@Entity
-public class Meeting {
-    @Column(nullable = false)
-    private Boolean enabled; // true: 활성, false: 삭제됨
-    
-    @Enumerated(EnumType.STRING)
-    private MeetingStatus status; // RECRUITING, CLOSED, DONE
-}
-```
-
-#### 📌 **삭제 시 enabled=false 처리**
-```java
-@DeleteMapping("/{studyId}/meeting/{meetingId}")
-@ResponseBody
-public Map<String, Object> deleteMeeting(...) {
-    // 물리적 삭제 대신 논리적 삭제
-    meeting.setEnabled(false);
-    meetingRepository.save(meeting);
-    
-    return Map.of("success", true, "message", "모임이 삭제되었습니다.");
-}
-```
-
-<br>
+- **배포 URL**: http://52.78.152.205:8081/
+- **GitHub**: https://github.com/HyochanCodeRepo/studyPort
+- **개발자**: 이효찬 (hyochan.lee91@gmail.com)
 
 ---
 
-## 🚧 트러블슈팅
+## 📝 License
 
-### 1️⃣ **문제: Meeting 생성 시 status 필드 null 오류**
-
-#### 🔴 **발생 원인**
-```java
-// 문제가 된 코드
-@PostMapping("/{studyId}/meeting")
-public MeetingDTO createMeeting(@RequestBody MeetingDTO meetingDTO, ...) {
-    Meeting meeting = new Meeting();
-    meeting.setTitle(meetingDTO.getTitle());
-    // status 필드를 설정하지 않음 → DB 제약조건 위반
-}
-```
-
-#### ✅ **해결 방법**
-```java
-// 수정된 코드
-meeting.setStatus(Meeting.MeetingStatus.RECRUITING); // 기본값 명시적 설정
-```
-
-#### 📌 **배운 점**
-- `@Column(nullable = false)`로 설정된 필드는 반드시 초기값을 설정해야 함
-- DTO → Entity 변환 시 누락되는 필드가 없도록 주의 필요
-
-<br>
-
-### 2️⃣ **문제: N+1 쿼리 문제로 인한 성능 저하**
-
-#### 🔴 **발생 원인**
-```java
-// 문제가 된 코드
-List<Study> studyList = studyRepository.findAll();
-for (Study study : studyList) {
-    System.out.println(study.getMembers().getName()); // N번의 추가 쿼리 발생!
-}
-```
-
-#### ✅ **해결 방법**
-```java
-// JPQL Fetch Join 사용
-@Query("SELECT s FROM Study s JOIN FETCH s.members")
-List<Study> findAllWithMembers();
-```
-
-#### 📌 **배운 점**
-- 연관관계 조회 시 `LAZY` 로딩의 함정 이해
-- Fetch Join, EntityGraph 등의 해결 방법 학습
-
-<br>
-
-### 3️⃣ **문제: 모임 참석 시 동시성 문제 (정원 초과)**
-
-#### 🔴 **발생 상황**
-- 두 명의 사용자가 동시에 마지막 자리에 참석 신청 → 정원 초과 발생
-
-#### ✅ **해결 방법**
-```java
-@Transactional
-public synchronized Map<String, Object> attendMeeting(Long meetingId, Long memberId) {
-    // 동기화 블록으로 동시성 제어
-    Long currentAttendees = meetingVoterRepository.countByMeetingId(meetingId);
-    if (currentAttendees >= meeting.getCapacity()) {
-        throw new IllegalStateException("정원 초과");
-    }
-    // 참석 기록 저장...
-}
-```
-
-#### 📌 **배운 점**
-- 동시성 문제의 중요성과 `synchronized`, 낙관적 락 등의 해결 방법
-- 추후 Redis 등을 활용한 분산 락 적용 고려
-
-<br>
-
----
-
-## 💡 개발 과정 및 느낀 점
-
-### 📚 **배운 점**
-1. **JPA 연관관계 설계의 중요성**: 
-   - 양방향 관계 설정 시 `mappedBy`, `@JoinColumn` 정확한 이해 필요
-   - Cascade, Orphan Removal 등의 옵션이 데이터 정합성에 미치는 영향 학습
-
-2. **Spring Security 실전 적용**: 
-   - 이론으로만 알던 인증/인가를 직접 구현하며 깊이 이해
-   - OAuth2의 복잡한 흐름을 여러 Provider에 맞춰 구현하는 경험
-
-3. **RESTful API 설계 원칙**: 
-   - HTTP 메서드(GET, POST, PUT, DELETE)의 올바른 활용
-   - `@ResponseBody`, `@RequestBody`를 통한 JSON 통신 구조화
-
-4. **권한 관리의 중요성**: 
-   - 단순 로그인 검증을 넘어선 세밀한 권한 체계 구축
-   - Controller, Service 레벨에서의 2중 검증 필요성 체감
-
-### 🔧 **아쉬운 점 & 향후 개선 방향**
-1. **테스트 코드 부족**: 
-   - 단위 테스트(JUnit), 통합 테스트 미작성 → 추후 보완 예정
-   - MockMvc를 활용한 Controller 테스트 학습 필요
-
-2. **예외 처리 체계화**: 
-   - `@ControllerAdvice`를 활용한 전역 예외 처리 미적용
-   - 커스텀 예외 클래스 확장 필요
-
-3. **CI/CD 파이프라인 부재**: 
-   - GitHub Actions, Jenkins 등을 활용한 자동 배포 구축 예정
-
-4. **프론트엔드 개선**: 
-   - Thymeleaf의 한계 → React, Vue 등 SPA 프레임워크 도입 고려
-   - 반응형 디자인 적용 미흡
-
-### 🎯 **다음 프로젝트 목표**
-- Spring Boot + React를 활용한 풀스택 프로젝트
-- Redis 캐싱, 메시지 큐(RabbitMQ) 등 확장성 있는 아키텍처 설계
-- Docker, Kubernetes를 활용한 컨테이너 기반 배포
-
-<br>
-
----
-
-## 🔗 관련 링크
-- **GitHub Repository**: [https://github.com/yourusername/studyPort](https://github.com/yourusername/studyPort)
-- **시연 영상**: (추가 예정)
-- **배포 URL**: (추가 예정)
-
-<br>
-
----
-
-## 📧 Contact
-- **이메일**: hyochan.lee91@gmail.com
-
---- 
+이 프로젝트는 포트폴리오 목적으로 제작되었습니다.
